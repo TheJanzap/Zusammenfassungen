@@ -50,7 +50,7 @@
 
   let font-special = (
     ..font-default,
-    font: "JetBrains Mono",
+    font: ("JetBrains Mono", "DejaVu Sans Mono"),
     weight: "bold",
     fill: colors.hellblau,
   )
