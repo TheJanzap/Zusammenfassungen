@@ -195,7 +195,12 @@
   }
 
   // Main body
-  set par(justify: true)
+  set par(
+    justify: true,
+    // Use character-level justification with recommended values
+    // https://typst.app/docs/reference/model/par/#parameters-justification-limits
+    justification-limits: (tracking: (min: -0.01em, max: 0.02em)),
+  )
   body
 
   // Appendix Documents
