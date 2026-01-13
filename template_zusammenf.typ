@@ -164,17 +164,17 @@
   }
 
   // Title page configuration
-  let subtitle(subt) = [
-    #set text(..font-special, size: 1.2em)
-    #pad(bottom: 1.3em, subt)
-  ]
+  let subtitle(subt) = {
+    set text(..font-special, size: 0.7em)
+    pad(bottom: 1.3em, subt)
+  }
 
   // == Page Content ==
-  // title row
+  // The title header
   if (display-title-footer) {
-    align(left)[
-      #text(..font-special, size: 1.8em, fach-long + " | " + fach)
-      #v(1em, weak: true)
+    title[
+      #text(..font-special, size: 1.06em, fach-long + " | " + fach)
+      #v(0.6em, weak: true)
       #subtitle[Zusammenfassung]
     ]
   }
