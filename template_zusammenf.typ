@@ -121,6 +121,9 @@
   // Recommended workaround in Typst 0.11 until table.header is styleable
   show table.cell.where(y: 0): emph
 
+  // Set default sizing of grid
+  set grid(columns: (1fr, 1fr), gutter: 1em)
+
   // Unordered list, use with "- " or #list[]
   show list: set list(marker: "–", body-indent: 0.45em)
 
