@@ -1,5 +1,4 @@
 #import "../template_zusammenf.typ": *
-#import "@preview/wrap-it:0.1.1": wrap-content
 
 /*#show: project.with(
   authors: ("Nina Grässli", "Jannis Tschan"),
@@ -106,10 +105,10 @@ _`dup`_ alloziert einen _neuen FD_, _`dup2`_ _überschreibt_ `destination_fd`.
 ```c
 int fd = open ("log.txt", ...);
 int id = fork ();
-if (id == 0) { // child
+if (id == 0) { // child process
   dup2 (fd, 1); // duplicate fd for log.txt as standard output
-  // e.g. load new image with exec*, fd's remain
-} else { // parent
+                // e.g. load new image with exec*, fd's remain
+} else { // parent process
   close (fd);
 }
 ```
@@ -141,11 +140,11 @@ int fd [2];
 pipe (fd);
 int id = fork();
 
-if (id == 0) { // Child
+if (id == 0) { // Child process
   close (fd [1]); // don't use write end
   char buffer [BSIZE];
   int n = read (fd[0], buffer, BSIZE);
-} else {
+} else { // Parent process
   close (fd[0]); // don't use read end
   char * text = "Die Zemmefassig isch viel z lang";
   write (fd [1], text, strlen(text) + 1);
@@ -160,34 +159,34 @@ _Lesender Prozess_ muss deshalb sein _Write-End schliessen_, damit schreibender 
 über das Schliessen seines Write-Ends das _Ende der Kommunikation mitteilen_ kann.
 
 === Standard-Ausgabe mit -Eingabe verknüpfen
-#wrap-content(
-  image("img/bsys_37.png"),
-  align: top + right,
+#grid(
   columns: (80%, 20%),
-)[
-  Beispiel-Befehl in Shell: `cmda | cmdb`
-  ```c
-  int fd [2];
-  pipe (fd);
-  int id1 = fork();
+  [
+    Beispiel-Befehl in Shell: `cmda | cmdb`
+    ```c
+    int fd [2];
+    pipe (fd);
+    int id1 = fork();
 
-  if (id1 == 0){ // child (cmda)
-    close (fd [0]); // don't use read end
-    dup2 (fd [1], 1); // define pipe write end as stdout
-    exec ("cmda", ...);
-  } else { // parent (shell)
-    int id2 = fork();
-    if (id2 == 0) { // child (cmdb)
-      close (fd[1]); // don't use write end
-      dup2 (fd [0], 0);
-      exec ("cmdb", ...);
+    if (id1 == 0){ // child (cmda)
+      close (fd [0]); // don't use read end
+      dup2 (fd [1], 1); // define pipe write end as stdout
+      exec ("cmda", ...);
     } else { // parent (shell)
-      wait (0);
-      wait (0);
+      int id2 = fork();
+      if (id2 == 0) { // child (cmdb)
+        close (fd[1]); // don't use write end
+        dup2 (fd [0], 0);
+        exec ("cmdb", ...);
+      } else { // parent (shell)
+        wait (0);
+        wait (0);
+      }
     }
-  }
-  ```
-]
+    ```
+  ],
+  image("img/bsys_37.png"),
+)
 
 Pipes sind _unidirektional:_ es ist nicht spezifiziert, was beim Schreiben ins _read end_
 oder Lesen vom _write end_ passiert. Sind _alle read ends_ geschlossen, erhält Prozess mit
@@ -206,22 +205,22 @@ wie eine normale Datei. Lebt _unabhängig vom erzeugenden Prozess_, je nach Syst
 #pagebreak()
 
 == Sockets
-#wrap-content(
-  image("img/bsys_38.png"),
-  align: top + right,
+#grid(
   columns: (50%, 50%),
-)[
-  Berkeley Sockets sind eine Abstraktion über Kommunikationsmechanismen.
-  Beispiele: UDP, TCP über IP sowie Unix-Domain-Sockets. Ein Socket _repräsentiert einen
-  Endpunkt auf einer Maschine_. Kommunikation findet im Regelfall zwischen zwei Sockets statt.
-  Sockets benötigen für Kommunikation einen Namen: #hinweis[(IP: IP-Adresse, Portnummer)]
-]
+  align: horizon,
+  [
+    Berkeley Sockets sind eine Abstraktion über Kommunikationsmechanismen.
+    Beispiele: UDP, TCP über IP sowie Unix-Domain-Sockets. Ein Socket _repräsentiert einen
+    Endpunkt auf einer Maschine_. Kommunikation findet im Regelfall zwischen zwei Sockets statt.
+    Sockets benötigen für Kommunikation einen Namen: #hinweis[(Beispiel IP: IP-Adresse, Portnummer)]
+  ],
+  image("img/bsys_38.png"),
+)
 
 === ```c int socket(int domain, int type, int protocol);```
 _Erzeugt einen neuen Socket als "Datei"_. Socket sind nach Erzeugung zunächst _unbenannt_.
 Alle Operationen blockieren per default.
 Gibt FD zurück ($>= 0$) bzw. -1 bei Fehler mit Fehlercode in `errno`.
-
 
 - _`domain`:_ Adress-Domäne #hinweis[(`AF_UNIX`: Innerhalb einer Maschine,
   `AF_INET`: Internet-Kommunikation über IPv4, Adressen sind IP-Adressen plus Ports,
@@ -252,8 +251,8 @@ Gibt FD zurück ($>= 0$) bzw. -1 bei Fehler mit Fehlercode in `errno`.
 struct sockaddr_in ip_addr;
 ip_addr.sin_port = htons (443); // default HTTPS port
 inet_pton (AF_INET, "192.168.0.1", &ip_addr.sin_addr.s_addr);
-// port in memory: 0x01 0xBB
-// addr in memory: 0xC0 0xA8 0x00 0x01
+// IP address in memory: 0xC0 0xA8 0x00 0x01
+// Port in memory: 0x01 0xBB
 ```
 _`htons`_ konvertiert 16 Bit von Host-Byte-order #hinweis[(LE)] zu Network-Byte-Order
 #hinweis[(BE)], _`htonl`_ 32 Bit. _`ntohs`_ und _`ntohl`_ sind Gegenstücke.
@@ -297,7 +296,8 @@ while (running) {
 ```c ssize_t send (int socket, const void *buffer, size_t length, int flags);```\
 ```c ssize_t recv (int socket, void *buffer, size_t length, int flags);```
 
-_Senden und Empfangen von Daten_. Puffern der Daten ist Aufgabe des Netzwerkstacks.
+_Senden und Empfangen von Daten_. Erweitern `read()` bzw. `write()` um Socket-Funktionalitäten
+durch den `flags`-Parameter. Puffern der Daten ist Aufgabe des Netzwerkstacks.
 ```c
 send (fd, buf, len, 0) == write (fd, buf, len);
 recv (fd, buf, len, 0) == read (fd, buf, len)

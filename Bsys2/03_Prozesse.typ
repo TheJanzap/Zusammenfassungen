@@ -1,5 +1,4 @@
 #import "../template_zusammenf.typ": *
-#import "@preview/wrap-it:0.1.1": wrap-content
 
 /*#show: project.with(
   authors: ("Nina Grässli", "Jannis Tschan"),
@@ -28,22 +27,22 @@ _den Prozess_.
 Die _Monoprogrammierung_ soll jedoch erhalten bleiben. Aufgabe des OS ist es, Programme
 voneinander zu _isolieren_. Jedem Prozess ist ein _virtueller Adressraum_ zugeordnet.
 
-#wrap-content(
-  image("img/bsys_9.png"),
-  align: top + right,
-  columns: (85%, 13%),
-)[
-  == Grundlagen
-  Ein Prozess umfasst:
-  - Das _Abbild eines Programms_ im Hauptspeicher #hinweis[text section]
-  - die _globalen Variablen des Programms_ #hinweis[data section]
-  - Speicher für den _Heap_
-  - Speicher für den _Stack_
+== Grundlagen
+#grid(
+  columns: (85%, 15%),
+  [
+    Ein Prozess umfasst:
+    - Das _Abbild eines Programms_ im Hauptspeicher, die _text section_
+    - die _globalen Variablen des Programms_, die _data section_
+    - Speicher für den _Heap_
+    - Speicher für den _Stack_
 
-  === Prozess vs Programm
-  - Ein _Programm_ ist _passiv_: beschreibt bestimmte Abläufe #hinweis[(wie ein Rezept)]
-  - Ein _Prozess_ ist _aktiv_: führt Abläufe aus #hinweis[(das Kochen des Rezeptes)]
-]
+    === Prozess vs Programm
+    - Ein _Programm_ ist _passiv_: beschreibt bestimmte Abläufe #hinweis[(wie ein Rezept)]
+    - Ein _Prozess_ ist _aktiv_: führt Abläufe aus #hinweis[(das Kochen des Rezeptes)]
+  ],
+  image("img/bsys_9.png"),
+)
 
 Ein Programm kann als verschiedene, voneinander unabhängige Prozesse _mehrfach_ ausgeführt
 werden. Unter POSIX kann ein Prozess mehrere Programme _nacheinander_ ausführen.
@@ -54,21 +53,21 @@ werden. Unter POSIX kann ein Prozess mehrere Programme _nacheinander_ ausführen
 Das Betriebssystem hält Daten über jeden Prozess in jeweils einem
 _Process Control Block (PCB)_ vor.
 
-#wrap-content(
+=== Process Control Block (PCB)
+#grid(
+  columns: (60%, 40%),
+  [
+    Speicher für alle Daten, die das OS benötigt, um die Ausführung des Prozesses ins
+    Gesamtsystem zu integrieren, u.a.:
+    - Eigene _Process ID_, Parent ID und andere wichtige IDs
+    - Speicher für den _Zustand_ des Prozessors #hinweis[(Prozesskontext)]
+    - _Scheduling-Informationen_ #hinweis[(welcher Prozess ist wann an der Reihe)]
+    - Daten zur _Synchronisation_ und _Kommunikation_ zwischen Prozessen
+    - _Dateisystem-relevante_ Informationen #hinweis[(z.B. offene Dateien)]
+    - _Security-Informationen_ #hinweis[(Prozess selber sieht diese nicht)]
+  ],
   image("img/bsys_10.png"),
-  align: bottom + right,
-  columns: (75%, 25%),
-)[
-  === Process Control Block (PCB)
-  Speicher für alle Daten, die das OS benötigt, um die Ausführung des Prozesses ins
-  Gesamtsystem zu integrieren, u.a.:
-]
-- Eigene _Process ID_, Parent ID und andere wichtige IDs
-- Speicher für den _Zustand_ des Prozessors #hinweis[(Prozesskontext)]
-- _Scheduling-Informationen_ #hinweis[(welcher Prozess ist wann an der Reihe)]
-- Daten zur _Synchronisation_ und _Kommunikation_ zwischen Prozessen
-- _Dateisystem-relevante_ Informationen #hinweis[(z.B. offene Dateien)]
-- _Security-Informationen_ #hinweis[(Prozess selber sieht diese nicht)]
+)
 
 === Interrupts und Prozesse
 Wenn ein Interrupt auftritt, muss der _Kontext_ des aktuellen Prozesses im dazugehörigen
@@ -88,17 +87,17 @@ Um aus einem Programm einen Prozess zu machen, muss das OS _einen Prozess erzeug
 _ein Programm in diesen Prozess laden_. Unter POSIX sind beide Schritte getrennt, unter
 Windows finden beide in einer einzigen Funktion statt.
 
-#wrap-content(
-  image("img/bsys_11.png"),
-  align: bottom + right,
+#grid(
   columns: (85%, 15%),
-)[
-  === Prozess-Hierarchie
-  In POSIX hat jeder Prozess ausser Prozess 1 genau _einen_ Parent-Prozess.
-  Jeder Prozess kann _beliebig viele_ Child-Prozesse haben.
-  Dadurch wird eine _Baum-Struktur_ definiert: Die _Prozess-Hierarchie_.
-  Diese kann mit dem Tool `pstree` angezeigt werden.
-]
+  [
+    === Prozess-Hierarchie
+    In POSIX hat jeder Prozess ausser Prozess 1 genau _einen_ Parent-Prozess.
+    Jeder Prozess kann _beliebig viele_ Child-Prozesse haben.
+    Dadurch wird eine _Baum-Struktur_ definiert: Die _Prozess-Hierarchie_.
+    Diese kann mit dem Tool `pstree` angezeigt werden.
+  ],
+  image("img/bsys_11.png"),
+)
 
 == Prozess API
 === Die Funktion `fork()`
@@ -107,25 +106,24 @@ Windows finden beide in einer einzigen Funktion statt.
 von $P$. Die Funktion führt in _beiden_ Prozessen den Code an derselben Stelle fort:
 Am Rücksprung aus `fork`.
 
-#let fork-code = ```c
-pid_t new_pid = fork();
-
-if (new_pid > 0) {
-  // code running in parent
-} else if (new_pid == 0) {
-  // code running in child
-}
-```
-
-#wrap-content(
-  fork-code,
-  align: bottom + right,
-  columns: (64%, 36%),
-)[
-  - In $P$ bei _Erfolg_: Gibt die Prozess-ID von C zurück (> 0)
-  - In $P$ bei _Misserfolg_: Gibt -1 zurück und Fehlercode in `errno`
-  - In $C$: Gibt 0 zurück
-]
+#grid(
+  columns: (65%, 35%),
+  [
+    - In $P$ bei _Erfolg_: Gibt die Prozess-ID von C zurück (> 0)
+    - In $P$ bei _Misserfolg_: Gibt -1 zurück und Fehlercode in `errno`
+    - In $C$: Gibt 0 zurück
+  ],
+  [
+    ```c
+    pid_t new_pid = fork();
+    if (new_pid > 0) {
+      // code running in parent
+    } else if (new_pid == 0) {
+      // code running in child
+    }
+    ```
+  ],
+)
 
 === Die Funktion `exit()`
 ```c void exit(int code)``` entspricht dem gleichnamigen Betriebssystem-Aufruf.
@@ -144,9 +142,9 @@ beendet wurde. Gibt die Statusinformationen über den `int` zurück, auf den `st
   #hinweis[(wait-if)]
 - _`WEXITSTATUS(*status)`:_ Exit-Code von Child
 
-Gibt -1 zurück, wenn ein Fehler auftritt, Fehlercode in `errno`.
-`ECHILD`: Hat kein Child mehr, um darauf zu warten.
-`EINTR`: Wurde von einem Signal unterbrochen.
+Gibt -1 zurück, wenn ein Fehler auftritt, Fehlercode in `errno`. Mögliche Fehler:
+- `ECHILD`: Hat kein Child mehr, um darauf zu warten.
+- `EINTR`: Wurde von einem Signal unterbrochen.
 
 === Die Funktion `waitpid()`
 ```c pid_t waitpid (pid_t pid, int *status, int options)``` ist wie #wait, aber `pid`
@@ -158,9 +156,7 @@ bestimmt, auf welchen Child-Prozess man warten will.
 - _`pid < -1`:_ wartet auf alle Child-Prozesse welche dieselbe Prozessgruppen-ID wie der
   absolute `pid`-Wert haben
 
-Gibt -1 zurück, wenn ein Fehler auftritt, Fehlercode in `errno`.
-`ECHILD`: Hat kein Child mehr, um darauf zu warten.
-`EINTR`: Wurde von einem Signal unterbrochen.
+Gibt -1 zurück, wenn ein Fehler auftritt, Fehlercode in `errno`. Hat diesselben Fehler wie #wait.
 
 === Zusammenspiel von `fork()` und `wait()`
 #image("img/bsys_12.png")
@@ -170,8 +166,9 @@ void spawn_worker (...) {
   if (fork() == 0) {
     // ... do something in worker process
     exit(0); // exit from worker process
-  }
+  } // Parent process does nothing in functions
 }
+
 for (int i = 0; i < n; ++i) {
   spawn_worker(...);
 }
@@ -186,7 +183,7 @@ _durch ein anderes Programmimage_.
 
 Bei jeder `exec`-Funktion müssen die _Programmargumente spezifiziert_ werden.
 - _Bei den `execl*`-Funktionen als Liste_
-  #hinweis[(`l` für Liste)]: `execl(path, arg0, arg1, ...)`
+  #hinweis[(`l` für Liste von Argumenten)]: `execl(path, arg0, arg1, ...)`
 - _Bei den `execv*`-Funktionen als Array_
   #hinweis[(`v` für Vektor/Array)]: `execv(path, argv)`
 
@@ -199,59 +196,59 @@ die anderen verwenden absolute/relative Pfade.
 #table(
   columns: (auto, 1fr, auto, auto),
   table.header(
-    [],
-    [],
+    [Aufrufen der\ Executable],
+    [Zustand der Environment-Variabeln],
     [Programmargumente\ als Liste],
     [Programmargumente\ als Array],
   ),
-  table.cell(rowspan: 2)[Angabe des Pfads],
+  table.cell(rowspan: 2, align: horizon)[Angabe des Pfads],
   [mit neuem Environment],
   [`execle()`],
   [`execve()`],
-  table.cell(rowspan: 2)[mit altem Environment],
+  table.cell(rowspan: 2, align: horizon)[mit altem Environment],
   [`execl()`],
   [`execv()`],
   [Suche über `PATH`],
   [`execlp()`],
-  [`execvp()`]
+  [`execvp()`],
 )
 
 === Zusammenspiel von `fork()`, `exec()` und `wait()`
 #image("img/bsys_13.png")
 
 === Zombie-Prozess
-#wrap-content(
-  image("img/bsys_14.png"),
-  align: top + right,
+#grid(
   columns: (40%, 60%),
-)[
-  Wenn ein Prozess $C$ _beendet_ wird, ist sein Parent-Prozess $P$ verantwortlich dafür,
-  _auf jeden Fall_ #wait aufzurufen. Das OS weiss nicht, _wann_ das passieren wird.
-  Das OS muss die Statusinformationen von $C$ solange vorhalten, bis $P$ #wait aufruft.
-  _$C$ ist zwischen seinem Ende und dem Aufruf von #wait durch $P$ ein Zombie-Prozess_
-  #hinweis[(tot, aber noch nicht entfernt)].
+  [
+    Wenn ein Prozess $C$ _beendet_ wird, ist sein Parent-Prozess $P$ verantwortlich dafür,
+    _auf jeden Fall_ #wait aufzurufen. Das OS weiss nicht, _wann_ das passieren wird.
+    Das OS muss die Statusinformationen von $C$ solange vorhalten, bis $P$ #wait aufruft.
+    _$C$ ist zwischen seinem Ende und dem Aufruf von #wait durch $P$ ein Zombie-Prozess_
+    #hinweis[(tot, aber noch nicht entfernt)].
+  ],
+  image("img/bsys_14.png"),
+)
 
-  _Dauerhafter Zombie-Prozess:_ Bleibt ein Prozess $C$ längere Zeit ein Zombie, bedeutet
-  das, dass sein Parent $P$ #wait längere Zeit nicht aufruft.
-  Vermutlich hat $P$ einen Fehler. Die Situation kann bereinigt werden, indem $P$ gestoppt
-  wird und $C$ somit an Prozess 1 übertragen wird.
-]
+_Dauerhafter Zombie-Prozess:_ Bleibt ein Prozess $C$ längere Zeit ein Zombie, bedeutet
+das, dass sein Parent $P$ #wait längere Zeit nicht aufruft.
+Vermutlich hat $P$ einen Fehler. Die Situation kann bereinigt werden, indem $P$ gestoppt
+wird und $C$ somit an Prozess 1 übertragen wird.
 
 === Orphan-Prozess
-#wrap-content(
-  image("img/bsys_15.png"),
-  align: top + right,
+#grid(
   columns: (40%, 60%),
-)[
-  Wird ein Prozess $P$ _beendet_, haben seine Child-Prozesse $C$ keinen Parent-Prozess
-  mehr. Sie _verwaisen_ und werden zu _Orphan-Prozessen_. $P$ kann nicht mehr seiner
-  Verantwortung nachkommen und auf $C$ warten. $C$ würden bei ihrem Ende zu
-  _dauerhaften Zombie-Prozessen_ und würden nie entfernt werden.
+  [
+    Wird ein Prozess $P$ _beendet_, haben seine Child-Prozesse $C$ keinen Parent-Prozess
+    mehr. Sie _verwaisen_ und werden zu _Orphan-Prozessen_. $P$ kann nicht mehr seiner
+    Verantwortung nachkommen und auf $C$ warten. $C$ würden bei ihrem Ende zu
+    _dauerhaften Zombie-Prozessen_ und würden nie entfernt werden.
+  ],
+  image("img/bsys_15.png"),
+)
 
-  Damit das nicht passiert, werden beim Ende eines Prozesses $P$ all seine Child-Prozesse
-  an den Prozess mit der `pid=1` _übertragen_. Dieser Prozess ruft in einer
-  _Endlosschleife_ #wait auf und beendet somit alle ihm übertragenen Orphan-Prozesse.
-]
+Damit das nicht passiert, werden beim Ende eines Prozesses $P$ all seine Child-Prozesse
+an den Prozess mit der `pid=1` _übertragen_. Dieser Prozess ruft in einer
+_Endlosschleife_ #wait auf und beendet somit alle ihm übertragenen Orphan-Prozesse.
 
 === Die Funktion `sleep()`
 ```c unsigned int sleep (unsigned int seconds)``` unterbricht die Ausführung, bis die
@@ -262,8 +259,8 @@ Gibt die Anzahl Sekunden zurück, die vom Schlaf noch verblieben sind.
 === Die Funktion `atexit()`
 ```c int atexit (void (*function)(void))``` dient dazu, dass ein Programm kurz vor seinem
 Ende letzte _Aufräumarbeiten_ durchführen kann. Diese Aufräum-Funktionen werden dann nach
-einem Aufruf von `exit` in _umgekehrter Reihenfolge der Registrierung_ aufgerufen.
-#hinweis[(Funktionen werden also von unten nach oben ausgeführt)]
+einem Aufruf von `exit` in _umgekehrter Reihenfolge der Registrierung_ aufgerufen
+#hinweis[(Funktionen werden also von unten nach oben ausgeführt)].
 
 === Funktionen zum Lesen von PIDs
 ```c pid_t getpid(void)``` und ```c pid_t getppid(void)``` geben die Prozess-ID des
