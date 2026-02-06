@@ -7,7 +7,6 @@ Code-Optimierungen können an _verschiedenen Orten im Compiler_ angewendet werde
 
 #grid(
   columns: (5fr, 1fr),
-  gutter: 1em,
   [
     == Aufgaben der Optimierung
     Die Aufgabe der Optimierung ist es, eine _Zwischendarstellung_ in eine _effizientere_, aber
@@ -40,11 +39,11 @@ Multiplikation, Division oder Modulo mit einer _Zweierpotenz_ können in eine _B
 )
 
 === Algebraische Vereinfachung
-- Entfernung von _redundanten Operatoren_ #hinweis[(`Expr / 1 => Expr, Expr * 0 => 0`)]
+- Entfernung von _redundanten Operatoren_ #hinweis[(`Expr / 1 => Expr` oder `Expr * 0 => 0`)]
 - AST-Bäume, die nur aus _konstanten Literalen_ bestehen, können _zusammengefasst_ werden #hinweis[(`1 + 3 => ldc 4`)]
-- Sonstige _redundanten_ AST-Bäume #hinweis[(Doppel-Minus: `--Expr => Expr`)]
+- Sonstige _redundanten_ AST-Bäume #hinweis[(Doppel-Minus, wenn nicht als Operator implementiert: `--Expr => Expr`)]
 
-Diese Expressions dürfen aber nur vereinfacht werden, wenn sie _keine Seiteneffekte_ besitzen\
+Diese Expressions dürfen aber nur vereinfacht werden, wenn sie _keine Seiteneffekte_ besitzen
 #hinweis[(Keine Exceptions, kein Schreiben von Variablen, keine I/O-Operationen)]
 
 === Loop-Invariant Code
@@ -71,7 +70,7 @@ So muss er _nicht_ bei jedem Durchlauf _neu evaluiert_ werden. Dies nennt man _C
       x = x + k;
     }
     ```
-  ]
+  ],
 )
 
 == Common Subexpressions
@@ -98,7 +97,7 @@ sich zwischen den Auswertungen _nicht_. Dieser Schritt heisst _Common Subexpress
     ...
     y = temp + d;
     ```
-  ]
+  ],
 )
 
 #pagebreak()
@@ -111,7 +110,6 @@ und Ladezeiten _verbessert_.
 
 #grid(
   columns: (auto,) * 5,
-  gutter: 1em,
   align: horizon,
   [
     ```cs
@@ -135,7 +133,7 @@ und Ladezeiten _verbessert_.
     a = readInt();
     writeInt(a);
     ```
-  ]
+  ],
 )
 
 == Copy Propagation
@@ -174,7 +172,7 @@ einer Variable diese durch ihr _letztes Assignment ersetzt_. Hier im Beispiel zu
     ```cs
     writeInt(x + y);
     ```
-  ]
+  ],
 )
 
 == Constant Propagation
@@ -210,14 +208,14 @@ Konstante _ersetzt_ werden. Anschliessend kann in einem weiteren Schritt Dead Co
     }
     c = 3;
     ```
-  ]
+  ],
 )
 
 == Partial Redundancy Elimination
 Eine Expression ist partial redundant, wenn sie in _einigen_, aber nicht allen Pfaden _erneut berechnet wird_.
 
-Im Beispiel wird `x + 4` beim Durchlauf des `if`-Pfades _zweimal_ evaluiert, im `else`-Pfad jedoch nur _einmal_.\
-Dies kann behoben werden, indem die Expression _in beiden Pfaden_ evaluiert wird, dafür am _Schluss nicht mehr_.\
+Im Beispiel wird `x + 4` beim Durchlauf des `if`-Pfades _zweimal_ evaluiert, im `else`-Pfad jedoch nur _einmal_.
+Dies kann behoben werden, indem die Expression _in beiden Pfaden_ evaluiert wird, dafür am _Schluss nicht mehr_.
 So wird sie in beiden Pfaden _nur jeweils einmal_ evaluiert. Dafür gibt es in diesem Beispiel _mehr Lese- und Schreiboperationen_.
 
 #grid(
@@ -246,7 +244,7 @@ So wird sie in beiden Pfaden _nur jeweils einmal_ evaluiert. Dafür gibt es in d
     }
     z = t;
     ```
-  ]
+  ],
 )
 
 
@@ -272,7 +270,7 @@ sodass bei jeder _neuen Zuweisung_ ein _anderer Variablenname_ verwendet wird:
   columns: (auto,) * 3,
   gutter: 2em,
   align: horizon,
-  [```cs x = 1; x = 2; y = x;```], [`=>`], [```cs x1 = 1; x2 = 2; y1 = x2;```]
+  [```cs x = 1; x = 2; y = x;```], [`=>`], [```cs x1 = 1; x2 = 2; y1 = x2;```],
 )
 
 Damit ist schnell ersichtlich, ob sich eine Variable _geändert_ hat oder nicht.
@@ -293,9 +291,9 @@ Zwischenzeit _geändert_ haben.
 ```cs
 x1 = a1 * b1 + c1;
 ...
-y1 = a1 * b1 + d1; //a und b enthalten denselben Wert wie vorhin, können also zusammengefasst werden
+y1 = a1 * b1 + d1; // a und b enthalten denselben Wert wie vorhin, können zusammengefasst werden
 ...
-z = a1 * b2 + d3; // b und d wurden in der Zwischenzeit geändert
+z = a1 * b2 + d3; // b und d haben eine höhere Nummer, wurden in der Zwischenzeit geändert
 ```
 
 ==== Dead Code Elimination in SSA
@@ -314,7 +312,6 @@ gewünscht, wie zum Beispiel die _Peephole Optimization_.
 === Peephole Optimization
 #grid(
   columns: (1.2fr, 1fr),
-  gutter: 1em,
   [
     Die Peephole Optimization ist eine sehr _einfache und günstige_ Technik, um Optimierungen vorzunehmen.
     Im JIT-Compiler wird sie für Intermediate Code oder Maschinencode benutzt.
