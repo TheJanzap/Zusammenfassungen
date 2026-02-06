@@ -1,5 +1,4 @@
 #import "../template_zusammenf.typ": *
-#import "@preview/wrap-it:0.1.1": wrap-content
 
 /*#show: project.with(
   authors: ("Nina Grässli", "Jannis Tschan"),
@@ -12,7 +11,8 @@
 
 = Programme und Bibliotheken
 == C Toolchain
-`C-Quelle -> Präprozessor -> Bereinigte C-Quelle -> Compiler -> Assembler-Datei -> Assembler -> Objekt-Datei -> Linker -> Executable`
+`C-Quelle -> Präprozessor -> Bereinigte C-Quelle -> Compiler -> Assembler-Datei -> Assembler ->
+Objekt-Datei -> Linker -> Executable`
 
 - _Präprozessor:_ Die Ausgabe des Präprozessors ist eine reine C-Datei (Translation-Unit)
   ohne Makros, Kommentare oder Präprozessor-Direktiven.
@@ -36,51 +36,52 @@ _Übergibt den Request_ an jeden registrierten "Binary Handler" #hinweis[(für v
 Dateiformate: ELF, a.out etc.)]. Diese versuchen nacheinander jeweils die _Datei zu laden_
 und zu interpretieren #sym.arrow _Ausführung des neuen Programms_.
 
-#wrap-content(
-  image("img/bsys_16.png"),
-  align: bottom + right,
+=== ELF (Executable and Linking Format)
+#grid(
   columns: (80%, 20%),
-)[
-  === ELF (Executable and Linking Format)
-  _Binär-Format_, das Kompilate spezifiziert. Eigentlich zwei Formate / Views, werden aber
-  oft beide benötigt: _Linking View_ #hinweis[(wichtig für Linker)] und
-  _Execution View_ #hinweis[(wichtig für Loader)]. Verwendung:
-  - _Object-Files:_ Linking View
-  - _Programme:_ Execution View
-  - _Shared Objects (Dynamische Bibliotheken):_ Linking View und Execution View
+  [
+    _Binär-Format_, das Kompilate spezifiziert. Eigentlich zwei Formate / Views, werden aber
+    oft beide benötigt: _Linking View_ #hinweis[(wichtig für Linker)] und
+    _Execution View_ #hinweis[(wichtig für Loader)]. Verwendung:
+    - _Object-Files:_ Linking View
+    - _Programme:_ Execution View
+    - _Shared Objects (Dynamische Bibliotheken):_ Linking View und Execution View
 
-  === Struktur des ELF
-  - #link(<elf-header>)[_Header_]
-  - #link(<elf-pht>)[_Programm Header Table_] #hinweis[(nur in Execution View erforderlich)]
-  - #link(<elf-pht>)[_Segmente_] #hinweis[(nur in Execution View erforderlich)]
-  - #link(<elf-sht>)[_Section Header Table_] #hinweis[(nur in Linking View erforderlich)]
-  - #link(<elf-sht>)[_Sektionen_] #hinweis[(nur in Linking View erforderlich)]
-]
+    === Struktur des ELF
+    - #link(<elf-header>)[_Header_]
+    - #link(<elf-pht>)[_Programm Header Table_] #hinweis[(nur in Execution View erforderlich)]
+    - #link(<elf-pht>)[_Segmente_] #hinweis[(nur in Execution View erforderlich)]
+    - #link(<elf-sht>)[_Section Header Table_] #hinweis[(nur in Linking View erforderlich)]
+    - #link(<elf-sht>)[_Sektionen_] #hinweis[(nur in Linking View erforderlich)]
+  ],
+  image("img/bsys_16.png"),
+)
 
 #pagebreak()
 
-#wrap-content(
-  image("img/bsys_17.png"),
-  align: bottom + right,
-  columns: (85%, 15%),
-)[
-  ==== Segmente und Sektionen
-  Segmente und Sektionen sind jeweils eine _andere Einteilung für die gleichen
-  Speicherbereiche_. Die _View des Loaders_ sind die _Segmente_:
-  Diese definieren die Portionen, die in den Hauptspeicher geladen werden.
-  Die _View des Compilers_ sind die _Sektionen_: Diese definieren "gleichartige" Daten
-  #hinweis[(z.B. `.data`, `.text`)]. Der _Linker_ vermittelt zwischen beiden Views:
-  kombiniert gleichnamige Sektionen aus unterschiedlichen Objekt-Dateien und definiert Segmente.
-]
+==== Segmente und Sektionen
+#grid(
+  columns: (70%, 30%),
+  [
+    Segmente und Sektionen sind jeweils eine _andere Einteilung für die gleichen
+    Speicherbereiche_. Die _View des Loaders_ sind die _Segmente_:
+    Diese definieren die Portionen, die in den Hauptspeicher geladen werden.
+    Die _View des Compilers_ sind die _Sektionen_: Diese definieren "gleichartige" Daten
+    #hinweis[(z.B. `.data`, `.text`)]. Der _Linker_ vermittelt zwischen beiden Views:
+    kombiniert gleichnamige Sektionen aus unterschiedlichen Objekt-Dateien und definiert Segmente.
 
-==== Header <elf-header>
-Der Header #hinweis[(52 Byte)] beschreibt _den Aufbau_ der Datei:
-- _Typ:_ Relozierbar #hinweis[(beliebig verschiebbar im Speicher)],
-  Ausführbar, Shared Object
-- _32-bit oder 64-bit_
-- _Encoding:_ little-endian oder big-endian
-- _Maschinenarchitektur:_ z.B. i386, Motorola 68k
-- _Entrypoint:_ Adresse, an der das Programm starten soll #hinweis[(Default: `_start`)]
+    ==== Header <elf-header>
+    Der Header #hinweis[(52 Byte)] beschreibt _den Aufbau_ der Datei:
+    - _Typ:_ Relozierbar #hinweis[(beliebig verschiebbar im Speicher)],
+      Ausführbar, Shared Object
+    - _32-bit oder 64-bit_
+    - _Encoding:_ little-endian oder big-endian
+    - _Maschinenarchitektur:_ z.B. i386, Motorola 68k
+    - _Entrypoint:_ Adresse, an der das Programm starten soll #hinweis[(Default: `_start`)]
+  ],
+  image("img/bsys_17.png"),
+)
+#v(-0.55em)
 - _Infos zu den Einträgen in der Program Header Table:_ Relative Adresse, Anzahl und Grösse
 - _Infos zu den Einträgen in der Section Header Table:_ Relative Adresse, Anzahl und Grösse
 
@@ -165,40 +166,41 @@ Ein Symbol hat _16 Byte_.
   Binding-Attribute, Referenz auf Sektions-Header
 
 == Bibliotheken
-#wrap-content(
-  image("img/bsys_18.png"),
-  align: top + right,
-  columns: (69%, 31%),
-)[
-  === Statische Bibliotheken
-  Statische Bibliotheken sind _Archive von Objekt-Dateien_. Archive sind Dateien, die
-  andere Dateien enthalten #hinweis[(wie ein ZIP ohne Kompression)], werden mit dem Tool
-  "`ar`" erzeugt. Per Konvention folgen Bibliotheksnamen dem Muster `lib<name>.a`.\
-  Referenziert wird dann nur `<name>: clang -lmylib ...`.
-
-  Der Linker behandelt statische Bibliotheken wie _mehrere Objekt-Dateien_.
-  Alle gelinkten statischen Bibliotheken werden vom Linker im Programm-Image _verteilt_,
-  alle Variablen und Funktionen werden auf absolute Adressen _fixiert_.
-
-  Ursprünglich gab es _nur statische Bibliotheken_. Das war _einfach_ zu implementieren,
-  jedoch müssen Programme bei Änderungen in Bibliotheken _neu erstellt_ werden und die
-  _Funktionalität ist fix_ #hinweis[(Keine Plugins möglich)].
-]
-#wrap-content(
-  image("img/bsys_19.png"),
-  align: top + right,
+=== Statische Bibliotheken
+#grid(
   columns: (70%, 30%),
-)[
-  === Dynamische Bibliotheken
-  Dynamische Bibliotheken linken erst zur _Ladezeit_ bzw. Laufzeit des Programms.
-  _Höherer Aufwand_ für Programmierer, Compiler, Linker und OS.
-  Das Executable enthält nur noch Referenz auf Bibliothek. Vorteile davon sind:
+  [
+    Statische Bibliotheken sind _Archive von Objekt-Dateien_. Archive sind Dateien, die
+    andere Dateien enthalten #hinweis[(wie ein ZIP ohne Kompression)], werden mit dem Tool
+    "`ar`" erzeugt. Per Konvention folgen Bibliotheksnamen dem Muster `lib<name>.a`.\
+    Referenziert wird dann nur `<name>: clang -lmylib ...`.
 
-  *Entkoppelter Lebenszyklus:*
-  Das Programm kann _Updates erhalten_, ohne das Binary zu ändern.
-  Funktionalität kann unabhängig voneinander _geupdated_ werden.
-  Bugfixes können _direkt_ zur Anwenderin gebracht werden.
-]
+    Der Linker behandelt statische Bibliotheken wie _mehrere Objekt-Dateien_.
+    Alle gelinkten statischen Bibliotheken werden vom Linker im Programm-Image _verteilt_,
+    alle Variablen und Funktionen werden auf absolute Adressen _fixiert_.
+  ],
+  image("img/bsys_18.png"),
+)
+
+Ursprünglich gab es _nur statische Bibliotheken_. Das war _einfach_ zu implementieren,
+jedoch müssen Programme bei Änderungen in Bibliotheken _neu erstellt_ werden und die
+_Funktionalität ist fix_ #hinweis[(Keine Plugins möglich)].
+
+#grid(
+  columns: (70%, 30%),
+  [
+    === Dynamische Bibliotheken
+    Dynamische Bibliotheken linken erst zur _Ladezeit_ bzw. Laufzeit des Programms.
+    _Höherer Aufwand_ für Programmierer, Compiler, Linker und OS.
+    Das Executable enthält nur noch Referenz auf Bibliothek. Vorteile davon sind:
+
+    *Entkoppelter Lebenszyklus:*
+    Das Programm kann _Updates erhalten_, ohne das Binary zu ändern.
+    Funktionalität kann unabhängig voneinander _geupdated_ werden.
+    Bugfixes können _direkt_ zur Anwenderin gebracht werden.
+  ],
+  image("img/bsys_19.png"),
+)
 
 *Verzögertes Laden:*
 Das Programm muss _nur die Bibliotheken laden_, die es minimal braucht.
@@ -217,7 +219,7 @@ gibt ein _Handle_ darauf zurück.
 `mode` gibt Art an, wie mit der Bibliothek umgegangen wird:
 - _`RTLD_NOW`:_ Alle Symbole werden beim Laden der Bibliothek gebunden
 - _`RTLD_LAZY`:_ Symbole werden bei Bedarf gebunden
-- _`RTLD_GLOBAL`:_ Symbole können beim Binden anderer Objekt-Dateien verwendet werden\
+- _`RTLD_GLOBAL`:_ Symbole können beim Binden anderer Objekt-Dateien verwendet werden
   #hinweis[(damit andere Libs diese benutzen können)]
 - _`RTLD_LOCAL`:_ Symbole werden nicht für andere Objekt-Dateien verwendet
 
@@ -227,7 +229,7 @@ Keine Typinformationen, nur Adresse. Es ist also weder klar, ob es sich um Funkt
 Variablen handelt, noch welche Signatur bzw. welchen Typ diese haben.
 
 ```c
-// type "func_t" is a address of a function with a int param and int return type
+// type "func_t" is an address of a function with a int param and int return type
 typedef int (*func_t)(int);
 handle = dlopen("libmylib.so", RTLD_NOW); // open library
 func_t f = dlsym(handle, "my_function"); // write address of "my_function" into a func_t
@@ -264,7 +266,7 @@ Die _Unterversionsnummer_ wird erhöht, wenn die Schnittstelle gleich bleibt
 #hinweis[(Bugfixes)]. Der Linker verwendet den Linker-Namen, der Loader verwendet
 den SO-Namen.
 
-==== Shared Objects Koexistenz verschiedener Versionen
+==== Shared Object-Koexistenz verschiedener Versionen
 Alle Versionen und Unterversionen können gleichzeitig existieren und verwendet werden.
 Programme können bei Bedarf die Unterversion ganz präzise angeben
 #hinweis[(`libmylib.so.2` zeigt auf die neuste 2-er Version)].
@@ -315,18 +317,19 @@ Nahezu alle Executables benötigen _zwei Shared Objects_:
 Dynamische Bibliotheken müssen _verschiebbar_ sein und mehrere Bibliotheken müssen in den
 _gleichen Prozess_ geladen werden können. Die Aufgabe des Linkers wird in den
 Loader / Dynamic Linker verschoben #hinweis[(Load Time Relocation)].
-#wrap-content(
-  image("img/bsys_21.png"),
-  align: top + right,
+#grid(
   columns: (60%, 40%),
-)[
-  Dynamische Bibliotheken sollen _Code zwischen Programmen teilen_.
-  Code soll _nicht mehrfach_ im Speicher abgelegt werden, auch wenn mehrere Programme die
-  Bibliothek verwenden. Das kann durch _Shared Memory_ gelöst werden.
-  Jedes Programm kann eine _eigene virtuelle Page_ für den Code definieren.
-  Diese werden auf denselben Frame im RAM gemappt, so belegt der Code den Hauptspeicher
-  nur einmal.
-]
+  [
+    Dynamische Bibliotheken sollen _Code zwischen Programmen teilen_.
+    Code soll _nicht mehrfach_ im Speicher abgelegt werden, auch wenn mehrere Programme die
+    Bibliothek verwenden. Das kann durch _Shared Memory_ gelöst werden.
+    Jedes Programm kann eine _eigene virtuelle Page_ für den Code definieren.
+    Diese werden auf denselben Frame im RAM gemappt, so belegt der Code den Hauptspeicher
+    nur einmal.
+  ],
+  image("img/bsys_21.png"),
+)
+
 _Code-Sharing_ erlaubt jedoch keinen _Position-Dependent Code_.
 Wenn zwei Prozesse unterschiedliche virtuelle Seiten verwenden, an welchen Prozess werden
 die Adressen angepasst? Deshalb muss mit dynamischen Bibliotheken mit

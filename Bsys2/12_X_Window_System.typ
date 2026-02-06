@@ -1,5 +1,4 @@
 #import "../template_zusammenf.typ": *
-#import "@preview/wrap-it:0.1.1": wrap-content
 
 /*#show: project.with(
   authors: ("Nina Grässli", "Jannis Tschan"),
@@ -19,8 +18,8 @@ Canonical Mir Display Server, Wayland).] Diese sind _Ereignisgesteuerte Interakt
 Benutzer entscheidet, wann welches Ereignis ausgelöst wird, Programm reagiert auf Benutzer.
 
 === Vorteile
-Auf Unix-Kern aufgesetzt und damit _austauschbar_. Installierbar, wenn _tatsächlich benötigt_.
-Realisiert _Netzwerktransparenz_, _Plattform-unabhängig_.
+Das X Window System ist auf dem Unix-Kern aufgesetzt und damit _austauschbar_. Installierbar,
+wenn _tatsächlich benötigt_. Realisiert _Netzwerktransparenz_, _Plattform-unabhängig_.
 X legt die _GUI-Gestaltung nicht_ fest.
 
 === Fenster
@@ -83,18 +82,18 @@ Scrollbars, Titelleiste usw., indem er hinter jedes Top-level Window ein _Extraf
   GLib #hinweis[(Allgemeine Datenstrukturen und Algorithmen)]
 - _KDE_ verwendet Qt Toolkit #hinweis[(Fensterelemente, Widgets, Algorithmen)]
 
-#wrap-content(
-  image("img/bsys_52.png"),
-  align: bottom + right,
+== Basiskonzepte des X Window System
+#grid(
   columns: (50%, 50%),
-)[
-  == Basiskonzepte des X Window System
-  - _Display:_ Rechner mit Tastatur, Zeigegerät und $1..m$ Bildschirme
-  - _X Client:_ Applikation, die einen Display nutzen will.
-    Kann lokal oder entfernt laufen.
-  - _X Server:_ Softwareteil des X Window System, der ein Display ansteuert.
-    Läuft stets auf dem Rechner, auf dem die GUI-Ein-/Ausgaben anfallen.
-]
+  [
+    - _Display:_ Rechner mit Tastatur, Zeigegerät und $1..m$ Bildschirme
+    - _X Client:_ Applikation, die einen Display nutzen will.
+      Kann lokal oder entfernt laufen.
+    - _X Server:_ Softwareteil des X Window System, der ein Display ansteuert.
+      Läuft stets auf dem Rechner, auf dem die GUI-Ein-/Ausgaben anfallen.
+  ],
+  image("img/bsys_52.png"),
+)
 
 === Xlib
 Ist das _C Interface_ für das X Protocol. Header wird in C Files eingebunden über
@@ -114,8 +113,7 @@ Die Verbindung wird im _Datentyp `Display`_ gespeichert.
 Falls `NULL`, wird der Wert der Umgebungsvariable `DISPLAY` verwendet.
 
 *```c void XCloseDisplay (Display *display)```*
-schliesst die Verbindung und entfernt die Ressourcen.
-
+schliesst die Verbindung und entfernt die Ressourcen.\
 Es gibt Funktionen, um bestimmte Eigenschaften des Displays anzuzeigen
 #hinweis[(`XDisplayHeight`, `XDisplayWidth`, `XRootWindow`)]
 
@@ -153,31 +151,32 @@ Es gibt 4 Typen von Nachrichten:
 - _Errors:_ Fehlermeldungen auf vorangegangene Requests, Client #sym.arrow.l Server
 
 === Nachrichtenpufferung bei Requests
-#wrap-content(
-  image("img/bsys_53.png"),
-  align: top + right,
+#grid(
   columns: (60%, 40%),
-)[
-  Für _Requests_ gibt es einen _Nachrichtenpuffer auf der Client-Seite_
-  #hinweis[(Request Buffer)]. _Ziel:_ möglichst wenige Anforderungsübertragungen
-  an X Server. Gruppierung von Anforderungen für bessere _Kommunikationseffizienz_.
+  [
+    Für _Requests_ gibt es einen _Nachrichtenpuffer auf der Client-Seite_
+    #hinweis[(Request Buffer)]. _Ziel:_ möglichst wenige Anforderungsübertragungen
+    an X Server. Gruppierung von Anforderungen für bessere _Kommunikationseffizienz_.
 
-  Übertragung an Server nur, wenn _sinnvoll oder zwingend nötig_\
-  #hinweis[(Client beginnt auf Event zu warten und blockiert, Client-Request Reply des
-    Servers wird benötigt, Client verlangt explizit Pufferleerung)]
-]
+    Übertragung an Server nur, wenn _sinnvoll oder zwingend nötig_\
+    #hinweis[(Client beginnt auf Event zu warten und blockiert, Client-Request Reply des
+      Servers wird benötigt, Client verlangt explizit Pufferleerung)]
+  ],
+  image("img/bsys_53.png"),
+)
 
-#wrap-content(
+=== Nachrichtenpufferung bei Ereignissen
+#grid(
+  columns: (50%, 50%),
+  [
+    Ereignisse werden _doppelt gepuffert_: beim X Server und beim Client.
+    Die _Server-seitige Pufferung_ berücksichtigt _Netzwerkverfügbarkeit_,
+    die _Client-Seitige_ hält _Events bereit_, bis vom Client abgeholt.
+    Der Client liest Messages im Message-Loop mittels Funktion `XNextEvent()`.
+  ],
   image("img/bsys_54.png"),
-  align: top + right,
-  columns: (46%, 54%),
-)[
-  === Nachrichtenpufferung bei Ereignissen
-  Ereignisse werden _doppelt gepuffert_: beim X Server und beim Client.
-  Die _Server-seitige Pufferung_ berücksichtigt _Netzwerkverfügbarkeit_,
-  die _Client-Seitige_ hält _Events bereit_, bis vom Client abgeholt.
-  Der Client liest Messages im Message-Loop mittels Funktion `XNextEvent()`.
-]
+)
+
 === X Event Handling
 Ereignisse werden vom _Client verarbeitet oder weitergeleitet_. Der Client muss vorher
 festlegen, _welche Ereignistypen_ er empfangen will #hinweis[(`XSelectInput()`)].
@@ -192,6 +191,8 @@ Masken sind vordefiniert, z.B. `ExposureMask` für `Expose`-Events.
 *```c XNextEvent (Display *display, Event *event)```*
 kopiert den nächsten Event aus dem Buffer in `event`. Die Identifikation des betroffenen
 Displays und Fenster ist Teil des Events. #hinweis[(`event.display`, `event.window`)]
+
+#pagebreak()
 
 Der Client entscheidet, _wann_ er ein Event entgegennimmt.
 Die Verarbeitung der Events erfolgt in einer Programmschleife in der Form:
@@ -328,7 +329,7 @@ Im Datenteil des Events steht das Atom von `WM_DELETE_WINDOW`.
     ```c
     Atom atom = XInternAtom (display,
       "WM_DELETE_WINDOW",
-      /* only_if_exists = */ False);
+      /* only_if_exists = */ false);
     XSetWMProtocols (
       display, window, &atom, 1);
     ```

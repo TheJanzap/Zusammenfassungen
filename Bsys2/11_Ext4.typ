@@ -1,5 +1,4 @@
 #import "../template_zusammenf.typ": *
-#import "@preview/wrap-it:0.1.1": wrap-content
 
 /*#show: project.with(
   authors: ("Nina Grässli", "Jannis Tschan"),
@@ -17,29 +16,29 @@ Grosse Blöcke sind besser für viele grosse Dateien, da weniger Metadaten benö
 Erlaubt höhere maximale Dateigrösse. Zudem werden Blöcke von den Inodes mit _Extent Trees_
 verwaltet und _Journaling_ wird verwendet.
 
-#wrap-content(
-  image("img/bsys_47.png"),
-  align: top + right,
+== Extents
+#grid(
   columns: (80%, 20%),
-)[
-  == Extents
-  Ein _Extent_ beschreibt ein _Intervall physisch konsekutiver Blöcke_. Ist 12 Byte gross
-  #hinweis[(4B logische Blocknummer, 6B physische Blocknummer, 2B Anzahl Blöcke)].\
-  Positive Zahlen = Block initialisiert, Negativ = Block voralloziert.
+  [
+    Ein _Extent_ beschreibt ein _Intervall physisch konsekutiver Blöcke_. Ist 12 Byte gross
+    #hinweis[(4 Byte logische Blocknummer, 6 Byte physische Blocknummer, 2 Byte Anzahl Blöcke)].\
+    Positive Zahlen = Block initialisiert, Negativ = Block voralloziert.
 
-  Da eine Einschränkung auf ausschliesslich konsekutive Dateien nicht praktikabel ist,
-  muss eine Datei _mehr als einen Extent umfassen_ können. Im Inode hat es in den 60 Byte
-  für direkte und indirekte Block-Adressierung Platz für 4 Extents und einen Header.
+    Da eine Einschränkung auf ausschliesslich konsekutive Dateien nicht praktikabel ist,
+    muss eine Datei _mehr als einen Extent umfassen_ können. Im Inode hat es in den 60 Byte
+    für direkte und indirekte Block-Adressierung Platz für 4 Extents und einen Header.
 
-  == Extent Trees
-  _Index-Knoten_ #hinweis[(Innerer Knoten des Baums, besteht aus Index-Eintrag und Index-Block)]\
-  _Index-Eintrag_ #hinweis[(Enthält Nummer des physischen Index-Blocks und kleinste logische Blocknummer
-  aller Kindknoten)]
-]
+    == Extent Trees
+    _Index-Knoten_ #hinweis[(Innerer Knoten des Baums, besteht aus Index-Eintrag und Index-Block)]\
+    _Index-Eintrag_ #hinweis[(Enthält Nummer des physischen Index-Blocks und kleinste logische Blocknummer
+    aller Kindknoten)]
+  ],
+  image("img/bsys_47.png"),
+)
 
 === Extent Tree Header
 Für mehr als 4 Extents braucht man einen zusätzlichen Block. Deshalb sind die ersten
-12 Byte kein Extent, sondern der Extent Tree Header:
+12 Byte im Inode kein Extent, sondern der Extent Tree Header:
 - 2 Byte _Magic Number_ #hex("F30A")
 - 2 Byte _Anzahl Einträge_, die _direkt_ auf den Header folgen
   #hinweis[(Wie viele Extents folgen dem Header?)]
@@ -60,51 +59,53 @@ muss man Blöcke mit Index-Nodes einführen. Statt Extents stehen dann _Index No
 im Block_. Die _Tiefe_ im Inode wird auf _2_ gesetzt, in den Index-Node-Blöcken auf 1.
 Die _kleinste logische Blocknummer_ aller Kind-Extents _propagiert_ dann bis in den
 jeweils obersten Index-Node. Benötigt man dann _noch mehr Extents_, kann die _Tiefe_ im
-Inode bis auf _5_ gesetzt werden.
+Inode bis auf _5_ gesetzt werden #hinweis([(Dann wird das Maximum von $2^32 = 4"G"$
+Blöcken pro Datei erreicht)]).
 
-#wrap-content(
-  image("img/bsys_48.png"),
-  align: top + right,
+=== Index-Block
+#grid(
   columns: (50%, 50%),
-)[
-  === Index-Block
-  Ein Index-Block enthält einen eigenen _Tree-Header_, Tiefe ist um 1 kleiner als beim
-  übergeordneten Knoten. Enthält _Referenz auf die Kind-Knoten_: je nach Tiefe entweder
-  Index-Einträge oder Extents. `i_block[0...14]` kann als (sehr kleiner) Index-Block
-  aufgefasst werden.
-]
+  [
+    Ein Index-Block enthält einen eigenen _Tree-Header_, Tiefe ist um 1 kleiner als beim
+    übergeordneten Knoten. Enthält _Referenz auf die Kind-Knoten_: je nach Tiefe entweder
+    Index-Einträge oder Extents. `i_block[0...14]` kann als (sehr kleiner) Index-Block
+    aufgefasst werden.
+  ],
+  image("img/bsys_48.png"),
+)
+
 === Notation
 #table(
   columns: (1fr, 1fr),
   table.header([(in)direkte Adressierung], [Extent-Trees]),
-  [_direkte Blöcke:_ Index $|->$ Blocknummer],
-  [_Indexknoten:_ Index $|->$ (Kindblocknummer, kleinste Nummer der 1. logischen Blöcke aller Kinder)],
+  [_direkte Blöcke:_ \<Index> $|->$ \<Blocknummer>],
+  [_Indexknoten:_ \<Index> $|->$ (\<Kindblocknummer>, \<kleinste Nummer der 1. logischen Blöcke aller Kinder>)],
 
-  [_indirekte Blöcke:_ indirekter Block.Index $|->$ direkter Block],
-  [_Blattknoten:_ Index $|->$ (1. logisch. Block, 1. phy. Block, Anz. Blöcke)],
+  [_indirekte Blöcke:_ \<indirekter Block>.\<Index> $|->$ \<direkter Block>],
+  [_Blattknoten:_ <Index> $|->$ (\<1. logischer Block>, \<1. physischer Block>, \<Anzahl Blöcke>)],
 
-  [], [_Header:_ Index $|->$ (Anz. Einträge, Tiefe)],
+  [], [_Header:_ \<Index> $|->$ (\<Anz. Einträge>, \<Tiefe>)],
 )
 
 
-==== Beispiel Berechnung 2MB grosse, konsekutiv gespeicherte Datei, 2KB Blöcke ab Block #hex("2000")
+==== Beispiel-Berechnung: 4MB grosse, konsekutiv gespeicherte Datei, 4KB Blöcke ab Block #hex("1000")
 _(In-)direkte Block-Adressierung_\
-2 MB = $2^21$B, #math.quad 2 KB = $2^11$B, #math.quad $ 2^(21-11) = 2^10 = #fxcolor("rot", hex("400"))$
-Blöcke von #fxcolor("grün", hex("2000")) bis #fxcolor("orange", hex("23FF"))
+4 MB = $2^22$B, #math.quad 4 KB = $2^12$B, #math.quad $2^(22-12) = 2^10 = #fxcolor("rot", hex("400"))$
+Blöcke von #fxcolor("grün", hex("1000")) bis #fxcolor("orange", hex("13FF"))
 
-$0 arrow.bar #fxcolor("grün", hex("2000")), quad
-  1 arrow.bar #hex("2002"), space ..., space
-  #hex("B") arrow.bar #hex("200B"), quad
-  #hex("C") arrow.bar #hex("2400")$ #hinweis[(indirekter Block)]
+$0 arrow.bar #fxcolor("grün", hex("1000")), quad
+  1 arrow.bar #hex("1002"), space ..., space
+  #hex("B") arrow.bar #hex("100B"), quad
+  #hex("C") arrow.bar #hex("1400")$ #hinweis[(indirekter Block, #fxcolor("rot", hex("400")) nach Startblock)]
 
-$#hex("1400").#hex("0") arrow.bar #hex("200C"), quad
-  #hex("1400").#hex("1") arrow.bar #hex("200D"), space
+$#hex("1400").#hex("0") arrow.bar #hex("100C"), quad
+  #hex("1400").#hex("1") arrow.bar #hex("100D"), space
   ..., space
-  #hex("1400").#hex("3F3") arrow.bar #fxcolor("orange", hex("23FF"))$
+  #hex("1400").#hex("3F3") arrow.bar #fxcolor("orange", hex("13FF"))$
 
 _Extent Trees_ \
 *Header:* $0 arrow.bar (1,0)$\
-*Extent:* $1 arrow.bar (0, #fxcolor("grün", hex(2000)), #fxcolor("rot",hex(400)))$
+*Extent:* $1 arrow.bar (0, #fxcolor("grün", hex(1000)), #fxcolor("rot", hex("400")))$
 
 #pagebreak()
 
@@ -148,43 +149,49 @@ Fehler untersucht werden._
 === Journaling Modi
 Es gibt 3 Modi: (Full) Journal, Ordered und Writeback. Die Modi _Ordered_ und _Writeback_
 schreiben nur _Metadaten_, _Journal_ schreibt auch _Datei-Inhalte_ ins Journal.
-#wrap-content(
-  image("img/bsys_49.png"),
-  align: top + right,
+
+==== (Full) Journal
+#grid(
   columns: (50%, 50%),
-)[
-  ==== (Full) Journal
-  _Metadaten und Datei-Inhalte_ kommen ins Journal.
-  Grosse Änderungen werden in mehrere Transaktionen gesplittet.
-  _Vorteil:_ maximale Datensicherheit
-  _Nachteil:_ grosse Geschwindigkeitseinbussen.
-]
-#wrap-content(
+  [
+    _Metadaten und Datei-Inhalte_ kommen ins Journal.
+    Grosse Änderungen werden in mehrere Transaktionen gesplittet.
+
+    _Vorteil:_ maximale Datensicherheit\
+    _Nachteil:_ grosse Geschwindigkeitseinbussen.
+  ],
+  image("img/bsys_49.png"),
+)
+
+==== Ordered
+#grid(
+  columns: (60%, 40%),
+  [
+    _Nur Metadaten_ kommen ins Journal. Dateiinhalte werden immer _vor_ dem Commit geschrieben:
+    + Transaktion ins Journal
+    + Dateiinhalte an endgültige Position schreiben
+    + Commit ausführen
+    _Vorteil:_ Dateien enthalten nach dem Commit den richtigen Inhalt
+    _Nachteil:_ Etwas geringere Geschwindigkeit als Writeback.\
+    #hinweis[(In Linux gibt es einen lost+found Ordner im Root-Verzeichnis, Dateien mit
+    unvollständigen Transaktionen bei z.B. Absturz werden da deponiert)]
+  ],
   image("img/bsys_50.png"),
-  align: top + right,
+)
+
+==== Writeback
+#grid(
   columns: (60%, 40%),
-)[
-  ==== Ordered
-  _Nur Metadaten_ kommen ins Journal. Dateiinhalte werden immer _vor_ dem Commit geschrieben:
-  + Transaktion ins Journal
-  + Dateiinhalte an endgültige Position schreiben
-  + Commit ausführen
-  _Vorteil:_ Dateien enthalten nach dem Commit den richtigen Inhalt
-  _Nachteil:_ Etwas geringere Geschwindigkeit als Writeback.\
-  #hinweis[(In Linux gibt es einen lost+found Ordner im Root-Verzeichnis)]
-]
-\
-#wrap-content(
+  [
+    _Nur Metadaten_ kommen ins Journal.
+    Commit und Schreiben der Dateiinhalte werden in _beliebiger Reihenfolge_ ausgeführt.
+
+    _Vorteil:_ Sehr schnell, keine Synchronisation von Commit und Datenschreiben nötig.\
+    _Nachteil:_ Dateien können Datenmüll enthalten.
+  ],
   image("img/bsys_51.png"),
-  align: top + right,
-  columns: (60%, 40%),
-)[
-  ==== Writeback
-  _Nur Metadaten_ kommen ins Journal.
-  Commit und Schreiben der Dateiinhalte werden in _beliebiger Reihenfolge_ ausgeführt.
-  _Vorteil:_ Sehr schnell, keine Synchronisation von Commit und Datenschreiben nötig.
-  _Nachteil:_ Dateien können Datenmüll enthalten.
-]
+)
+
 == Vergleich Ext2 & Ext4
 #table(
   columns: (auto, auto),

@@ -1,5 +1,4 @@
 #import "../template_zusammenf.typ": *
-#import "@preview/wrap-it:0.1.1": wrap-content
 
 /*#show: project.with(
   authors: ("Nina Grässli", "Jannis Tschan"),
@@ -37,6 +36,7 @@ auf Grenzverletzungen überprüfen.
 Jedes Verzeichnis enthält zwei implizite Referenzen auf Verzeichnisse:
 - _`.`_ #hinweis[(ein Punkt)]: Referenz auf sich selbst
 - _`..`_ #hinweis[(zwei Punkte)]: Referenz auf das Elternverzeichnis
+
 Jeder Prozess hat ein _Arbeitsverzeichnis (working directory)_, welches den Bezugspunkt
 für relative Pfade darstellt. Dieses wird beim Prozessstart von aussen festgelegt.
 Wird mit ```c getcwd()``` ermittelt und mit
@@ -66,7 +66,7 @@ _Beispiel - Arbeitsverzeichnis ausgeben:_
 int main (int argc, char ** argv) {
   char *wd = malloc(PATH_MAX); // PATH_MAX = Maximale Länge des Pfades
   getcwd(wd, PATH_MAX);
-  printf("Current WD is %s", wd);
+  printf("Current working directory is %s", wd);
   free(wd);
   return 0;
 }
@@ -84,7 +84,7 @@ Hat je 3 Permission-Bits für _Owner_, _Gruppe_, und _andere Benutzer_.
 
 Es gibt eine feste Reihenfolge der 9 Permission Bits: `owner rwx - group rwx - other rwx`.\
 Schreibweise: `r=4, w=2, x=1`\ `0740` oder `rwx r-- ---` bedeutet
-owner hat alle Rechte, Gruppe kann nur lesen, andere haben keine Rechte.
+Owner hat alle Rechte, Gruppe kann nur lesen, andere haben keine Rechte.
 
 ==== POSIX
 Die POSIX-API definiert die `STAT_INODE` Konstanten für die Zugriffsrechte in
@@ -95,32 +95,32 @@ Die POSIX-API definiert die `STAT_INODE` Konstanten für die Zugriffsrechte in
 - _`S_IXOTH`_ `= 0001 = --------x` #hinweis[execute for other]
 Können mit `|` verknüpft werden, z.B. `S_IRWXU | S_IRGRP`
 
-#wrap-content(
-  image("img/bsys_5.png"),
-  align: top + right,
+== Überblick APIs
+#grid(
   columns: (64%, 36%),
-)[
-  == Überblick APIs
-  - _POSIX-API:_ für direkten Zugriff, alle Dateien sind rohe Binärdaten\
-    #hinweis[(so wie sie in der Datei gespeichert sind)]
-  - _C-API:_ für direkten Zugriff auf Streams #hinweis[(Textdateien)], Abstraktion
-    über Dateien, Pipes, etc. Für formatierte Ein- und Ausgabe, OS leitet alle
-    Zugriffe an Treiber weiter.
+  [
+    - _POSIX-API:_ für direkten Zugriff, alle Dateien sind rohe Binärdaten\
+      #hinweis[(so wie sie in der Datei gespeichert sind)]
+    - _C-API:_ für direkten Zugriff auf Streams #hinweis[(Textdateien)], Abstraktion
+      über Dateien, Pipes, etc. Für formatierte Ein- und Ausgabe, OS leitet alle
+      Zugriffe an Treiber weiter.
 
-  == POSIX File API
-  API für _direkten, unformatierten Zugriff_ auf Inhalt der Datei.
-  Sollte _nur für Binärdaten_ verwendet werden. Funktionen sind deklariert in
-  ```c <unistd.h>``` #hinweis[(Unix Standard API)] und ```c <fcntl.h>```
-  #hinweis[(File Control)] und geben im Fehlerfall `-1` zurück.
-  Der Fehler-Code kann dann mit `errno` abgefragt werden.
-]
-
+    == POSIX File API
+    API für _direkten, unformatierten Zugriff_ auf Inhalt der Datei.
+    Sollte _nur für Binärdaten_ verwendet werden. Funktionen sind deklariert in
+    ```c <unistd.h>``` #hinweis[(Unix Standard API)] und ```c <fcntl.h>```
+    #hinweis[(File Control)] und geben im Fehlerfall `-1` zurück.
+    Der Fehler-Code kann dann mit `errno` abgefragt werden.
+  ],
+  image("img/bsys_5.png"),
+)
+#v(-1em)
 === `errno`
 - _Makro oder globale Variable vom Typ `int`_
   #hinweis[(verhält sich immer wie eine globale Variable)]
 - Wird von vielen Funktionen gesetzt.
 - Sollte _unmittelbar nach Auftreten eines Fehlers_ aufgerufen werden
-  #hinweis[damit Wert nicht von anderer Funktion überschrieben wird]
+  #hinweis[(damit Wert nicht von anderer Funktion überschrieben wird)]
 
 ```c
 if (chdir("docs") < 0) {
@@ -137,7 +137,7 @@ beschreibt.
 
 ```c
 if (chdir("docs") < 0) {
-  printf("Error: %s\n", strerror (errno)); //e.g. Error: Permission denied
+  printf("Error: %s\n", strerror (errno)); // e.g. Error: Permission denied
 }
 ```
 
@@ -161,19 +161,19 @@ Gilt immer nur innerhalb eines Prozesses. Ein neu erstellter FD returnt einen In
   Zustandsbehaftet: merkt sich aktuellen Offset (Offset des Bytes, das als nächstes
   gelesen werden wird)
 
-#wrap-content(
-  image("img/bsys_6.png"),
-  align: top + right,
+#grid(
   columns: (60%, 40%),
-)[
-  In jedem Prozess sind drei Standard File-Deskriptoren definiert:
-  - _`STDIN_FILENO = 0`:_ standard input
-  - _`STDOUT_FILENO = 1`:_ standard output
-  - _`STDERR_FILENO = 2`:_ standard error
-]
+  [
+    In jedem Prozess sind drei Standard File-Deskriptoren definiert:
+    - _`STDIN_FILENO = 0`:_ standard input
+    - _`STDOUT_FILENO = 1`:_ standard output
+    - _`STDERR_FILENO = 2`:_ standard error
+  ],
+  image("img/bsys_6.png"),
+)
 
 === Öffnen und Schliessen von Dateien: ```c int open (char *path, int flags, ...)```
-erzeugt einen File-Deskriptor auf die Datei, die an `path` liegt.
+Erzeugt einen File-Deskriptor auf die Datei, die an `path` liegt.
 `flags` gibt an, wie die Datei geöffnet werden soll.\
 #hinweis[(können über Pipe kombiniert werden. Sollen noch Berechtigungs-Flags verwendet
   werden, werden diese als eigener Parameter angegeben)]
@@ -206,21 +206,21 @@ close(fd); //gets written on the disk and the resources (and the file) can be us
 ```
 
 === Lesen und Schreiben von Dateien: ```c ssize_t read(int fd, void * buffer, size_t n)```
-#wrap-content(
-  image("img/bsys_7.png"),
-  align: top + right,
+#grid(
   columns: (65%, 35%),
-)[
-  versucht, die nächsten $n$ Byte am aktuellen Offset von `fd` in den `buffer` zu kopieren.
+  [
+    Versucht, die nächsten $n$ Byte am aktuellen Offset von `fd` in den `buffer` zu kopieren.
 
-  ```c ssize_t write(int fd, void * buffer, size_t n)``` versucht, die nächsten $n$ Byte
-  vom `buffer` an den aktuellen Offset von `fd` zu kopieren.
+    ```c ssize_t write(int fd, void * buffer, size_t n)``` versucht, die nächsten $n$ Byte
+    vom `buffer` an den aktuellen Offset von `fd` zu kopieren.
 
-  Beide Funktionen geben die Anzahl der gelesenen / geschriebenen Bytes zurück oder -1 bei
-  Fehler #hinweis[(darum ist return type signed size)]. Blockieren normalerweise, bis $n$
-  Bytes kopiert wurden, ein Fehler auftritt oder das Ende der Datei erreicht wurde.
-  Erhöhen Offset von `fd` um Anzahl gelesener / geschriebener Bytes.
-]
+    Beide Funktionen geben die Anzahl der gelesenen / geschriebenen Bytes zurück oder -1 bei
+    Fehler #hinweis[(darum ist return type signed size)]. Blockieren normalerweise, bis $n$
+    Bytes kopiert wurden, ein Fehler auftritt oder das Ende der Datei erreicht wurde.
+    Erhöhen Offset von `fd` um Anzahl gelesener / geschriebener Bytes.
+  ],
+  image("img/bsys_7.png"),
+)
 
 #pagebreak();
 
@@ -233,30 +233,31 @@ char dpath[PATH_MAX]; // destination path
 int src = open(spath, O_RDONLY);
 int dst = open(dpath, O_WRONLY | O_CREAT, S_IRWXU);
 ssize_t read_bytes = read(src, buf, N);
-write(dst, buf, read_bytes); // if file gets closed early, use return value of "read_bytes"
-close(src);
+write(dst, buf, read_bytes); // if file gets closed early, only write as many bytes
+close(src);                  // as have been read from the file
 close(dst);
 ```
 
 === Springen in einer Datei: ```c off_t lseek(int fd, off_t offset, int origin)```
-#wrap-content(
+#grid(
+  columns: (65%, 35%),
+  align: horizon,
+  [
+    Setzt den Offset von `fd` auf `offset`. `origin` gibt an, wozu `offset` relativ ist:
+    - _`SEEK_SET`:_ Beginn der Datei #hinweis[(absoluter Offset)]
+    - _`SEEK_CUR`:_ Aktueller Offset #hinweis[(relativer Offset)]
+    - _`SEEK_END`:_ Ende der Datei #hinweis[(Offset über Datei hinaus)]
+
+    Gibt neuen Offset zurück oder -1 bei Fehler.\
+
+    Weitere Anwendungsmöglichkeiten:
+    - _`lseek(fd, 0, SEEK_CUR)`:_ gibt aktuellen Offset zurück
+    - _`lseek(fd, 0, SEEK_END)`:_ gibt die Grösse der Datei zurück
+    - _`lseek(fd, n, SEEK_END)`:_ hängt bei nachfolgendem `write` $n$ Nullen an Datei
+      #hinweis[(Padding, um Datei auf bestimmte Grösse zu setzen)].
+  ],
   image("img/bsys_8.png"),
-  align: top + right,
-  columns: (75%, 25%),
-)[
-  setzt den Offset von `fd` auf `offset`. `origin` gibt an, wozu `offset` relativ ist:
-  - _`SEEK_SET`:_ Beginn der Datei #hinweis[(absoluter Offset)]
-  - _`SEEK_CUR`:_ Aktueller Offset #hinweis[(relativer Offset)]
-  - _`SEEK_END`:_ Ende der Datei #hinweis[(Offset über Datei hinaus)]
-
-  Gibt neuen Offset zurück oder -1 bei Fehler.\
-
-  Weitere Anwendungsmöglichkeiten:
-  - _`lseek(fd, 0, SEEK_CUR)`:_ gibt aktuellen Offset zurück
-  - _`lseek(fd, 0, SEEK_END)`:_ gibt die Grösse der Datei zurück
-  - _`lseek(fd, n, SEEK_END)`:_ hängt bei nachfolgendem `write` $n$ Nullen an Datei\
-    #hinweis[(Padding, um Datei auf bestimmte Grösse zu setzen)]
-]
+)
 
 === Lesen und Schreiben ohne Offsetänderung:
 ```c
@@ -272,8 +273,7 @@ Wie `read` bzw. `write`. Statt des Offsets von `fd` wird der zusätzliche Parame
 - Bestandteile von Pfaden werden durch _Backslash_ (`\`) getrennt.\
   #hinweis[(müssen darum in C-Strings doppelt geschrieben werden, da `\` Escape-Character ist)]
 - Ein _Wurzelverzeichnis pro_ Datenträger/Partition
-- Andere File-Handling-Funktionen #hinweis[(CreateFile, ReadFile, WriteFile,
-  SetFilePointer, CloseHandle)]
+- Andere File-Handling-Funktionen #hinweis[(CreateFile, ReadFile, WriteFile, SetFilePointer, CloseHandle)]
 
 == C Stream API
 - _Unabhängig vom Betriebssystem:_ für POSIX und Windows gleich
@@ -372,7 +372,7 @@ if (return_value == EOF) {
 }
 ```
 
-=== Manipulation des File-Position-Indicator:
+=== Manipulation des File-Position-Indicator (FPI)
 - *```c long ftell(FILE *stream)```*
   gibt den gegenwärtigen FPI zurück.\
   #hinweis[(POSIX-Erweiterung von C: `ftello` mit Rückgabetyp `off_t`)]

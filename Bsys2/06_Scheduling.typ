@@ -1,5 +1,4 @@
 #import "../template_zusammenf.typ": *
-#import "@preview/wrap-it:0.1.1": wrap-content
 
 /*#show: project.with(
   authors: ("Nina Grässli", "Jannis Tschan"),
@@ -12,34 +11,36 @@
 
 = Scheduling
 Auf einem Prozessor läuft zu einem Zeitpunkt immer _höchstens ein Thread_. Es gibt folgende _Zustände:_
-#wrap-content(
-  image("img/bsys_27.png"),
-  align: bottom + right,
+#grid(
   columns: (60%, 40%),
-)[
-  - _Running:_ der Thread, der gerade läuft
-  - _Ready:_ Threads die laufen können, es aber gerade nicht tun
-  - _Waiting:_ Threads, die auf ein Ereignis warten
-    #hinweis[(können nicht direkt in den Status running wechseln, müssen neu gescheduled werden)]
-  Übergänge von einem Status zum anderen werden _immer vom OS_ vorgenommen.
-  Dieser Teil vom OS heisst _Scheduler_.
-]
-#wrap-content(
-  image("img/bsys_28.png"),
-  align: top + right,
-  columns: (55%, 45%),
-)[
-  == Grundmodell
-  Threads, die auf Ereignisse _warten_, müssen das _nicht_ in einer _Endlosschleife_ tun
-  #hinweis[(Busy-Wait)]. Stattdessen registriert das OS sie auf das entsprechende Ereignis
-  und setzt sie in den Zustand _waiting_. Tritt das Ereignis auf, ändert das OS den
-  Zustand auf _ready_. Es laufen nur Threads auf dem Prozessor, die _nicht warten_.
+  [
+    - _Running:_ der Thread, der gerade läuft
+    - _Ready:_ Threads die laufen können, es aber gerade nicht tun
+    - _Waiting:_ Threads, die auf ein Ereignis warten
+      #hinweis[(können nicht direkt in den Status running wechseln, müssen neu gescheduled werden)]
+    Übergänge von einem Status zum anderen werden _immer vom OS_ vorgenommen.
+    Dieser Teil vom OS heisst _Scheduler_.
+  ],
+  image("img/bsys_27.png"),
+)
 
-  === Ready-Queue
-  In der Ready-Queue #hinweis[(kann auch ein Tree sein)] befinden sich alle Threads, die
-  _bereit sind zu laufen_. Neue Threads kommen typischerweise direkt in die Ready-Queue
-  #hinweis[(Einige OS stellen neue Threads auf waiting)].
-]
+== Grundmodell
+#grid(
+  columns: (55%, 45%),
+  [
+    Threads, die auf Ereignisse _warten_, müssen das _nicht_ in einer _Endlosschleife_ tun
+    #hinweis[(Busy-Wait)]. Stattdessen registriert das OS sie auf das entsprechende Ereignis
+    und setzt sie in den Zustand _waiting_. Tritt das Ereignis auf, ändert das OS den
+    Zustand auf _ready_. Es laufen nur Threads auf dem Prozessor, die _nicht warten_.
+
+    === Ready-Queue
+    In der Ready-Queue #hinweis[(kann auch ein Tree sein)] befinden sich alle Threads, die
+    _bereit sind zu laufen_. Neue Threads kommen typischerweise direkt in die Ready-Queue
+    #hinweis[(Einige OS stellen neue Threads auf waiting)].
+  ],
+  image("img/bsys_28.png"),
+)
+
 === Powerdown-Modus
 Wenn kein Thread _laufbereit_ ist, schaltet das OS den Prozessor in _Standby_.
 Der Prozessor wird dann durch den nächsten _Interrupt_ wieder geweckt.
@@ -52,7 +53,7 @@ ins Standby verhindern.
 - _Prozessor-lastig:_ Kommuniziert kaum oder gar nicht mit I/O-Geräten und rechnet fast
   ausschliesslich. Priorisieren _mehr CPU-Zeit_.
 Der Unterschied ist fliessend, aber gute Systeme _trennen rechen-intensive von
-interaktiven Aktivitäten_. #hinweis[(I/O-Thread, UI-Thread etc.)]
+interaktiven Aktivitäten_ #hinweis[(I/O-Thread, UI-Thread etc.)].
 
 === Arten der Nebenläufigkeit
 - _Kooperativ:_ Jeder Thread entscheidet selbst, wann er den Prozessor abgibt
@@ -76,17 +77,17 @@ interaktiven Aktivitäten_. #hinweis[(I/O-Thread, UI-Thread etc.)]
 - _Nebenläufig:_ Überbegriff für parallel oder quasiparallel; aus Sicht des Programmierers
   sind thread-basierte Programme meist nebenläufig.
 
-#wrap-content(
-  image("img/bsys_29.png"),
-  align: top + right,
+=== Bursts
+#grid(
   columns: (50%, 50%),
-)[
-  === Bursts
-  - _Prozessor-Burst:_ Intervall, in dem ein Thread den Prozessor in einem parallelen
-    System _voll belegt_, also vom Eintritt in _running_ bis zum nächsten _waiting_.
-  - _I/O-Burst:_ Intervall, in dem ein Thread den Prozessor _nicht_ benötigt,
-    also vom Eintritt in _waiting_ bis zum nächsten _running_.
-]
+  [
+    - _Prozessor-Burst:_ Intervall, in dem ein Thread den Prozessor in einem parallelen
+      System _voll belegt_, also vom Eintritt in _running_ bis zum nächsten _waiting_.
+    - _I/O-Burst:_ Intervall, in dem ein Thread den Prozessor _nicht_ benötigt,
+      also vom Eintritt in _waiting_ bis zum nächsten _running_.
+  ],
+  image("img/bsys_29.png"),
+)
 Jeder Thread kann als _Abfolge_ von _Prozessor-Bursts_ und _I/O-Bursts_ betrachtet werden.
 
 == Scheduling-Strategien
@@ -119,53 +120,55 @@ vom Prozessor entfernt wurde. Um die Antwortzeit zu verringern, muss jeder Threa
 ausgeführt werden, was jedoch zu mehr Thread-Wechsel und somit zu mehr Overhead führt.
 _Die Utilization nimmt also ab, wenn die Antwortzeit verringert wird._
 
-#wrap-content(
+=== Idealfall: Parallele Ausführung #hinweis[($bold(n)$ Threads auf $bold(n)$ Prozessoren)]
+#grid(
+  columns: (50%, 50%),
+  [
+    Jeder Thread kann seinen Prozessor immer dann verwenden, wenn er ihn braucht.
+    In der Praxis _unrealistisch_, es gibt immer mehr Threads als Prozessoren.
+    Dient als _idealisierte Schranke_ für andere Scheduling-Strategien.
+  ],
   image("img/bsys_30.png"),
-  align: top + right,
-  columns: (50%, 50%),
-)[
-  === Idealfall: Parallele Ausführung #hinweis[($bold(n)$ Threads auf $bold(n)$ Prozessoren)]
-  Jeder Thread kann seinen Prozessor immer dann verwenden, wenn er ihn braucht.
-  In der Praxis _unrealistisch_, es gibt immer mehr Threads als Prozessoren.
-  Dient als _idealisierte Schranke_ für andere Scheduling-Strategien.
-]
+)
 
-#wrap-content(
+=== FCFS-Strategie #hinweis[(First Come, First Served)]
+#grid(
+  columns: (50%, 50%),
+  [
+    Threads werden in der Reihenfolge gescheduled, in der sie der Ready-Queue hinzugefügt
+    werden. _Nicht präemptiv:_ Threads geben den Prozessor nur ab, wenn sie auf "waiting" wechseln
+    oder sich beenden. Die durchschnittliche Wartezeit hängt von der Reihenfolge
+    des Eintreffens der Threads ab. Wird der längste Prozessor-Burst zuerst bearbeitet,
+    warten die kürzeren Threads länger.
+  ],
   image("img/bsys_31.png"),
-  align: top + right,
+)
+
+=== SJF-Strategie #hinweis[(Shortest Job First)]
+#grid(
   columns: (50%, 50%),
-)[
-  === FCFS-Strategie #hinweis[(First Come, First Served)]
-  Threads werden in der Reihenfolge gescheduled, in der sie der Ready-Queue hinzugefügt
-  werden. _Nicht präemptiv:_ Threads geben den Prozessor nur ab, wenn sie auf waiting wechseln
-  oder sich beenden. Die durchschnittliche Wartezeit hängt von der Reihenfolge
-  des Eintreffens der Threads ab. Wird der längste Prozessor-Burst zuerst bearbeitet,
-  warten die kürzeren Threads länger.
-]
-#wrap-content(
+  [
+    Scheduler wählt den Thread aus, der den _kürzesten_ Prozessor-Burst hat.
+    Bei gleicher Länge wird nach FCFS ausgewählt. Kann _kooperativ_ oder _präemptiv_ sein.
+    Ergibt _optimale Wartezeit:_ Der kürzeste Prozessor-Burst blockiert die anderen Threads minimal.\
+    Kann nur _korrekt implementiert_ werden, wenn die Länge der Bursts _bekannt_ sind.
+    Kann sonst nur mit einer _Abschätzung historischer Daten annähernd_ implementiert werden.
+  ],
   image("img/bsys_32.png"),
-  align: top + right,
+)
+
+#grid(
   columns: (50%, 50%),
-)[
-  === SJF-Strategie #hinweis[(Shortest Job First)]
-  Scheduler wählt den Thread aus, der den _kürzesten_ Prozessor-Burst hat.
-  Bei gleicher Länge wird nach FCFS ausgewählt. Kann _kooperativ_ oder _präemptiv_ sein.
-  Ergibt _optimale Wartezeit:_ Der kürzeste Prozessor-Burst blockiert die anderen Threads minimal.\
-  Kann nur _korrekt implementiert_ werden, wenn die Länge der Bursts _bekannt_ sind.
-  Kann sonst nur mit einer _Abschätzung historischer Daten annähernd_ implementiert werden.
-]
-#wrap-content(
+  [
+    === Round-Robin-Scheduling
+    Der Scheduler definiert eine _Zeitscheibe_ von etwa 10 bis 100ms. Das Grundprinzip folgt
+    _FCFS_, aber ein Thread kann nur solange laufen, bis seine _Zeitscheibe erschöpft_ ist,
+    dann wird der in der _Ready-Queue hinten angehängt_. Benötigt er nicht den gesamten
+    Time-Slice, beginnt die Zeitscheibe des nächsten Threads entsprechend früher.
+    Die _Wahl der Zeitscheibe beeinflusst das Verhalten_ massiv.
+  ],
   image("img/bsys_33.png"),
-  align: top + right,
-  columns: (50%, 50%),
-)[
-  === Round-Robin-Scheduling
-  Der Scheduler definiert eine _Zeitscheibe_ von etwa 10 bis 100ms. Das Grundprinzip folgt
-  _FCFS_, aber ein Thread kann nur solange laufen, bis seine _Zeitscheibe erschöpft_ ist,
-  dann wird der in der _Ready-Queue hinten angehängt_. Benötigt er nicht den gesamten
-  Time-Slice, beginnt die Zeitscheibe des nächsten Threads entsprechend früher.
-  Die _Wahl der Zeitscheibe beeinflusst das Verhalten_ massiv.
-]
+)
 
 === Prioritäten-basiertes Scheduling
 Jeder Thread erhält _eine Nummer_, seine _Priorität_. Threads mit höherer Priorität werden
@@ -187,18 +190,19 @@ z.B. Queues gegeneinander priorisieren #hinweis[(Threads in Queues mit _höherer
 werden _immer_ bevorzugt)] oder Time-Slices pro Queue
 #hinweis[(80% für UI-Queue mit Round-Robin, 20% für Hintergrund-Queue mit FCFS)].
 
-#wrap-content(
-  image("img/bsys_34.png"),
-  align: top + right,
+=== Multi-Level Scheduling mit Feedback
+#grid(
   columns: (50%, 50%),
-)[
-  === Multi-Level Scheduling mit Feedback
-  Je Priorität eine Ready-Queue. Threads aus Ready-Queues mit _höherer Priorität_ werden
-  _immer_ bevorzugt. Erschöpft ein Thread seine Zeitscheibe, wird seine Priorität um 1
-  verringert. Typischerweise werden die Zeitscheiben mit _niedrigerer_ _Priorität_
-  _grösser_ und Threads mit _kurzen Prozessor-Bursts bevorzugt_.
-  Threads in tiefen Queues dürfen zum Ausgleich länger am Stück laufen.
-]
+  [
+    Je Priorität eine Ready-Queue. Threads aus Ready-Queues mit _höherer Priorität_ werden
+    _immer_ bevorzugt. Erschöpft ein Thread seine Zeitscheibe, wird seine Priorität um 1
+    verringert. Typischerweise werden die Zeitscheiben mit _niedrigerer_ _Priorität_
+    _grösser_ und Threads mit _kurzen Prozessor-Bursts bevorzugt_.
+    Threads in tiefen Queues dürfen zum Ausgleich länger am Stück laufen.
+  ],
+  image("img/bsys_34.png"),
+)
+
 == Prioritäten in POSIX
 === #link("https://www.youtube.com/watch?v=UBX8MWYel3s")[Der Nice-Wert]
 Jeder Prozess $p$ hat einen Nice-Wert $n_p$ #hinweis[(in Linux jeder Thread)].
@@ -236,7 +240,7 @@ Spezifiziert Priorität für einzelnen Prozess, Prozessgruppe oder alle Prozesse
 ```c int pthread_attr_getschedparam(const pthread_attr_t * attr, struct sched_param * param)```\
 ```c int pthread_attr_setschedparam(pthread_attr_t * attr, const struct sched_param * param)```
 
-Die Priorität kann während der Thread läuft mit den regulären Funktionen, vor dem
+Die Priorität kann während der Thread läuft mit den regulären Funktionen oder vor dem
 Threadstart mit den `attr`-Funktionen gesetzt werden. Attribute eines Threads enthalten
 ein _`struct sched_param`_. Dieser kann vom Thread oder seinen Attributen _abgefragt_
 werden. Enthält ein Member `sched_priority`, das die _Priorität_ bestimmt.
