@@ -2,8 +2,6 @@
 
 = JIT Compiler
 #grid(
-  columns: (1fr, 1fr),
-  gutter: 1em,
   [
     Der JIT-Compiler wandelt _Bytecode_ direkt in _nativen Code_ für den jeweiligen Prozessor um.
     So kann die Ausführung direkt gestartet werden, ohne dass noch eine Interpretation durch die Runtime stattfinden muss.
@@ -13,15 +11,16 @@
   ],
   [
     *Beispiel für Hotspot (Loop)*
-    ```asm begin: load 1
-           load 2
-           icmplt
-           if_false end
-           load 1
-           ldc 1
-           iadd
-           store 1
-           br begin
+    ```asm
+    begin: load 1       ; Load first variable
+           load 2       ; Load second variable
+           icmplt       ; is V1 < V2?
+           if_false end ; false = jump to end label
+           load 1       ; Load first variable
+           ldc 1        ; Load the number 1
+           iadd         ; v1 + 1
+           store 1      ; Store result in v1
+           br begin     ; Branch/jump to 'begin'
     end:   ...
     ```
   ],
@@ -30,7 +29,6 @@
 == Profiling
 #grid(
   columns: (2.5fr, 1fr),
-  gutter: 1em,
   [
     Der Interpreter _zählt_ die Ausführung von gewissen Code-Teilen, um _Hot Spots zu erkennen_.
     Wenn der Zähler einen bestimmten _Schwellenwert_ überschreitet, veranlasst der Interpreter den JIT-Compiler für
@@ -45,11 +43,10 @@
   image("img/combau_33.png"),
 )
 
+== Intel 64 Architektur
 #grid(
   columns: (2.5fr, 1fr),
-  gutter: 1em,
   [
-    == Intel 64 Architektur
     Instruktionen auf der x64-Prozessorarchitektur benutzen _Register_, im Gegensatz zu unserer Stack-basierender VM.
     Es gibt _14 allgemeine Register_ für Ganzzahlen, wir verwenden diese aber auch, um Booleans zu speichern:\
     `RAX, RBX, RCX, RDX, RSI, RDI, R8, R9, ..., R15`
@@ -60,6 +57,7 @@
   ],
   image("img/combau_30.png"),
 )
+
 Die Intel x64-Architektur unterstützt auch _Zugriffe auf die kleineren Register_, welche Teil der grösseren sind
 #hinweis[(`RAX` 64-bit, `EAX`, 32-bit, `AX` 16-bit, `AH`/`AL` obere/untere 8-bit)]. Es wäre sogar performanter,
 die 32-bit SmallJ Strings in die 32-bit grossen Register zu speichern, der Einfachheit halber greift aber der
@@ -75,16 +73,15 @@ JIT-Compiler nur auf die vollen 64-bit Register zu.
   [`IDIV RBX`], [`RDX` muss vorher 0 sein bei nicht-negativem `RAX`, ansonsten -1. `RAX /= RBX, RDX = RAX % RBX`],
   [`CDQ`],
   [
-    Vorzeichenbehaftete Konvertierung von `RAX` to `RDX:RAX`\
+    Vorzeichenbehaftete Konvertierung von `RAX` zu `RDX:RAX`\
     #hinweis[(Convert to quad word: `RDX` wird zu 0 bzw. -1 je nach Vorzeichen von `RAX`])
   ],
 )
 
+==== `IDIV`-Instruktion
 #grid(
-  columns: (1.5fr, 1fr),
-  gutter: 1em,
+  columns: (1.3fr, 1fr),
   [
-    ==== `IDIV`-Instruktion
     Die _`IDIV`-Instruktion_ ist auf mehrere Arten speziell: Sie führt _gleichzeitig_ eine Division und eine
     Modulo-Operation durch. Die beiden Register `RDX:RAX` werden zusammen als 128-bit Zahl durch den Operand der
     Instruktion geteilt. Ist die Zahl _positiv_, muss `RDX` 0 sein, ansonsten 1. Dies kann mit der _`CDQ`-Instruktion_
@@ -123,7 +120,6 @@ JIT-Compiler nur auf die vollen 64-bit Register zu.
 #v(0.5em)
 #grid(
   columns: (1fr, 1fr),
-  gutter: 1em,
   [
     ==== VM Bytecode
     ```cs
@@ -170,8 +166,7 @@ werden an ihrem "normalen" Platz gespeichert. Wir setzen diese Massnahmen aber i
 
 === Intel Branches
 #grid(
-  columns: (3.75fr, 1fr),
-  gutter: 1em,
+  columns: (3.7fr, 1fr),
   [
     Auf dem Intel-Prozessor basieren _bedinge Verzweigungen_ #hinweis[(Branches)] auf einem _Bedingungscode_,
     der sich aus einem _vorangegangenen Vergleich_ durch die `CMP`-Instruktion ergibt. Im Beispiel rechts werden
@@ -222,7 +217,7 @@ Der _Native Intel Code_ gibt die Condition jedoch erst _beim_ Sprung an.
     CMP <left_register>, <right_register>
     JL <offset>
     ```
-  ]
+  ],
 )
 
 === Register Buchhaltung
@@ -239,8 +234,8 @@ Die gleiche Technik kann auch dazu verwendet werden, um _Register zu verschieben
 Es wird nur der Speicherort innerhalb des Allocation Records geändert. Dadurch wird das Zurückverschieben des Werts
 ebenfalls hinfällig.
 #grid(
-  columns: (1fr, 1fr),
-  image("img/combau_36.png"), image("img/combau_37.png"),
+  image("img/combau_36.png"),
+  image("img/combau_37.png"),
 )
 
 
@@ -321,9 +316,10 @@ Für die Erkennung der Lifetime benötigen wir einen _Register Interference Grap
 Falls nicht, kann sie durch eine andere lebende Variable ersetzt werden. Der Graph stellt alle Variablen dar und zieht
 jeweils eine Kante zwischen zwei Variablen, wenn sie zum selben Zeitpunkt leben, also überlappende Lifetimes besitzen.
 
+Im Beispiel unten leben `c` und `d` nicht gleichzeitig, weil `d` erst nach der letzten Verwendung von `c` initialisiert wird.
+
 #grid(
   columns: (1.2fr, 1fr),
-  gutter: 1em,
   align: horizon,
   image("img/combau_38.png"), image("img/combau_39.png"),
 )
@@ -344,7 +340,7 @@ z.B. das Linken von Adressen zu statischen Variablen oder Methodenaufrufziele, d
 Diese _statischen Adressen_ können dann direkt in die entsprechenden Instruktions-Operanden eingefügt werden.
 Ebenfalls fügt der Linker aneinanderliegende JIT-Blöcke zusammen, damit nicht mehr unnötig zum Interpreter zurückgesprungen werden muss.
 
-In unserer SmallJ-VM verwenden wir nur einen simplen Assembler ohne Linker, da wir weder statischen Variablen
+In unserer SmallJ-VM verwenden wir nur einen simplen Assembler ohne Linker, da wir weder statische Variablen
 noch Methodenaufrufe innerhalb von JIT-Code unterstützen.
 
 == Native Stack-Verwaltung
@@ -354,7 +350,7 @@ welcher aus einem eigenen Speicherblock besteht, auf welchen der _Base- und Stac
 Eine _effizientere Vorgehensweise_ ist es, wenn beide Code-Arten sich denselben Stack teilen.
 Dafür müsste der Interpreter-Code aber ebenfalls einen nativen Stack verwenden, wie in Abschnitt @unmanaged-call-stack
 beschrieben. Der _Interpreter_ und _JIT-Code_ verwenden dann _abwechselnd_ diesen Stack, wobei beide Komponenten
-ihren spezifischen Activation Frames reservieren. Wird von einer Methode returnt, wird automatisch in der
+ihre spezifischen Activation Frames reservieren. Wird von einer Methode returnt, wird automatisch in der
 _richtigen VM-Komponente_ fortgefahren.
 
 Dadurch wird auch der _Wechsel_ zwischen dem Interpreter und dem JIT-Code vereinfacht:
@@ -363,7 +359,6 @@ Diese Technik wird _On-Stack-Replacement (OSR)_ genannt.
 
 #grid(
   columns: (1.2fr, 1fr),
-  gutter: 1em,
   align: horizon,
   image("img/combau_40.png"), image("img/combau_41.png"),
 )

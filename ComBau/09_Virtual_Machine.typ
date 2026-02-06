@@ -11,8 +11,8 @@ _Mehrsprachigkeit_ #hinweis[(kann mehrere Sprachen unterstützen, welche auf die
 _Sicherheit_ #hinweis[(VM verhindert elementare Sicherheitsprobleme wie Speicherfehler und erlaubt Sandboxing)].
 
 == Aufbau einer virtuellen Maschine
-Loader $arrow.r$ Interpreter #hinweis[(mit Just-in-Time Compiler)] $arrow.r$ Metadaten, Heap & Stacks
-$arrow.r$ Garbage Collection
+Loader $->$ Interpreter #hinweis[(mit Just-in-Time Compiler)] $->$ Metadaten, Heap & Stacks
+$->$ Garbage Collection
 
 == Loader
 Der Loader _liest_ das _Assembly_ bzw. Object File und _alloziert_ die notwendigen _Laufzeitstrukturen_.
@@ -141,25 +141,24 @@ Bei einem _Rücksprung_ durch den Opcode _`return`_ aus der Methode `g()` wird d
 
 === Methodenaufruf
 #grid(
-  columns: (1fr, 1fr),
-  gutter: 1em,
+  columns: (1fr, 1.1fr),
   [
     Bei einem _Methodenaufruf_ ruft der _Caller_ #hinweis[(Methode, welche den Function Call aufruft)] den
     _Callee_ #hinweis[(Zu aufrufende Methode)] auf. Zuerst wird der Method Descriptor des Callees bestimmt, indem der
     Operand des `ìnvokeVirtual`-Opcodes evaluiert wird. Dieser spezifiziert die _Anzahl Parameter_; basierend darauf
     werden die Argumente und anschliessend die `this`-Referenz auf das Objekt der auszuführenden Methode
-    von hinten vom Stack gepoppt.
+    _von hinten vom Stack gepoppt_.
   ],
   [
     ```cs
-    var met = (MethodDescriptor)instruction.Operand;
-    var nofParams = met.ParameterTypes.Length;
+    var meth = (MethodDescriptor)instruction.Operand;
+    var nofParams = meth.ParameterTypes.Length;
     var args = new object[nofParams];
     for(int i = args.Length - 1; i >= 0; i--) {
       args[i] = Pop();
     }
     var target = Pop(); // 'this' reference
-    var af = new ActivationFrame(met, target, args);
+    var af = new ActivationFrame(meth, target, args);
     callStack.Push(af);
     ```
   ],
@@ -167,20 +166,25 @@ Bei einem _Rücksprung_ durch den Opcode _`return`_ aus der Methode `g()` wird d
 
 === Methodenrücksprung
 #grid(
-  columns: (1fr, 1fr),
-  gutter: 1em,
+  columns: (1fr, 1.1fr),
   [
     Wird eine Methode _beendet_, wird im aktuellen Method Descriptor geprüft, ob sie einen _Return Type_ hat
     oder `void` ist. Hat sie einen, wird dieser Wert vom Stack gepoppt und nach der Entfernung des Activation Frames
-    auf den Evaluation Stack des Callers gepusht.
+    auf den Evaluation Stack des Callers gepusht. Auf jeden Fall wird aber das _aktuelle Activation Frame_ vom Stack
+    gepoppt, damit zum Caller zurückgekehrt werden kann.
   ],
   [
     ```cs
-    var met = activeFrame.Method;
-    var hasReturn = met.ReturnType != null; // void?
+    var meth = activeFrame.Method;
+    var hasReturn = meth.ReturnType != null; // void?
     object result = hasReturn ? Pop() : null;
-    callStack.Pop(); // go back to caller
-    if (hasReturn) { Push(result); }
+    // Pop activation frame from call stack
+    callStack.Pop();
+    if (hasReturn) {
+      // Push the return value on the
+      // evaluation stack of the caller
+      Push(result);
+    }
     ```
   ],
 )
@@ -211,11 +215,10 @@ class CallStack {
 }
 ```
 
+==== Unmanaged Call Stack <unmanaged-call-stack>
 #grid(
   columns: (2fr, 1fr),
-  gutter: 1em,
   [
-    ==== Unmanaged Call Stack <unmanaged-call-stack>
     Folgt dem klassischen _Design eines Betriebssystems_. Bevorzugter Weg, wenn die VM in einer _low-level Sprache_
     implementiert oder JIT-Code ausführt wird. Der IP #hinweis[(auch Program Counter genannt)] ist _eine Adresse_
     im generierten Code Block. Ausserdem wird ein _zusammenhängender virtueller Speicherblock_ für den Stack alloziert.\
@@ -227,13 +230,12 @@ class CallStack {
   image("img/combau_21.png"),
 )
 
+== Laufzeitstrukturen
 #grid(
   columns: (1.5fr, 1fr),
-  gutter: 1em,
   [
-    == Laufzeitstrukturen
     Die Abbildung rechts dient als Zusammenfassung der Laufzeitstrukturen einer virtuellen Maschine.
-    Der _Interpreter_ arbeitet mit einem _Call Stack_ der aus _Activation Frames_ besteht.
+    Der _Interpreter_ arbeitet mit einem _Call Stack_, der aus _Activation Frames_ besteht.
     Jeder _Activation Frame_ verwaltet einen _Evaluation Stack_.\
     Wenn die VM _Multi-Threading_ unterstützen würde, müsste das Laufzeitsystem über mehrere Call Stacks verfügen,
     für jeden _aktiven Thread_ einen.
@@ -251,7 +253,6 @@ _Erkenne_ und _verhindere_ falschen Byte-Code, die durch _Fehler im Compiler_ od
 ==== Folgendes ist zu Überprüfen:
 #grid(
   columns: (2fr, 1fr),
-  gutter: 1em,
   [
     - _Korrekte Benutzung der Instruktionen_ #hinweis[(Typen stimmen, Methodenaufrufe stimmen, Sprünge sind gültig,
       Op-Codes stimmen, Stack-Überlauf oder Unterlauf erkennen)]
