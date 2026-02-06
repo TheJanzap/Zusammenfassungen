@@ -1,4 +1,4 @@
-// Compiled with Typst 0.13.1
+// Compiled with Typst 0.14.2
 #import "../template_zusammenf.typ": *
 
 #show: project.with(
@@ -13,9 +13,7 @@
 )
 
 // Global settings
-#set par(justify: false, spacing: 0.5em, leading: 0.5em)
-#set text(hyphenate: true)
-
+#set par(spacing: 0.5em, leading: 0.5em)
 
 = Laufzeitsysteme
 Source Code $arrow$ Compiler $arrow$ Maschinencode $arrow$ Laufzeitsystem
@@ -48,7 +46,7 @@ Kann _kontextfreie Grammatiken_ #hinweis[(Extended Backus-Naur Form)] darstellen
   #tcolor("orange", `Term`) `=` #tcolor("rot", `Variable`) `|` #tcolor("orange", `Term`) `"*"` #tcolor("rot", `Variable`).\
   #tcolor("rot", `Variable`) `= "a" | "b" | "c" | "d"`.
 ]
-\
+
 #grid(
   columns: (1fr, 1fr),
   rows: 4em,
@@ -61,7 +59,7 @@ Darf nicht _mehrdeutig_ sein:
   #tcolor("rot", `Number`) `= "1" | "2" | "3"`.
 ]
 
-#image("img/combau_05.png", width: 50%)
+#align(center, image("img/combau_05.png", width: 50%))
 
 #hinweis[
   *Besser:*
@@ -74,7 +72,7 @@ _Input:_ Zeichenfolge, _Output:_ Folge von Terminalsymbolen #hinweis[(Tokens)].\
 Kann _Reguläre Sprachen_ analysieren.
 #hinweis[(Regulär = hat rekursionsfreien EBNF oder kann in rekursionsfreien EBNF umgewandelt werden)]
 Eliminiert _Whitespaces_ und _Kommentare_, merkt _Positionen_ im Code.\
-*Maximum Munch:* Lexer ist greedy.\
+*Maximum Munch:* Lexer ist greedy.
 
 *Vorteile:*
 Abstraktion #hinweis[(Parser muss sich nicht um Textzeichen kümmern)],
@@ -83,16 +81,16 @@ Effizienz #hinweis[(benötigt keinen Stack)].\
 Hat _one-character-lookahead_, um Typ immer bestimmen zu können.
 
 *Tokens:*
-_Fixe / Static Token `(1)`_ #hinweis[(Keywords, Operatoren, Interpunkt.)],
+_Fixe / Static Token `(1)`_ #hinweis[(Keywords, Operatoren, Interpunktion)],
 _Identifiers `(2)`_ #hinweis[`MyClass`],
 _Integer `(3)`_ #hinweis[`123`],
 _Strings `(4)`_ #hinweis[`"Hello"`],
 _Characters `(5)`_ #hinweis[`'a'`] \
-```java while (i < 100) {x = x + 1; }```
+```java while (i < 100) { x = x + 1; }```
 _`"while"`_ #hinweis[(1)],
 _`"("`_ #hinweis[(1)],
 _`"x"`_ #hinweis[(2)],
-_`"<"`_ #hinweis[(1)],
+_`"<"`_ #hinweis[(1)],\
 _`100`_ #hinweis[(3)],
 _`")"`_ #hinweis[(1)],
 _`"{"`_ #hinweis[(1)],
@@ -105,7 +103,7 @@ _`"}"`_ #hinweis[(1)]
 #hinweis[*Fehler:* Invalid Symbol, Unclosed stuff, overflow]
 
 
-= Rec. Descent Parser
+= Recurs. Descent Parser
 _Input:_ Tokens, _Output:_ Syntaxbaum\
 Parser erkennt, ob Eingabetext den _Syntax_ erfüllt.
 Funktioniert mit _kontextfreien Sprachen_ #hinweis[(als EBNF ausdrückbar + Stack)].
@@ -132,12 +130,12 @@ _Abstract Syntax Tree:_ Minimale Ableitung.
 Syntaktisch #emoji.checkmark `!=` Semantisch #emoji.checkmark\
 _Input:_ Syntaxbaum, _Output:_ Symboltabelle. Prüft, ob das Programm korrekt ist, _kontextsensitive Grammatik_
 #hinweis[(Designators aufgelöst, alles deklariert, Typregeln erfüllt, Argumente und Parameter kompatibel,
-  keine zyklische Vererbung, nur eine main Methode, ...).]
+  keine zyklische Vererbung, nur eine `main` Methode, ...).]
 
 *Symboltabelle:*
 Datenstruktur zur Verwaltung von Deklarationen.
 #image("img/combau_13.png")
-#hinweis[
+#small[
   ```java
   class Counter { int number;
     void set(int value) { int temp;
@@ -152,24 +150,26 @@ Datenstruktur zur Verwaltung von Deklarationen.
 
 
 = Code-Generierung
-_Input:_ Zwischendarstellung, _Output:_ Ausführbarer Maschinencode\
+_Input:_ Zwischendarstellung\ _Output:_ Ausführbarer Maschinencode\
 *Visitor Pattern:* Traversieren des AST pro Methode\
 #small[
   ```java while (x < 10) { x = x + 1; }```
-  ```asm begin: load 1
-         ldc 10
-         icmplt
-         if_false end
-         load 1
-         ldc 1
-         iadd
-         store 1
-         goto begin
-  end:   ...
+  ```asm
+  begin: load 1       ; Wert in x laden
+         ldc 10       ; 10 laden
+         icmplt       ; x < 10?
+         if_false end ; Condition check
+         load 1       ; Wert in x laden
+         ldc 1        ; 1 laden
+         iadd         ; x + 1
+         store 1      ; Resultat in x
+         goto begin   ; Loop erneut
+  end:   ...          ; Loop beendet
   ```
 ]
+
 #image("img/combau_42.png", width: 94%)
-#hinweis[
+#small[
   + `this`-Referenz: Index 0
   + $n$ Params: Index $1 ... n$
   + $m$ lokale Variablen: Index $n+1...n+m$
@@ -184,7 +184,7 @@ _Common Subexpressions_ #hinweis[(Wiederholt ausgewertete Teilausdrücke zusamme
 _Dead Code Elimination_ #hinweis[(Nicht Verwendetes entfernen)],
 _Copy Propagation_ #hinweis[(redundante `load` und `stores` entfernen)],
 _Constant Propagation_ #hinweis[(konstante Variablen durch Konstante ersetzen)],
-_Partial Redundancy Elimination_ #hinweis[(Expressions in Pfaden so wenig wie möglich evaluieren)]\
+_Partial Redundancy Elimination_ #hinweis[(Expressions in Pfaden so wenig wie möglich evaluieren)]
 
 *Static Single Assignment (SSA):*\
 Variablen werden umbenannt, damit jede nur ein einziges Mal zugewiesen wird
@@ -214,7 +214,8 @@ Adresse der nächsten Instruktion\
 Stack der Methode. #hinweis[(item = register)]\
 
 *Call Stack:*
-Stack der _Methoden-\ aufrufe_. Verwaltet lokale Variablen und Rücksprungadresse #hinweis[(item = activation frame)]
+Stack der _Methodenaufrufe_. Verwaltet lokale Variablen und Rücksprungadresse
+#hinweis[(item = activation frame)]
 _Managed_ #hinweis[(mit Klassen modelliert)]
 _Unmanaged_ #hinweis[(Funktioniert mit Stack Pointer und Base Pointer)]
 
@@ -233,18 +234,18 @@ _Fields_ #hinweis[(Inhalt des Blocks)]
 #image("img/combau_25.png")
 
 *Typ-Polymorphismus:*
-_Subklasse_ erbt von und erweitert _Basisklasse_. _Downcasts_ müssen dynamisch überprüft werden.\
+_Subklasse_ erbt von und erweitert _Basisklasse_. _Downcasts_ müssen dynamisch überprüft werden.
 
 *Ancestor Tables:*
 Jeder Class Descriptor hat eine #hinweis[(Nur bei Single Inheritance)].
 #image("img/combau_27.png", width: 90%)
 
 *Virtuelle Methoden:*
-Methoden können _überschrieben_ werden, Inhalt der bestehenden Methode wird ersetzt.\
+Methoden können _überschrieben_ werden, Inhalt der bestehenden Methode wird ersetzt.
 
 *Virtual Method Table:*
 Jeder _Klassendeskriptor_ hat eine _vTable_ mit den Methoden
-#hinweis[(zu oberst von Basisklasse, bei Overriding wird nicht ersetzt, sondern ergänzt).]\
+#hinweis[(zu oberst von Basisklasse, bei Overriding wird nicht ersetzt, sondern ergänzt).]
 
 *Typdeskriptoren:*
 Werden vom Loader generiert. Nützlich für Type Checking, Ancestor Table, vTables #hinweis[(im Bild)].
@@ -262,21 +263,22 @@ wo sie sich auch in der globalen Tabelle befinden. Die Einträge verweisen auf v
 
 *Reference Counting:*
 Counter pro Objekt mit eingehenden Referenzen\
-#hinweis[(Problematisch bei Zyklen).]\
+#hinweis[(Problematisch bei Zyklen)].
 
 *Ablauf:*
 _Mark Phase_ #hinweis[(Ausgehend vom Root Set (Call Stack) werden alle erreichbaren Objekte markiert)]\
 _Sweep Phase_ #hinweis[(Alle nicht markierten Objekte werden gelöscht)]
 
 *Free List:*
-Liste der freien Blöcke, wird bei Allozierung traversiert. Nebeneinanderliegende werden wieder verschmolzen.\
+Liste der freien Blöcke, wird bei Allozierung traversiert.
+Nebeneinanderliegende freie Blöcke werden wieder verschmolzen.
 
 *Stop & Go:*
 GC läuft _sequenziell_ und _exklusiv_. Mutator muss warten.\
-#hinweis[Mark-Phase hätte Probleme bei Parallelität wegen Heap-Veränderungen, Sweep-Phase würde aber funktionieren.]\
+#hinweis[(Mark-Phase hätte Probleme bei Parallelität wegen Heap-Veränderungen, Sweep-Phase würde aber funktionieren.)]
 
 *Compacting GC / Moving GC:*
-Schiebt Objekte im Heap wieder zusammen. Der freie Speicher befindet sich zu hinterst im Heap.
+Schiebt Objekte im Heap wieder zusammen. Der freie Speicher befindet sich zuhinterst im Heap.
 Referenzen müssen _nachgetragen_ werden. _Mark-Phase_ gleich wie bei Stop & Go,
 _Sweep-Phase_ hätte dann der Mutator Zugriff auf verschobene Adressen.
 #hinweis[(Vorteile: Eliminiert External Fragmentation, schnelle Speicherallozierung)]
