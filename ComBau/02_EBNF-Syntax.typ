@@ -20,7 +20,6 @@ Aus `Expression = "(" ")" | "(" Expression ")"` wird so `Expression = "(" [Expre
 == Beispiel $bold(a*b+c)$
 #grid(
   columns: (3fr, 0.5fr, 0.7fr),
-  gutter: 1em,
   [
     #tcolor("grün", `Expression`) `=` #tcolor("orange", `Term`) `|` #tcolor("grün", `Expression`) `"+"` #tcolor("orange", `Term`).
     #hinweis[(`*` bindet stärker als `+`)]\
@@ -34,7 +33,6 @@ Aus `Expression = "(" ")" | "(" Expression ")"` wird so `Expression = "(" [Expre
 == Mehrdeutigkeit
 #grid(
   columns: (2.5fr, 1fr),
-  gutter: 1em,
   [
     Der Syntax des EBNF darf nicht _mehrdeutig_ sein.\
     _Problematisches Beispiel:_\

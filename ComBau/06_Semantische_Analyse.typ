@@ -29,7 +29,6 @@ Prüfe, dass Programm _alle_ über die Syntax hinausgehenden _Regeln_ enthält.
 == Symboltabelle
 #grid(
   columns: (1.3fr, 1fr),
-  gutter: 1.5em,
   [
     *Beispiel Deklarationen*
     ```cs
@@ -63,16 +62,15 @@ Es gibt jedoch auch _Deklarationen im Global Scope_. Hier werden alle Klassen de
 Auch vordefinierte _Typen_ #hinweis[(Value Types wie int und boolean, Reference Types wie string)],
 _Konstanten_ #hinweis[(true, false, null)], _this_ #hinweis[(in Methoden als read-only Parameter)],
 _Built-in Methoden_ #hinweis[(`writeString()` etc.)] und _Felder_ #hinweis[(`length`: read-only und nur für Array-Typen)]
-(aber keine Keywords!) werden hier eingetragen. Sie werden hier definiert, um die Implementation des Lexers und Parsers zu vereinfachen.
+(_aber keine Keywords!_) werden hier eingetragen. Sie werden hier definiert, um die Implementation des Lexers und Parsers zu vereinfachen.
 
 _Array Typen:_ Sind im Source _nicht_ mit eigenem Namen definiert. Haben eine _String-Repräsentation_ der Form
 `<Element-Typ>"[]"`, damit sie via Namen nachgeschlagen werden können.
 
 === Aufbau der Symboltabelle
 #grid(
-  columns: (1fr, 1fr),
-  gutter: 1em,
-  image("img/combau_14.png"), image("img/combau_15.png"),
+  image("img/combau_14.png"),
+  image("img/combau_15.png"),
 )
 
 == Vorgehen
@@ -106,17 +104,16 @@ Array-Typdefinition gesucht und daraus der Elementtyp erfasst.
 Mit einer _Post-Order-Traversierung_ werden die Typen zuerst in den unteren Knoten bestimmt. Die Typen der Blattknoten
 sind vordefinierte Typen wie `int` oder `string`. _Designatoren_ haben die _Typen_, welche in der vorherigen Phase _bestimmt_
 wurden. Unäre oder Binäre Ausdrücke erhalten ihren Typ je nach Operanden.\
-Da in SmallJ der `+` Operator nur für `int` definiert ist, kann als Typ also implizit `int` angenommen werden. 
+Da in SmallJ der `+` Operator nur für `int` definiert ist, kann als Typ also implizit `int` angenommen werden.
 
 
 == Implementation
 #grid(
   columns: (0.95fr, 1fr),
-  gutter: 1em,
   [
     Wie beim Lexer und Parser arbeitet die _Semantische Analyse_ mit dem _Visitor Pattern_. Dabei fungiert das Feld
     `ExpressionType` als globaler Zustand, welche den Typ des zuletzt geprüften Nodes beinhaltet. Im nebenstehenden
-    `BinaryExpressionNode` wird zuerst rekursiv der linke, dann der rechte Kindknoten geparst, um deren Typen zu erhalten.
+    `BinaryExpressionNode` wird _zuerst rekursiv der linke_, dann der rechte Kindknoten geparst, um deren Typen zu erhalten.
     Gehört der Operator des Nodes zu einer arithmetischen Operation, wird geprüft, dass sowohl der linke, als auch rechte
     Teil des Ausdrucks einer `int`-Variable zuweisbar sind. Ist das der Fall, wird für diesen Node der Typ `int` in
     `ExpressionType` geschrieben.

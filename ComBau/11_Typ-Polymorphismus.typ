@@ -25,7 +25,8 @@ Subklasse _erbt_ Variablen & Methoden und _erweitert_ Layout der Basisklasse.
   [
     ```java
     class Car extends Vehicle { int wheels; }
-    // type desc: Car, beinhaltet auch model und wheels
+    // type desc: Car, beinhaltet model, color
+    // und wheels
     ```
   ],
 )
@@ -36,7 +37,7 @@ Objekt der Subklasse ist auch vom Typ der Basisklasse(n). Subtyp ist auf Basisty
 ```cs
 Vehicle v;      // Statischer = deklarierter Typ, definiert zu Compile-Time
 v = new Car();  // Dynamischer = effektiver Typ, existiert zu Runtime
-                // statischer Typ != dynamischer Typ
+                // Im Beispiel ist statischer Typ != dynamischer Typ
 ```
 
 === Type Test & Cast
@@ -45,7 +46,6 @@ immer statisch vom Compiler determiniert werden. ```java null instanceof Car``` 
 ```java (Car)null``` ohne Fehler erfolgt. Dies funktioniert, da `null` auf jeden Reference-Type zuweisbar ist.
 #grid(
   columns: (2fr, 1fr),
-  gutter: 1em,
   [
     ```java
     Vehicle v; Car c; v = ...;
@@ -67,8 +67,6 @@ Deshalb gibt es _fixe Stufen_ für die Vererbung.
 
 == Ancestor Tables
 #grid(
-  columns: (1fr, 1fr),
-  gutter: 1em,
   [
     Die _fixen Stufen der Vererbung_ können für eine _effizientere Basistypenerkennung_ verwendet werden.
     Jeder Class Descriptor beinhaltet eine _Ancestor Table_, die eine _Tabelle aller Basisklassen_ in der Vererbungsliste
@@ -80,15 +78,15 @@ Deshalb gibt es _fixe Stufen_ für die Vererbung.
 )
 
 ```cs
-// implementation of 'instanceof'
+// implementation of 'instanceof': (target)object
 var instance = CheckPointer(Pop());                     // pointer to the variable/object
 var desc = heap.GetDescriptor(instance);                // dereference type tag of object
 var target = CheckClassDescriptor(instruction.Operand); // type descriptor of target class
 var level = target.AncestorLevel;                       // get ancestor level of target class
-var table = desc.AncestorTable;
 if (level >= ancestorTable.Length || level > desc.AncestorLevel) {
   throw new VirtualMachineException("Invalid cast");
 }
+var table = desc.AncestorTable;
 Push(table[level] == target); // check if type at the ancestor level is the same as the target
 
 // additional code for 'checkcast' after the 'instanceof' code
@@ -96,8 +94,6 @@ if (!CheckBoolean(Pop())) { throw new VMException("Invalid cast") } Push(instanc
 ```
 
 #grid(
-  columns: (1fr, 1fr),
-  gutter: 1em,
   [
     Ein _Compiler_ kann gewisse _unnötige Type Tests_ oder Casts _eliminieren_, beispielsweise wenn der dynamische
     dem statischen Typ entspricht oder wenn ein _expliziter Upcast_ vorhanden ist.
@@ -140,11 +136,10 @@ Vehicle v; v = c; // Dynamic Type = Car
 v.drive();        // ruft Car.drive() auf
 ```
 
+=== Virtual Method Table
 #grid(
   columns: (2fr, 1fr),
-  gutter: 1em,
   [
-    === Virtual Method Table
     Da virtuelle Methodenaufrufe sehr häufig sind, benötigen sie eine schnelle Implementation in der Runtime.
     Sie werden durch eine _virtuelle Tabelle_ #hinweis[(vTable)] realisiert. Jeder _Klassendeskriptor_ hat eine Tabelle
     mit _seinen enthaltenen virtuellen Methoden_. Jeder Tabelleneintrag _assoziiert_ die Methodenimplementierung für die
@@ -198,7 +193,6 @@ Die Einträge in der _iTable verweisen_ dann auf die _vTable_ des _jeweiligen In
 
 #grid(
   columns: (auto,) * 4,
-  gutter: 1em,
   [
     ```
     Global Interface Table
@@ -226,11 +220,13 @@ Die Einträge in der _iTable verweisen_ dann auf die _vTable_ des _jeweiligen In
     0 -> null
     1 -> IB
     ```
-  ]
+  ],
 )
 
 Wird eine Methode eines Interfaces _gecallt_, wird vom Class Descriptor der Klasse auf die iTable verwiesen,
 wo das Interface von der _iTable_ geholt und dort dem Verweis in der _vTable_ auf die korrekte Methode gefolgt wird.
+
+#pagebreak()
 
 === Type Test & Cast bei Interfaces
 - _Type Test:_ `y instanceof IA`

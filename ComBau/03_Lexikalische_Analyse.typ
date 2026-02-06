@@ -13,8 +13,6 @@ Er erleichtert die spätere syntaktische Analyse:
 
 == Tokens
 #grid(
-  columns: (auto, auto),
-  gutter: 1em,
   [
     - _Fixe Tokens:_ Keywords, Operatoren, Interpunktion\ #hinweis[(`if`, `else`, `while`, `*`, `&&`, ...)]
     - _Identifiers:_ `MyClass`, `readFile`, `name2`, etc.
@@ -31,8 +29,6 @@ Lexer unterstützen nur _reguläre_ Sprachen. Reguläre Sprachen sind Sprachen, 
 #hinweis[(Eine rekursive EBNF kann auch eine reguläre Sprache sein, solange sie auch ohne Rekursion dargestellt werden könnte)].
 
 #grid(
-  columns: (1fr, 1fr),
-  gutter: 1em,
   [
     *Beispiele Regulär:*\
     #tcolor("grün", `Integer`) `=` #tcolor("orange", `Digit`) `{` #tcolor("orange", `Digit`) `}`.\
@@ -58,7 +54,6 @@ _Kontextsensitive Sprache_ #hinweis[(Bounded Turing Maschine, für Semantic Chec
 
 #grid(
   columns: (2.5fr, 1fr),
-  gutter: 1em,
   [
     == Identifier
     Bezeichner von Klassen, Methoden, Variablen etc. Beginnt mit einem Buchstaben, danach sind Buchstaben und Ziffern erlaubt
@@ -83,7 +78,6 @@ Die Trennung erfolgt aber manchmal auch _ohne Whitespace_. #hinweis[(z.B `1234na
 === Token-Repräsentation
 #grid(
   columns: (1.6fr, 1fr),
-  gutter: 1em,
   [
     Eine abstrakte `Token` Basisklasse beschreibt die _Position_ des Tokens im Sourcecode.
     Die Subklassen implementieren die einzelnen Tokentypen: _`IntegerToken`_, _`IdentifierToken`_ und _`ValueToken`_
@@ -99,7 +93,7 @@ Die Trennung erfolgt aber manchmal auch _ohne Whitespace_. #hinweis[(z.B `1234na
     entsprechende `FixToken` ausgegeben werden.\
     Ist der Charakter eine _Ziffer_, wird ein Integer-Token erstellt. Dazu wird die Ziffer in einen `char` gecastet,
     was im ASCII-Wert resultiert; minus den ASCII-Wert von `0` gerechnet ergibt den Ziffernwert. Die momentane Zahl wird
-    mal 10 gerechnet und die Ziffer hinten angehängt. Ebenfalls muss noch geprüft werden, ob der Integer gültig ist
+    mal 10 gerechnet und die Ziffer hinten angehängt. Ebenfalls muss noch geprüft werden, ob der Integer im gültigen Wertebereich ist:\
     (`MIN_VALUE` $<= i <=$ `MAX_VALUE`).
 
     Bei einem _Buchstaben_ kommt entweder ein Identifier oder ein Keyword in Frage. Dazu wird nach dem Erreichen des ersten
@@ -139,18 +133,19 @@ Die Trennung erfolgt aber manchmal auch _ohne Whitespace_. #hinweis[(z.B `1234na
       ? new FixToken(..., tag)
       : new IdentifierToken(..., name)
 
-      
+
     // SlashTokenLexer
     case '/': SkipLineComment();
     case '*': SkipBlockComment();
     default:
       token = new FixToken(DIVISION);
+
     void SkipLineComment() {
       CheckNext('/');
       while (!IsEnd && Current != '\n')
       { next(); }
     }
-    
+
     void SkipBlockComment() {
       do {
         Next();
