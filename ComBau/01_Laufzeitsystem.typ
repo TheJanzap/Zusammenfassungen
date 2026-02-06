@@ -6,13 +6,12 @@
   Kann prozessor-nativ #hinweis[(C++)], VM-kompiliert #hinweis[(Java, C++)] oder
   interpretiert sein #hinweis[(Python, JavaScript)].
 
-Source Code $arrow.r$ Compiler $arrow.r$ Maschinencode $arrow.r$ Laufzeitsystem
+Source Code $->$ Compiler $->$ Maschinencode $->$ Laufzeitsystem
 
+== Aufbau Compiler
 #grid(
   columns: (3fr, 1fr),
-  gutter: 1em,
   [
-    == Aufbau Compiler
     - _Lexer:_ Zerlegt Programmtext in Terminalsymbole #hinweis[(Tokens)]
     - _Parser:_ Erzeugt Syntaxbaum gemäss Programmstruktur
     - _Semantic Checker:_ Löst Symbole auf, prüft Typen und semantische Regeln
@@ -23,11 +22,10 @@ Source Code $arrow.r$ Compiler $arrow.r$ Maschinencode $arrow.r$ Laufzeitsystem
   image("img/combau_01.png", width: 60%),
 )
 
+== Aufbau Laufzeitsystem
 #grid(
   columns: (3fr, 1fr),
-  gutter: 1em,
   [
-    == Aufbau Laufzeitsystem
     - _Loader:_ Lädt Maschinencode in Speicher, veranlasst Ausführung
     - _Interpreter:_ Liest Instruktionen und emuliert diese in Software
     - _JIT Compiler:_ Übersetzt Code-Teile in Hardware-Instruktionscode
@@ -61,6 +59,6 @@ Mit dieser Sprache können folgende Sätze gebildet werden:
 "Anna talks", "Anna listens", "Paul talks" und "Paul listens".
 
 ==== Rekursion mit vereinfachter EBNF
-`Expression = "(" ")" | "(" Expression ")"` $space arrow.r space$ "`()`", "`(())`", "`((()))`", usw.
+`Expression = "(" ")" | "(" Expression ")"` $space -> space$ "`()`", "`(())`", "`((()))`", usw.
 
 #pagebreak()

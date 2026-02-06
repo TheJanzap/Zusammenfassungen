@@ -32,16 +32,16 @@ Jede Methode hat ihren _eigenen Evaluation Stack_, dieser muss zu Beginn und am 
   ],
   [
     ```asm
-    begin: load 1 ; "x" has index 1
-           ldc 10
-           icmplt
-           if_false end ; jump to code after loop if statement is false
-           load 1
-           ldc 1
-           iadd ; x + 1
-           store 1
-           goto begin
-    end:
+    begin: load 1       ; Load value in variable "x", has index 1
+           ldc 10       ; Load the constant "10"
+           icmplt       ; Is the value in x less than 10?
+           if_false end ; Jump to code after loop if statement is false
+           load 1       ; Load value in "x" again
+           ldc 1        ; Load the constant "1"
+           iadd         ; x + 1
+           store 1      ; Save the result in "x"
+           goto begin   ; Start loop again
+    end:                ; Label to jump to when loop condition is false
     ```
   ],
 )
@@ -70,11 +70,9 @@ Jede Methode hat ihren _eigenen Evaluation Stack_, dieser muss zu Beginn und am 
   [`if_false <label>`], [Branch falls false], [1 Pop],
 )
 
+=== Load / Store Indexierung für Locals
 #grid(
-  columns: (1fr, 1fr),
-  gutter: 1em,
   [
-    === Load / Store Indexierung für Locals
     Mit `load` / `store` können Parameter und lokale Variablen verwendet werden.
     Die Parameter werden zuerst deklariert, damit sie innerhalb der Methode nicht redefiniert werden können.
     + _"`this`"_ Referenz: Index 0 #hinweis[(Virtuelle Methode, read-only)]
@@ -85,7 +83,7 @@ Jede Methode hat ihren _eigenen Evaluation Stack_, dieser muss zu Beginn und am 
     void swap(int a, int b) {
       int temp;
       temp = a; // load 1 (a) / store 3 (temp)
-      a = b; // load 2 (b) / store 1 (a)
+      a = b;    // load 2 (b) / store 1 (a)
       b = temp; // load 3 (temp) / store 2 (b)
       ... }
     ```
@@ -135,11 +133,9 @@ _Postorder-Traversierung:_ Kinder zuerst besuchen und jeweils Template für erka
 ==== Verschiedene Teilbaum-Muster
 #image("img/combau_17.png", width: 70%)
 
+==== Beispiel
 #grid(
-  columns: (1fr, 1fr),
-  gutter: 1em,
   [
-    ==== Beispiel
     ```cs // Assignment -> rechter Node, dann Post-Order
     (1) load 1
     // load <varNum> wird angewendet, x hat Wert 1
@@ -201,8 +197,6 @@ das Resultat _entscheidend_ ist. Ist die linke Seite bei `&&` bereits `false` bz
 im Code weitergefahren werden.
 #v(-0.5em)
 #grid(
-  columns: (1fr,) * 2,
-  gutter: 1em,
   [
     ```cs
     // Pseudo code for "&&"
@@ -226,7 +220,7 @@ im Code weitergefahren werden.
     short: ldc true
     end:
     ```
-  ]
+  ],
 )
 
 
@@ -242,7 +236,7 @@ vor `ret` auf den Stack gepusht werden. Dieser wird dann auf den Stack des Aufru
 Der Evaluation Stack der aufgerufenen Methode muss am Schluss leer sein.
 
 #grid(
-  columns: (0.5fr, 1fr),
+  columns: (0.4fr, 1fr),
   [
     ```cs
     int sum(int x, int y) {

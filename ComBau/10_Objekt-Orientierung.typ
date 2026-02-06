@@ -35,7 +35,6 @@ und Rückgabetyp verwendet werden. Overloading ist in SmallJ nicht erlaubt.
 
 #grid(
   columns: (0.3fr, 1fr),
-  gutter: 1em,
   [
     ```java
     class Base {
@@ -61,14 +60,13 @@ bzw. schreiben Felder einer Klasse, _`new`_ initialisiert neue Instanzen und _`l
   table.header([Code], [Stack davor #hinweis[(links = oben)]], [Instruktion], [Stack danach]),
   [`p.left`], [`p`], [`getfield left`], [`value`],
   [`p.left = value`], [`value, p`], [`putfield left`], [---],
-  [`new Point()`], [---], [`new Point`], [`reference` zu Point Obj.],
-  [`null`], [---], [`ldc null`], [`null`]
+  [`new Point()`], [---], [`new Point`], [`reference` zu `Point` Obj.],
+  [`null`], [---], [`ldc null`], [`null`],
 )
 
 == Heap
 #grid(
   columns: (2fr, 1fr),
-  gutter: 1em,
   [
     Objekte werden in einem _speziellen Speicher im Laufzeitsystem_, im sogenannten _Heap_, gespeichert.
     Der _Heap_ ist ein linearer Adressraum, in welchem die Objekte alloziert werden.
@@ -128,7 +126,6 @@ einen eigenen Eintrag im Array repräsentiert, jeder Eintrag ist 8 Byte gross.
   Damit alle Felder gleich gross sind, werden sie mit _Padding_ bis 64 Bit bzw. 8 Byte aufgefüllt.
 
 #grid(
-  columns: (1fr, 1fr),
-  gutter: 1em,
-  image("img/combau_24.png"), image("img/combau_25.png"),
+  image("img/combau_24.png"),
+  image("img/combau_25.png"),
 )

@@ -3,7 +3,6 @@
 = Alternative Parsing-Methoden
 #grid(
   columns: (1.5fr, 1fr),
-  gutter: 2em,
   [
     == Syntaxgesteuerte Übersetzung
     - _Annotationen_ zu den Syntaxregeln: Attribute zu den Symbolen, Semantische Regeln pro Syntax-Regel,
@@ -19,7 +18,6 @@
 
 #grid(
   columns: (1.5fr, 1fr),
-  gutter: 2em,
   [
     === Vorteile / Nachteile
     - _Vision:_ Alles in der Grammatik beschrieben. Ganzer Compiler von A bis Z generieren, quasi ein "Compiler-Compiler".
@@ -46,7 +44,7 @@
   ],
   image("img/combau_12.png"),
 )
-
+#v(-0.5em)
 == LR-Parser
 Ein LR-Parser ist _mächtiger_ als ein LL-Parser, weil er z.B. _Linksrekursion_ behandeln kann #hinweis[(z.B. `E = [E] "x"`)].
 - _`LR(0)`:_ Parse-Tabelle ohne Lookahead erstellen. Aktueller Parse-Table-Zustand reicht, um zu entscheiden.
@@ -78,7 +76,7 @@ angepasst oder es werden längere Lookaheads verwendet. Bei _Parser-Generatoren_
     -- in den Folien-Beispielen ein "#sym.circle.filled")]
   - _Handle:_ #hinweis[(Item, das Kennzeichnung am Schluss hat. Bedeutet, dass Produktion reduziert werden kann)]
   - _Closure:_ #hinweis[(Enthält alle equivalenten Produktionen eines Item, d.h. befindet sich die Kennzeichnung bei einem
-    nicht-Terminalsymbol wird dieses aufgelöst, bis alle mögliche Varianten dieser Produktion gefunden wurden)]
+    nicht-Terminalsymbol, wird dieses aufgelöst, bis alle mögliche Varianten dieser Produktion gefunden wurden)]
   - _Goto:_ #hinweis[(Set eines Terminalsymbols, dass alle BNF-Regeln mit diesem Symbol darin enthält.
     Goto-Sets werden so lange aufgelöst, bis daraus ein vollständiges Zustandsdiagramm erstellt werden kann)]
 + _Parse-Tabelle bauen:_ `FOLLOW(X)`-Set

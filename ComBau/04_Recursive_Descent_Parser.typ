@@ -12,8 +12,6 @@ Die _Kontextabhängigkeit_ wird später im _semantic Checker_ geprüft.
 
 === Beispiel
 #grid(
-  columns: (1fr, 1fr),
-  gutter: 1em,
   [
     *Syntax*\
     #tcolor("grün", `Expression`) `=` #tcolor("orange", `Term`) `{ ( "+" | "-" )` #tcolor("orange", `Term`)` }`.\
@@ -67,7 +65,6 @@ Parser können je nach ihrer Arbeitsweise in _Klassen_ eingeteilt werden.
 Die Notation besteht aus zwei Buchstaben und einer Zahl.
 #grid(
   columns: (2fr, 1fr),
-  gutter: 1em,
   [
     - _Erster Buchstabe:_ `L` für links nach rechts und `R` für von rechts nach links
     - _Zweiter Buchstabe:_ `L` für Top-Down Parser, `R` für Bottom-Up Parser
@@ -97,7 +94,7 @@ Die Notation besteht aus zwei Buchstaben und einer Zahl.
 
 == Top-Down Parsing
 In einem Recursive Descent Parser hat eine Expression weitere Terme, ein Term hat allenfalls eine weitere Expression
-$arrow$ _Rekursive Definition_. Um dies abzubilden, muss beim Parsen ebenfalls _Rekursion_ verwendet werden.
+$->$ _Rekursive Definition_. Um dies abzubilden, muss beim Parsen ebenfalls _Rekursion_ verwendet werden.
 
 _Pro Nicht-Terminalsymbol_ wird _eine Methode_ implementiert. Wenn ein Nicht-Terminalsymbol vorkommt, wird die
 entsprechende Methode _aufgerufen_. Diese Methode funktioniert bei rekursiven und nicht-rekursiven Syntaxen.
@@ -110,8 +107,6 @@ Wird ein Pfad gefunden, ist die Syntax _valide_.
 
 === One Token Lookahead
 #grid(
-  columns: (1fr, 1fr),
-  gutter: 1em,
   [
     #tcolor("grün", `Statement`) `=` #tcolor("orange", `Assignment`) | #tcolor("rot", `IfStatement`).\
     #tcolor("orange", `Assignment`) `= Identifier "="` #tcolor("gelb", `Expression`).\
@@ -197,7 +192,7 @@ verwendet werden: #tcolor("grün", `Sequence`) `= {"s"}`
         }
         else {
           Error();
-        } } }
+    } } }
     ```
   ],
   [
@@ -211,7 +206,7 @@ verwendet werden: #tcolor("grün", `Sequence`) `= {"s"}`
         else {
           Error();
           break;
-        } } }
+    } } }
     ```
   ]
 )

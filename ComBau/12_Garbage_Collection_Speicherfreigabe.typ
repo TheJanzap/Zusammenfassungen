@@ -17,7 +17,7 @@ Ist zum Beispiel in C oder C++ so gelöst.
 ==== Probleme
 Mit _expliziter Speicherfreigabe_ kann es zu _schwerwiegenden_ Speicherfehler kommen.
 #table(
-  columns: (1fr, 1fr),
+  columns: (1fr, 1.1fr),
   table.header([Dangling Pointers], [Memory Leaks]),
   [
     Referenz auf bereits gelöschtes Element\
@@ -56,16 +56,19 @@ _wie viele eingehende Referenzen_ auf dieses Objekt vorhanden sind. Ist _`rc == 
 die _Umkehrung_ davon gilt aber _nicht_ #hinweis[(Zyklische Referenzen)].
 
 Bei _jeder Zuweisung_ von Referenzen muss zusätzlich eine Referenz erstellt/verschoben werden, was _sehr teuer_ ist.
+Es wird zuerst der Counter des Ziels inkrementiert, danach der Counter der Quelle dekrementiert.
+Ist der Counter der Quelle 0, wird es gelöscht.
 
 ```cs
 x = y; // wird zu:
-y.rc++; x.rc--; if (x.rc == 0) { delete x; } x = y; // rc++ first, in case the object is the same
+y.rc++; x.rc--; if (x.rc == 0) { delete x; } x = y;
+// rc++ the target first, in case the source and target are identical
 ```
 
 ==== Zyklische Objekte
 _Zyklische Objekte_ werden mit Reference Counting _nie_ zu Garbage, weil alle Elemente im Zyklus _eine eingehende Referenz_
 haben, auch wenn _keine Referenz von aussen_ mehr vorhanden ist. Ergibt _Memory Leaks_. Die könnte mit
-#link(<weak-ref>)[_weak pointers_] umgangen werden, welche vom Counter nicht mitgezählt werden. Diese können aber wiederum
+_weak pointers_ #hinweis[(siehe @weak-ref)] umgangen werden, welche vom Counter nicht mitgezählt werden. Diese können aber wiederum
 zu Memory Leaks und verfrühter Objekt-Löschung führen. Deshalb ist Reference Counting _ungeeignet_ für den Garbage Collector.
 
 == Garbage Collector (GC)
@@ -81,7 +84,6 @@ _"Nicht-Garbage" markiert_. Die nicht markierten Objekte sind Garbage und könne
 ==== Root Set
 #grid(
   columns: (1.2fr, 1fr),
-  gutter: 1em,
   [
     Die Analyse der transitiven Erreichbarkeit muss bei bestimmten _Referenzen der ersten Ebene beginnen_.
     Diese erste Ebene wird als _"Root Set"_ bezeichnet und umfasst die folgenden Quellen des laufenden Programms:
@@ -121,8 +123,6 @@ Auch die _`this`-Referenz_ im Root Set ist essentiell: Das impliziert erstellte 
 
 === Mark & Sweep Algorithmus
 #grid(
-  columns: (1fr, 1fr),
-  gutter: 1em,
   [
     - _Mark Phase:_ Markiere alle erreichbaren Objekte
     - _Sweep Phase:_ Lösche alle nicht markierten Objekte
@@ -158,8 +158,7 @@ void traverse(Pointer current) {
 
 ==== Pointer im Objekt
 #grid(
-  columns: (0.8fr, 1fr),
-  gutter: 1em,
+  columns: (0.75fr, 1fr),
   [
     Der GC muss wissen, wo sich im Objekt _Pointer_ befinden #hinweis[(Felder eines Referenztypen, Elemente in einem
     Array eines Referenztypen)]. Um diese zu erfassen, kann der GC den _Typdeskriptor_ über den Type-Tag des Blocks erhalten.
@@ -189,8 +188,7 @@ _Pointer Rotation Algorithmus_ von Deutsch-Schorr-Waite. Für uns reicht jedoch 
 
 === Sweep Phase
 #grid(
-  columns: (1fr, 1fr),
-  gutter: 1em,
+  columns: (1fr, 1.1fr),
   [
     Lösche linear alle Elemente im Heap, die in der Mark Phase _nicht_ markiert wurden. Weil diese Phase _linear_ durch
     den Heap traversiert, werden _alle Elemente_ besucht. Bei _markierten Objekten_ wird das _`Mark Flag` entfernt_,
@@ -312,7 +310,6 @@ Finalizer noch fertig laufen können, bevor der Heap-Speicher erschöpft ist.
 
 #grid(
   columns: (2fr, 1fr),
-  gutter: 1em,
   [
     Grundsätzlich ist es _nicht empfohlen_, die Garbage Collection _manuell_ auszuführen, da dies mit den Heuristiken
     des GCs konfliktieren kann und damit die Performance reduziert. Es kann aber _vor zeit- und speicherintensiven_
@@ -358,7 +355,7 @@ und in der Sweep Phase werden alle Einträge geleert, bei welchen das Target Obj
   ],
 )
 
-
+#v(-0.5em)
 == Compacting GC <compacting-gc>
 Durch Allozieren und Löschen entstehen _viele kleine Lücken_ im Heap. Obwohl in Summe genug freier Speicher verfügbar wäre,
 kann es so sein, dass ein neues Objekt _keinen Platz_ mehr hat, weil alle Lücken _zu klein_ sind.
@@ -383,10 +380,9 @@ diese sollen quasi-parallel zum Mutator laufen, indem sie den Mutator _mehrmals 
 ihre Arbeit _inkrementell verrichten_.
 
 === Arten von Inkrementellen GCs
+#v(-0.25em)
 ==== Generational GC
 #grid(
-  columns: (1fr, 1fr),
-  gutter: 1em,
   [
     _Junge Objekte_ werden _schneller freigegeben_, weil diese tendenziell eine _kurze Lebenserwartung_ haben
     #hinweis[(Zeitspiegelungsheuristik)]. Es gibt 3 Generationen, deren Grenzen jeweils durch einen Pointer markiert werden:
@@ -400,13 +396,14 @@ ihre Arbeit _inkrementell verrichten_.
   ],
   image("img/combau_29.png"),
 )
-
-Wird nun G0 aufgeräumt, werden alle _nicht-markierten Elemente in G0 aufgeräumt_, und zusätzlich alle Referenzen
-von G1/G2, welche auf G0 zeigen. Die verbleibenden Blöcke werden _eine Altersstufe nach oben_, zu G1, _geschoben_.
+#v(-0.25em)
+Wird nun G0 aufgeräumt, werden alle _nicht-markierten Elemente in G0 aufgeräumt_. In dieser Art von GC befinden
+sich G0-Blöcke, die von G1/G2 referenziert werden, ebenfalls im Root Set und werden damit nicht gelöscht.
+Die verbleibenden Blöcke werden _eine Altersstufe nach oben_, zu G1, _geschoben_.
 
 Wenn eine alte Generation aufgeräumt wird, müssen auch die neueren mit aufgeräumt werden, um _zyklischen Garbage_,
 welcher mehrere Generationen umspannt, zu erfassen. Dazu muss das System _Reference-Writes_ in alten Generationen
-erkennen können. Dazu müssen _Write Barriers_ in G1/G2 erstellt werden.
+erkennen können. Für diesen Zweck werden _Write Barriers_ in G1/G2 erstellt.
 - _Software-based write barriers:_ (JIT) Compiler, Loader, und/oder Interpreter fügen mit jedem Schreiben eines
   Pointers zusätzlichen Code ein, um potentielle Root Set-Kandidaten zu registrieren
 - _Hardware-based write barriers:_ Virtual Memory Management. Die betroffenen Memory Pages sind read-only, dadurch gibt es
