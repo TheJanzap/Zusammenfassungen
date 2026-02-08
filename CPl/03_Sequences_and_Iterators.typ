@@ -2,7 +2,7 @@
 #import "00_CPPR_Settings.typ": cppr
 
 = Sequences and Iterators
-#hinweis[#cppr("container/array")[CPPReference: std::array ]] #h(1fr) ```cpp #include <array>``` \
+#hinweis[#cppr("container/array")[CPPReference: std::array]] #h(1fr) ```cpp #include <array>``` \
 `std::array<T, N>` is a _fixed-size_ container. It is not possible to shrink or grow an array after its creation.
 - `T` is a _template_ type parameter to specify the type of elements the array should contain.
 - `N` is a _positive integer_ to specify the number of elements in the array.
@@ -28,10 +28,9 @@ This can lead to memory errors!\
 
 === Array Iterators <array-iterators>
 #hinweis[#cppr("container/array#Iterators")[CPPReference: std::array Iterators]]
-
+#v(-0.5em)
 #grid(
   columns: (2fr, 1fr),
-  gutter: 1em,
   [
     - _`begin()`:_ returns an Iterator to the first element of the array
     - _`end()`:_ returns an Iterator to _after_ the last element of the array
@@ -57,7 +56,7 @@ All of the Iterators also have a _`const` version_ #hinweis[(`cbegin()`, `cend()
 which return a `const` Iterator, meaning the element the iterator points to can't be modified.
 
 == `std::vector`
-#hinweis[#cppr("container/vector")[CPPReference: std::vector ]] #h(1fr) ```cpp #include <vector>```\
+#hinweis[#cppr("container/vector")[CPPReference: std::vector]] #h(1fr) ```cpp #include <vector>```\
 `std::vector<T>` is a _Container_. There is _no need_ to allocate the elements inside, as it already contains them
 #hinweis[(unlike Java, where a `ArrayList` contains references to its elements)].
 `T` is a _template_ type parameter to specify the type of the elements to store.
@@ -73,17 +72,16 @@ std::vector<int> name{1, 2, 3, 4, 5}
 During _initialization_, the initial size of the vector can be specified inside parenthesis:\
 ```cpp std::vector<int>(6) /* size = 6 */ != std::vector<int>{6} /* has one 6 inside */```
 
+=== Vector Iterators
 #grid(
-  columns: (2fr, 1.4fr),
-  gutter: 1em,
+  columns: (2fr, 1.3fr),
   [
-    === Vector Iterators
-    #hinweis[#cppr("container/vector#Iterators")[CPPReference: std::vector Iterators ]] \
+    #hinweis[#cppr("container/vector#Iterators")[CPPReference: std::vector Iterators]] \
     In addition to the Iterators of `std::array` #hinweis[(see @array-iterators)],
     `std::vector` has two additional functions to work with.
     - _`.insert(<iterator>, <value>)`:_ Insert a value at the position the iterator points to.
       All succeeding elements are moved one position up #hinweis[(inefficient!)].
-    - _`.push_back(<value>)`:_ Inserts a value at the end of the vector\ #hinweis[(more efficient)]
+    - _`.push_back(<value>)`:_ Inserts a value at the end of the vector #hinweis[(more efficient)]
   ],
   image("img/cpl_02.png"),
 )
@@ -174,8 +172,8 @@ _No index error_ possible, works with _all containers_, even value lists `{1,2,3
 
 === Iteration with Iterators
 A _range-based for-loop_ uses _iterators_ internally. Iterators can also be used in a regular for-loop, but this is only useful
-if the iterator itself is required inside the loop. Otherwise ranged-for-loops or algorithms are preferred for
-memory safety reasons.
+if the iterator or the index itself is required inside the loop. Otherwise ranged-for-loops or algorithms are preferred
+for memory safety reasons.
 
 Start with ```cpp std::begin(vec)``` and compare if the current iterator is not equal to ```cpp std::end(vec)```.
 The current element can be accessed with `*iterator`; if the iterator and container are non-`const`,
@@ -188,7 +186,7 @@ for (auto it = std::cbegin(v); it != std::cend(v); ++it) {
 }
 ```
 
-For more Information on Iterators, see chapter @Iterators.
+For more information on Iterators, see chapter @Iterators.
 
 == Iterator Algorithms
 Algorithms perform _frequently used operations on ranges and containers_, such as counting values, copying or
@@ -259,8 +257,8 @@ auto count_blanks(std::string s) -> size_t {
 ```
 
 ===== Summing up values
-#hinweis[#cppr("algorithm/accumulate")[CPPReference: std::accumulate]\ ]
-Applies the `+` operator to elements, requires the initial value #hinweis[(here `0`)].
+#hinweis[#cppr("algorithm/accumulate")[CPPReference: std::accumulate]]\
+Applies the `+` operator to elements, requires a initial value #hinweis[(here `0`)].
 
 ```cpp
 #include <algorithm>
@@ -271,7 +269,7 @@ std::cout << std::accumulate(std::cbegin(v), std::cend(v), 0) << " = sum\n"; // 
 ```
 
 ===== Number of elements in range
-#hinweis[#cppr("iterator/distance")[CPPReference: std::distance]\ ]
+#hinweis[#cppr("iterator/distance")[CPPReference: std::distance]]\
 Containers provide a `size()` member function, useful if you only have iterators as `size()` may be unavailable
 inside an algorithm. Both `size()` and `std::distance()` provide the same value.
 
@@ -306,7 +304,7 @@ Using `std::cout` outside `main` is discouraged. If we want to print to a given 
 _lambda structure_. For more detailed information about Lambda Functions, see @lambda-functions.
 
 #definition[
-  ``` [<capture>](<parameters>) -> <return-type> { <statements> }```
+  `[<capture>](<parameters>) -> <return-type> { <statements> }`
 ]
 
 #table(
@@ -400,7 +398,6 @@ with the wanted size.
 
 #grid(
   columns: (1fr, 1fr),
-  gutter: 1em,
   [
     _Manual resize of vector_
     #v(-0.5em)
@@ -483,7 +480,8 @@ std::iota(std::begin(v), std::end(v), 1); // fills v with numbers 1-100
   #cppr("algorithm/ranges/find")[CPPReference: std::ranges::find, std::ranges::find_if]
 ]\
 _`std::(ranges::)find()`_ and _`std::(ranges::)find_if()`_ return an iterator to the first element that matches
-the value or condition. If no match exists, the end of the range is returned #hinweis[(`.end()`)].
+the value #hinweis[(`find()`)] or condition #hinweis[(`find_if()`)]. If no match exists, the end of the range is
+returned #hinweis[(`.end()`)].
 
 ```cpp
 #include <iterator>
@@ -550,7 +548,7 @@ std::ranges::copy(in, out);
 ```
 
 === Type Alias
-#hinweis[#cppr("language/type_alias")[CPPReference: Type alias]\ ]
+#hinweis[#cppr("language/type_alias")[CPPReference: Type alias]]\
 Type names can be given alias names. Useful if _long type names_ occur _more than once_.
 
 #definition[`using <alias-name> = <type>`;]

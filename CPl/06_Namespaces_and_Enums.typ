@@ -7,7 +7,7 @@
 #hinweis[#cppr("language/namespace")[CPPReference: Namespaces]]\
 Namespaces are _scopes_ for grouping and preventing name clashes. The _same name_ for classes, functions etc.
 in different scopes is possible #hinweis[(`boost::optional` and `std::optional` can coexist)].
-_Nesting_ of namespaces is possible #hinweis[(i.e. `std::literals::chrono_literals`)], allows hiding of names.\
+_Nesting_ of namespaces is possible\ #hinweis[(i.e. `std::literals::chrono_literals`)], allows hiding of names.\
 The _global namespace_ has the `::` prefix. Can be _omitted_ if unique
 #hinweis[(`::std::cout` is usually equal to `std::cout`)].
 
@@ -26,7 +26,7 @@ The _global namespace_ has the `::` prefix. Can be _omitted_ if unique
 
     _Imports_ a name from a namespace into the _current scope_. That name can then be used without a namespace prefix.
     Useful if the name is used very often.\
-    It is also possible to give the namespace an _alias_:
+    It is also possible to give the namespace an _alias_:\
     ```cpp using input = std::istream_iterator<int>;```\
     Don't put _`using namespace std`_ into your header file to avoid _"namespace pollution"_
     #hinweis[(only use in local scope)].
@@ -42,7 +42,7 @@ The _global namespace_ has the `::` prefix. Can be _omitted_ if unique
 
     namespace demo {
     auto bar() -> void { /* (3) */
-      foo(); // Calls (1)
+      foo();          // Calls (1)
       subdemo::foo(); // Calls (2)
     }
     } // demo
@@ -50,7 +50,7 @@ The _global namespace_ has the `::` prefix. Can be _omitted_ if unique
 
     auto main() -> int {
       using demo::subdemo:foo;
-      foo(); // Calls (2)
+      foo();       // Calls (2)
       demo::foo(); // Calls (1)
       demo::bar(); // Calls (3)
     }
@@ -149,10 +149,10 @@ so unqualified operator calls don't allow explicit namespace qualification: #str
       f(t1); // (1)
       two::type_two t2{};
       f(t2); // (2)
-      // error: t1 -> one, no checks for 'two'
+      // err: t1 is one::, no checks for two::
       h(t1);
       two::g(t1); // (3)
-      g(t1); //Argument type does not match(4)
+      g(t1); // (4), but conversion fails
       g(t2); } // (4)
     ```
   ],
@@ -160,8 +160,8 @@ so unqualified operator calls don't allow explicit namespace qualification: #str
 
 ==== Issues with ADL
 Templates might _not pick up_ a global operator `<<` in an algorithm call using `ostream_iterator` if the value output
-is from _namespace std_ too #hinweis[(i.e `std::vector<int>`)].
-This would require to put both the `ostream` and `std::vector<int>` in a `namespace std`-block.
+is from _namespace `std`_ too #hinweis[(i.e `std::vector<int>`)].
+This would require to put both the `ostream` and `std::vector<int>` in a "`namespace std`"-block.
 But this is _not allowed_ by the C++ standard.
 
 To work around this, a _new class_ inheriting from `std::vector<int>` has to be created with inherited constructors.
@@ -189,7 +189,8 @@ auto operator <<(ostream& os, IntVector const& v) -> ostream& {
 
     ==== Unscoped enum
     Has no `class` keyword. Used without qualifier.\ Can _implicitly converted_ to `int`.\
-    Enumeration leaks into surrounding scope, best used as a member of a class.
+    Enumeration leaks into surrounding scope #hinweis[(i.e. you can use `Fri` directly)],
+    best used as a member of a class.
 
     ==== Scoped enum
     Has a `class` keyword. Requires the enum name as qualifier to access the values #hinweis[(i.e. `DayOfWeek::Fri`)].\
@@ -269,7 +270,8 @@ auto operator<<(std::ostream& out, Month m) -> std::ostream& {
   [
     With _`=`_, _values can be specified_ for enumerators. Subsequent enumerators get value incremented (+1).
 
-    _Different enumerators_ can have the _same value_.
+    _Different enumerators_ can have the _same value_. The value can even be assigned through previously declared enum
+    variants #hinweis[(e.g. `january = jan`)].
 
     In the example on the right, `may` doesn't have a "long name" version and is missing in the second half.
     This is why `june` requires a new assignment.
@@ -294,8 +296,8 @@ auto operator<<(std::ostream& out, Month m) -> std::ostream& {
 #grid(
   [
     Enumerations can _specify_ the _underlying type_ by inheritance. The underlying type can be _any integral type_.
-    This allows _forward-declaring_ enumerations, which can be used to hide implementation details if defined as a class member.
-    #hinweis[(declaration only in header, enum values only in .cpp-file)]
+    This allows _forward-declaring_ enumerations, which can be used to hide implementation details if the enum is
+    defined as a class member #hinweis[(declaration only in header, enum values only in .cpp-file)].
   ],
   [
     ```cpp
@@ -359,20 +361,22 @@ auto operator<<(std::ostream& out, Month m) -> std::ostream& {
 
 == Arithmetic Types
 #hinweis[#cppr("language/types")[CPPReference: Fundamental types]]\
-The arithmetic types are divided into two categories: _integral types_ #hinweis[(which include character and boolean types)]
-and _floating-point types_. All arithmetic types must be equality comparable #hinweis[(#no-ligature[`==`])].
+The arithmetic types are divided into two categories: _integral types_ #hinweis[(which include all integer, character
+and boolean types)] and _floating-point types_.
+All arithmetic types must be equality comparable #hinweis[(#no-ligature[`==`])].
 It is not recommended to implement your own arithmetic type, but here is a basic example anyway.
 
 === Example Arithmetic Type: Ring5 -- Arithmetic Modulo 5
-The basics are provided: An invariant #hinweis[(The member variable is in range $[0, 4]$)], an accessor to the value
-and a explicit constructor. We also implement the default equality operator, a custom output operator
-and custom `+` and `+=` operators.
+We implement `Ring5`, a counter from 0 to 4 that wraps around #hinweis[($4 + 1 = 0, 0 - 1 = 4$)].\
+The requirements are: An invariant #hinweis[(The member variable is in range $[0, 4]$)], an accessor to the value
+and an explicit constructor. We also implement the default equality operator #no-ligature[`==`], a custom output operator
+`<<` and custom `+` and `+=` operators.
 
 ```cpp
 struct Ring5 {
-  explicit Ring5(unsigned x = 0u) : val{x & 5} {} // constructor
+  explicit Ring5(unsigned x = 0u) : val{x & 5} {} // explicit constructor
   auto value() const -> unsigned { return val; }  // accessor
-  auto operator==(Ring5 const& r) const -> bool = default;
+  auto operator==(Ring5 const& r) const -> bool = default; // default equality operator
   auto operator+=(Ring5 const& r) -> Ring5& {
     val = (val + r.val) % 5; return *this;        // where the magic happens
   }

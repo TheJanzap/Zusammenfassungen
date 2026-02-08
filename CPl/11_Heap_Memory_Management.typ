@@ -3,7 +3,7 @@
 
 = Heap Memory Management
 Stack memory is _scarce_. The heap memory might also be needed for creating object structures #hinweis[(Tree structures)]
-or for polymorphic factory function to class hierarchies. Example for the latter: If we have a function that creates
+or for polymorphic factory functions to class hierarchies. *Example for the latter:* If we have a function that creates
 instances of class `Circle` and the result should be stored in a variable of base class `Shape`, we can't just return
 a value, because the `Circle` part will just get "thrown away". Thus we need to return a pointer to the `Circle` instance.
 
@@ -122,9 +122,9 @@ Wrapping these pointers in a `std::unique_ptr` ensures that they will be properl
 
 === Guidelines for `std::unique_ptr`
 - _As a member variable:_ To keep a polymorphic reference instantiated by the class or passed in as `std::unique_ptr` and
-  transferring ownership #hinweis[(i. e. a member variable that references a instance of `Cat` or `Dog` in base class `Animal`)]
+  transferring ownership #hinweis[(e.g. a member variable that references an instance of `Cat` or `Dog` in base class `Animal`)]
 - _As local variable:_ To implement RAII. Can provide custom deleter function as second template argument
-  to type that is called on destruction #hinweis[(i.e. a function that closes a file or a connection)].
+  to type that is called on destruction #hinweis[(e.g. a function that closes a file or a connection)].
 - _`std::unique_ptr<T> const p {new T{}};`:_ Const unique pointers cannot transfer ownership, cannot leak.
   But better use `std::make_unique<T>`.
 
@@ -158,10 +158,10 @@ Wrapping these pointers in a `std::unique_ptr` ensures that they will be properl
 )
 
 Use `std::shared_ptr` if you really need...
-- _heap-allocated objects_ #hinweis[(i.e. network graphs or trees)]
+- _heap-allocated objects_ #hinweis[(e.g. network graphs or trees)]
 - to _support run-time polymorphic container contents_
-  #hinweis[(i.e. a vector of `Animals` that can contain both `Cat` and `Dog`)],
-- class members that _cannot_ be _passed as reference_ #hinweis[(i.e. members marked `static`)]
+  #hinweis[(e.g. a vector of `Animals` that can contain both `Cat` and `Dog`)],
+- class members that _cannot_ be _passed as reference_ #hinweis[(e.g. members marked `static`)]
 - factory functions returning a `std::shared_pointer` for heap allocated objects.
 
 But first check if _alternatives_ are viable:
@@ -225,7 +225,7 @@ A _memory leak_ is created.
       auto elros = std::make_shared<HalfElf>("Elros");
       elrond->siblings.push_back(elros);
       elros->siblings.push_back(elrond);
-    } // Both object should be deleted here, but they
+    } // Both objects should be deleted here, but they
       // can't because they reference each other
     ```
   ],
@@ -251,7 +251,7 @@ If you really need to keep something explicitly on the heap, use a factory.
       auto anA = createA();
       auto sameA = anA; // second pointer to the same object
       A copyA{*sameA}; // copy ctor
-      auto another = std::make_shared<A>(copyA); // copy ctor on heap
+      auto another = std::make_shared<A>(copyA); // data also on heap
     }
     ```
   ],
@@ -286,8 +286,9 @@ auto main() -> int {
 
 === Things to keep in mind when working with `shared_ptr`
 - When the _last_ `shared_ptr` handle is _destroyed,_ the allocated object will be _deleted._
-- If subclasses are stored in variables of type `std::shared_ptr<Base>` but are always created by a `std::make_shared<Sub>()`,
+- If subclasses are stored in variables of type `std::shared_ptr<Base>`, but are always created by a `std::make_shared<Sub>()`,
   the destructor no longer needs to be virtual, meaning you don't need to overload the destructor of the base class.
+  See chapter @virtual-destructor.
 - `std::shared_pointer` can create cycles that _cannot be cleared_, causing _memory leaks_.
   Can be addressed with `std::weak_pointer`
 
@@ -394,7 +395,7 @@ Before accessing, verify that the pointer is _valid._
     using person_ptr = std::shared_ptr<struct Person>;
     struct Person {
       private:
-      std::vector<PersonPtr> children;
+      std::vector<person_ptr> children;
       std::weak_ptr<Person> mother;
       std::weak_ptr<Person> father;
     };

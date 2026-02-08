@@ -34,19 +34,19 @@
     *Effects:*
     - _`static` variables_ are _zero initialized_ first, then their type's default constructor is called.
       If the type cannot be default constructed, the program is ill-formed!
-    - _Non-`static`_ integer and floating point variables are _uninitialized_
+    - _Non-`static`_ integer and floating point variables are _uninitialized!_
     - Objects of _`class` types_ are constructed using their default constructor
     - _Member variables_ not in a constructor initializer list are _default initialized_
     - _Arrays_ initialize all elements according to their type
   ],
   [
     ```cpp
-    int global_variable; // implicitly static
+    int global_variable; // implicitly static, is 0
 
     auto di_func() -> void {
-      static long local_static;
-      long local_variable;
-      std::string local_text;
+      static long local_static; // Initialized w/ 0
+      long local_variable;      // Uninitialized
+      std::string local_text;   // Empty String
     }
 
     struct di_class {
@@ -54,6 +54,8 @@
       char member_var; // not in ctor init list
     };
 
+    // Only custom ctor available
+    // No default construction possible
     struct no_default_ctor {
       no_default_ctor(int x);
     };
@@ -134,7 +136,7 @@ While the first one is what we would expect, the second is what the standard req
     auto ci_function() -> void {
       // Constructed in-place from temporary
       std::string in_place = string_factory();
-      // Copy constructor used on in_place variable
+      // Copy constructor used on 'in_place' var
       std::string copy = in_place;
       // Converted from const char[4]
       std::string converted = "CPl";
