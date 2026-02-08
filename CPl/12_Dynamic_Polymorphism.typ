@@ -32,8 +32,8 @@ But: if _run-time flexibility is not required_, templates can implement many pat
 #grid(
   [
     Implementing a _design pattern_ with dynamic dispatch. _Provide_ a common _interface_ for a variety of dynamically
-    changing or different _implementations_, exchange _functionality_ at run-time.
-    #hinweis[(i.e. a `display()` method for Buttons, Text boxes etc. in a GUI library)]
+    changing or different _implementations_, exchange _functionality_ at run-time
+    #hinweis[(i.e. a `display()` method for Buttons, Text boxes etc. in a GUI library)].
 
     Base class/interface class provides a _common abstraction_ that is used by clients.
 
@@ -50,7 +50,8 @@ mix-in classes that provide a `friend` function. _Most often, private base class
   [
     Base constructors can be _explicitly called_ in the member initializer list.
     If a constructor of a base class is omitted, its default constructor is called.
-    The _base class constructor_ should be _placed before the initialization_ of subclass members.
+
+    The _base class constructor_ should be _placed before the initialization_ of subclass members #hinweis[(e.g. `myvar`)].
     The compiler enforces this rule, even though you can put the list of initializers in the wrong order.
   ],
   [
@@ -156,7 +157,7 @@ struct Derived : Base { auto sayHello() const -> void; };
   [
     ==== Value Object
     Class type determines function, regardless of `virtual`. By passing as value, the inherited part gets left off.\
-    Just the base part of the object gets copied, see @slicing.
+    Just the base part of the object gets copied #hinweis[(see chapter @slicing)].
 
     ```cpp
     auto greet(Base base) -> void {
@@ -220,12 +221,12 @@ struct Derived : Base { auto sayHello() const -> void; };
   ],
 )
 
-== Destructors
+== Destructors <virtual-destructor>
 #grid(
   [
     Classes with virtual members require a _virtual Destructor_.
     Otherwise when allocated on the heap with `std::make_unique<Derived>` and assigned to a `std::unique_ptr<Base>`,
-    only the destructor of Base is called.
+    _only the destructor of Base_ is called.
 
     *Output non-virtual:*\
     `put into trash` ```cpp // ~Fuel()```\
@@ -277,11 +278,12 @@ An API of base class must fit for all subclasses, which is _very hard to get rig
 
 Conceptual hierarchies are often used as examples but are usually _very bad software design_.
 
-=== Inheritance and Pass-by-Value <slicing>
+=== Inheritance and Pass-by-Value (Object Slicing) <slicing>
 Assigning or passing by value a derived class value to a base class variable / parameter incurs _object slicing_.
 Only base class member variables are transferred.
 
 #grid(
+  columns: (auto, 1fr),
   [
     ```cpp
     struct Base {
@@ -289,12 +291,12 @@ Only base class member variables are transferred.
       explicit Base(int init) : member{init}{};
       virtual ~Base() = default;
       auto print(std::ostream &out) -> void const;
-      virtual auto modify() -> void { member++; }
+      virtual auto modify() -> void { member += 2; }
     };
 
     struct Derived : Base {
       using Base::Base; // inherit ctors
-      auto modify() -> void { member += 2; }
+      auto modify() -> void { member += 25; }
     };
     ```
   ],
@@ -308,8 +310,8 @@ Only base class member variables are transferred.
       Derived derived{25};
       modifyAndPrint(derived);
     }
-    // Output: 26
-    // Not 27, as the Derived part is cut off in
+    // Output: 27
+    // Not 50, as the Derived part is cut off in
     // "modifyAndPrint()" and Derived::modify()
     // gets never called
     ```
@@ -341,7 +343,7 @@ By `"using"` the base class member the hidden name(s) become visible: ```cpp usi
       void modify(int value) {
         member += value;
       } // hides base function
-    }   // without using Base::modify
+    }   // without 'using Base::modify'
     ```
   ],
   [
@@ -523,7 +525,6 @@ To prevent object slicing in the base class, you can declare the copy-operations
       bird crashed, animal died
       hummingbird died, bird crashed, animal died
       ```
-
     ],
   )
 ]

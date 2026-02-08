@@ -1,4 +1,4 @@
-// Compiled with Typst 0.13.1
+// Compiled with Typst 0.14.2
 #import "../template_zusammenf.typ": *
 
 #show: project.with(
@@ -12,7 +12,7 @@
 
 // Compile this file to get the full PDF.
 // In "00_CPPR_Settings.typ", you can enable the exam mode
-// to use the CPPR Links in the CAMPLA exam environment
+// to use the CPPR links in the CAMPLA exam environment
 
 // Document-specific settings
 #show grid: set par(justify: false, linebreaks: "optimized")

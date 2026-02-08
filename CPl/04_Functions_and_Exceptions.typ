@@ -197,11 +197,12 @@ auto applyAndPrint(double x, std::function<auto(double) -> double> f) -> void {
 ```
 
 #grid(
+  columns: (auto, 1fr),
   [
     ```cpp
     auto main() -> int {
       double factor{3.0};
-      auto const multiply = [factor](double value){
+      auto const multiply = [factor](double value) {
         return factor * value;
       };
       applyAndPrint(1.5, multiply);
@@ -250,6 +251,7 @@ Lambda Functions are _inline_ functions.
 
 #grid(
   columns: (2fr, 1fr),
+  row-gutter: 1.5em,
   [
     ==== Capturing a local variable by value: `[x]`
     Local copy _lives as long as the lambda lives_. It is _immutable_, unless the lambda is declared `mutable`.
@@ -263,10 +265,7 @@ Lambda Functions are _inline_ functions.
     };
     ```
   ],
-)
 
-#grid(
-  columns: (2fr, 1fr),
   [
     ==== Capturing a local variable by reference: `[&x]`
     _Allows modification_ of the captured variable. _Side-effect is visible_ in the surrounding scope,
@@ -282,10 +281,7 @@ Lambda Functions are _inline_ functions.
     };
     ```
   ],
-)
 
-#grid(
-  columns: (2fr, 1fr),
   [
     ==== Capturing all (referenced) local variables by value: `[=]`
     Variables used in the lambda will be _copied_. The copied variables cannot be modified unless the lambda is `mutable`.
@@ -298,10 +294,7 @@ Lambda Functions are _inline_ functions.
     };
     ```
   ],
-)
 
-#grid(
-  columns: (2fr, 1fr),
   [
     ==== Capturing all (referenced) local variables by reference: `[&]`
     Variables used in the lambda will be _accessible_ in the lambda. Will allow modification of the variables if the lambda
@@ -321,10 +314,10 @@ It is possible to mix and match these types:\
 
 #pagebreak()
 
+==== Specify new local variable inside capture
 #grid(
-  columns: (2fr, 1fr),
+  columns: (2fr, 1.1fr),
   [
-    ==== Specify new local variable inside capture
     Create a new variable in capture. It has type `auto` and needs to be initialized in the capture.
     Can be modified if lambda is `mutable`.
     The _specified value_ is only used in the _definition_, _not_ in the _function call_.
@@ -332,17 +325,17 @@ It is possible to mix and match these types:\
   ],
   [
     ```cpp
-    auto squares = [x=1]() mutable {
+    auto squares = [x = 1]() mutable {
       std::cout << (x *= 2);
     };
     ```
   ],
 )
-#v(1em)
+
+==== Capturing `this` pointer
 #grid(
-  columns: (2fr, 1fr),
+  columns: (2fr, 1.1fr),
   [
-    ==== Capturing `this` pointer
     Allows accessing and modifying members of the current class.
   ],
   [
@@ -361,17 +354,17 @@ It is possible to mix and match these types:\
 
 == Failing Functions / Error Handling
 Functions can fail when _a contract cannot be fulfilled:_
-- _Precondition is violated: _ Negative index, divisor is zero, etc. Usually caller provided wrong arguments.
+- _Precondition is violated: _ Negative index, divisor is zero, etc. Usually caused by the caller providing wrong arguments.
 - _Postcondition could not be satisfied:_ Resources for computation not available, cannot open a file, ...
 
 === Functionality Guarantees (Contract)
 What to do if a function cannot fulfill its purpose?
 + _Ignore the error_ and provide potentially undefined behavior
   #hinweis[(Relies on the caller to satisfy all preconditions. Viable only if not dependent on other resources.
-  Most efficient and no checks needed but hard to handle for the caller. Should be done carefully!])
+  Most efficient and no checks needed, but hard to handle for the caller. Should be done carefully!])
 
 + _Return a standard result_ to cover the error
-  #hinweis[(Reliefs the caller, can hide underlying problems. Often better if caller can specify its own default value)]
+  #hinweis[(Reliefs the caller, can hide underlying problems. Often better if the caller can specify its own default value)]
   ```cpp
   auto inputNameWithDefault(std::istream & in, std::string const & def = "anon") -> std::string {
     std::string name{}; in >> name; return name.size() ? name : def;
@@ -379,10 +372,10 @@ What to do if a function cannot fulfill its purpose?
   ```
 
 + _Return an error code_ or error value
-  #hinweis[(Only feasible if result domain is smaller than return type. POSIX: Error Code `'-1'`.
-  Burden on the caller to check the result.)]
+  #hinweis[(Only feasible if the result domain is smaller than return type, e.g. signed `int`: Positive values are
+  the actual result, negative values the error code. POSIX: Error Code `'-1'`. Burden on the caller to check the result.)]
   ```cpp
-  auto contains(std::string const & s, int number) -> bool { // "artificial" npos value
+  auto contains(std::string const & s, int number) -> bool { // "artificial" npos value as error
     auto substring = std::to_string(number); return s.find(substring) != std::string::npos;
   }
   ```
@@ -390,20 +383,21 @@ What to do if a function cannot fulfill its purpose?
   It encodes the possibility of failure in the type system. Requires explicit access of the value at the call site
   #hinweis[(checking the boolean `has_value()`)]
   ```cpp
+  auto inputName(std::istream & in) -> std::optional<std::string> { /* ... */ }
   std::optional<std::string> name = inputName(std::cin);
   if (name.has_value()) { std::cout << "Name: " << name.value(); }
   ```
 
 + _Provide an error status_ as a side-effect
-  #hinweis[(Requires reference parameter, annoying because error variable must be provided)]
+  #hinweis[(Requires reference parameter, annoying because a error variable must be provided)]
   ```cpp
   auto connect(std::string url, bool& error) -> int {
-    // set error when an error occurred
+    // set 'error' variable to true when an error occurred
   }
   ```
 
 + _Throw an exception_
-  #hinweis[(Prevent execution of invalid logic by throwing an exception)]
+  #hinweis[(Prevent execution of invalid logic by throwing an exception)]. See chapter @exceptions.
   ```cpp
   void sayGreeting(std::ostream & out, std::string name) {
     if (name.empty()) { throw std::invalid_argument{"Empty name"}; }
@@ -416,8 +410,9 @@ What to do if a function cannot fulfill its purpose?
 === Function with "Narrow Contract"
 #grid(
   [
-    Functions that have a _precondition_ on their caller. When not all possible argument values are useful for the function
-    #hinweis[(i.e. only positive numbers can be processed)]. Do _not_ use exceptions as a second means to return values.
+    Functions that have a _precondition_ on their caller have a _"narrow contract"_, meaning not all possible
+    argument values are useful for the function #hinweis[(e.g. only positive numbers can be processed)].
+    Do _not_ use exceptions as a second means to return values.
   ],
   [
     ```cpp
@@ -431,7 +426,7 @@ What to do if a function cannot fulfill its purpose?
   ],
 )
 
-== Exceptions
+== Exceptions <exceptions>
 #hinweis[
   #cppr("error")[CPPReference: Diagnostics library],
   #cppr("header/stdexcept")[CPPReference: \<stdexcept>],
@@ -452,6 +447,7 @@ What to do if a function cannot fulfill its purpose?
     // Everything is throwable
     throw std::invalid_argument{"Description"};
     throw 15;
+
     // Do not use "throw new ..."
     // This will throw a pointer and cause problems
     ```
@@ -489,7 +485,7 @@ The Standard Library has some _pre-defined exception types_ that you can use in 
 `std::exception` is the base class. All exceptions have a constructor parameter for the "exception reason"
 of type `std::string`\ #hinweis[(i.e. ```cpp std::invalid_argument{"Parameter not >0"};```)].
 
-```cpp std::exception, std::runtime_error, std::logic_error, std::out_of_range, std::invalid_argument, ..```
+```cpp std::exception, std::runtime_error, std::logic_error, std::out_of_range, std::invalid_argument, ...```
 
 === Testing for Exceptions with Catch2
 - _`REQUIRE_THROWS(<code>)`:_ Tests that any type of exception is thrown
@@ -505,10 +501,11 @@ of type `std::string`\ #hinweis[(i.e. ```cpp std::invalid_argument{"Parameter no
     REQUIRE_THROWS_AS(empty_vector.at(0), std::out_of_range);
   }
   ```
-- _`REQUIRE_THROWS_WITH(<code>, <string or string matcher>)`:_ Test for exception message content
+- _`REQUIRE_THROWS_WITH(<code>, <string_or_string_matcher>)`:_ Test for exception message content
   ```cpp
   TEST_CASE("parseInt throws with message") {
     REQUIRE_THROWS_WITH(parseInt("one"), "parse error - invalid digits in 'one'");
+    REQUIRE_THROWS_WITH(parseInt("one"), ContainsSubstring("invalid digit"))
   }
   ```
 
@@ -526,9 +523,12 @@ of type `std::string`\ #hinweis[(i.e. ```cpp std::invalid_argument{"Parameter no
   ],
   [
     ```cpp
+    // Trailing return type
     auto add(int lhs, int rhs) noexcept -> int {
       return lhs + rhs;
     }
+    // Leading return type
+    int add(int lhs, int rhs) noexcept { /*...*/ }
     ```
   ],
 )

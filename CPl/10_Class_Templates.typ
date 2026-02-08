@@ -13,7 +13,9 @@ A class template provides a type with _compile-time parameters_. Data members ca
 Function members are _implicit template functions_ with the class' template parameters.
 
 *Note:* Function members can be defined as template member functions with _additional_ template parameters.
-They will then have the template parameter of their class, as well as the newly defined ones.
+They will then have the template parameter of their class, as well as the newly defined ones\
+#hinweis[(e.g. a function for `Sack` with the signature ```cpp template <typename Count> putInto_n();``` has the template
+parameters `T` and `Count`)].
 
 === Example Usage <example-usage-class-template>
 #grid(
@@ -22,9 +24,10 @@ They will then have the template parameter of their class, as well as the newly 
     ```cpp
     template <typename T> // One template parameter
     class Sack {
+      // Type alias
       using SackType = std::vector<T>;
-      // "typename" keyword required, create new type
-      // size_type is a dependent name
+      // Create new type, "typename" keyword required
+      // 'size_type' is a dependent name
       using size_type = typename SackType::size_type;
       SackType theSack{};
     public:
@@ -58,7 +61,8 @@ They will then have the template parameter of their class, as well as the newly 
       theSack.erase(theSack.begin() + index);
       return return_value;
     }
-    // Concept for Sack's T:
+
+    // Concepts for Sack's T:
     // - T is assignable (implied by std::vector)
     // - T is copyable (push_back & copy
     //   constructor in 'return_value')
@@ -80,8 +84,7 @@ Less typing and reading, single point to change the aliased type. This could eve
 ]
 
 === `typename` for Dependent Names
-#hinweis[#cppr("keyword/typename")[CPPReference: `typename` keyword]]
-
+#hinweis[#cppr("keyword/typename")[CPPReference: `typename` keyword]]\
 Within the template definition you might use names that are directly or indirectly _depending_ on _template parameter_
 #hinweis[(i.e. ```cpp std::vector<T>``` depends on `T`)].
 The compiler assumes that a name is either a variable or a function name.
@@ -178,7 +181,7 @@ Static template members can be "locked" to a specific type.
       std::cout << StaticMember<double>::member; // 8
       std::cout << StaticMember<int>::member; // 4
       std::cout << setMemberTo42(); // 42
-      std::cout << StaticMember<int>; // 42
+      std::cout << StaticMember<int>::member; // 42
     }
     ```
   ],
@@ -263,15 +266,15 @@ There is really no relationship apart from the template name.
 === Preventing Creation of a partial specialization
 #grid(
   [
-    To prohibit instantiating a class is to prohibit the ability to its destructor.
-    _If an object cannot be destroyed, it cannot be created._
+    To prohibit instantiating a class is to prohibit the ability to its destruction.
+    In C++, _If an object cannot be destroyed, it cannot be created._
     This can be done by declaring its _destructor_ as _`= delete;`_.
   ],
   [
     ```cpp
     template <typename T>
     struct Sack<T *> { ~Sack() = delete; }
-    // now a sack of pointers cannot be created
+    // now a Sack of pointers cannot be created
     ```
   ],
 )
@@ -414,7 +417,7 @@ The behavior is similar to pretending as if there was a factory function for eac
 === User Provided Deduction Guides
 In some cases, the compiler does deduct the _wrong template_. Consider the example below:
 We'd like to create a `Sack` from a pair of iterators, just like `std::vector` can.
-We implemented it by creating a _Constructor template_ that takes two iterators and delegated  the task to the
+We implemented it by creating a _Constructor template_ that takes two iterators and delegated the task to the
 respective `std::vector` constructor.
 
 #grid(
@@ -450,7 +453,7 @@ We can easily fix this on the call-side by replacing the `{}` with `()` when ini
 But what if we want to prevent this problem entirely?
 
 _User-defined deduction guides_ that show the compiler when to use what template can be specified in the same scope
-as the template. Usually after the template definition itself.
+as the template. Usually declared after the template definition itself.
 
 It might be necessary for a _complex case_, for example if the constructor template parameters do not map directly
 to the class parameters. Most of the time, the deduction guide is also a template and looks similar to a
@@ -475,16 +478,16 @@ Sack(Iter begin, Iter end) -> Sack<typename std::iterator_traits<Iter>::value_ty
   [
     After adding the deduction guide, the test case above for deducing the template argument from iterators works correctly.
     But now, using the constructor for creating a `Sack` with n-times a value doesn't work anymore.
-    An _additional template_ is required so this constructor can be called again.
+    An _additional constructor_ is required so this functionality works again.
     No deduction guide is needed there because the compiler can deduce `T` for `Sack<T>` from the `value` parameter.
   ],
   [
     ```cpp
     Sack sack(10, 3u); // calls the Iter templ :(
-    template<typename Iter>
     // Fails, because 'unsigned' is not an iterator
     Sack(unsigned begin, unsigned end) -> Sack<typename std::iterator_traits<unsigned>::value_type>
-    // Explicit constructor for n-times value sack
+
+    // Explicit constructor for n-times value Sack
     Sack(size_type n, T const & value)
       : theSack(n, value)
     ```
@@ -509,7 +512,7 @@ Sack(Iter begin, Iter end) -> Sack<typename std::iterator_traits<Iter>::value_ty
     template <typename T,
       template<typename...> typename Container>
     class Sack { /* ... */ };
-    // Use Sack with a different container
+    // Use Sack with a different type of container:
     Sack<unsigned, std::set> aSack{1,2,3}
 
     auto getOut() -> T { // generalize for all
