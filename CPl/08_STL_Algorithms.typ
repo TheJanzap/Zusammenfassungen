@@ -19,7 +19,7 @@ However, there are some things that need to be kept in mind when working with it
   [
     - _`First`:_ Iterator pointing to the first element
     - _`Last`:_ Iterator pointing beyond the last element
-    - _If `First == Last`:_ the range is empty
+    - _If `First == Last`:_ The range is empty
   ],
   [
     ```cpp
@@ -129,7 +129,7 @@ A function or a lambda returning `bool`. For checking a criterion / condition.
 #h(1fr) ```cpp #include <functional>``` #v(-0.5em)
 
 Lambdas make applying `transform` etc. quite easy:\
-```cpp transform(v.begin(), v.end(), v.begin(), [](auto x){ return -x; }); // Make all numbers negative```
+```cpp transform(v.begin(), v.end(), v.begin(), [](auto x){ return -x; }); // Change sign of all numbers```
 
 However, the STL provides standard Functor Classes, which make it even easier:\
 ```cpp transform(v.begin(), v.end(), v.begin(), std::negate<>{});```
@@ -219,7 +219,7 @@ This does not work on `std::istream`, as it needs a dummy stream that acts as th
   columns: (1fr, 2fr),
   [
     Mapping one range #hinweis[(or two ranges of equal or greater size)] to new values and store the result in a new range.
-    Uses a Lambda, Function or Functor for map operation.
+    Uses a Lambda, Function or Functor for the map operation.
 
     Input and output types can be different, as long as the operation has the same type.
   ],
@@ -332,8 +332,8 @@ This does not work on `std::istream`, as it needs a dummy stream that acts as th
 
 ==== Algorithms with the `_if` Suffix
 ```
-count_if  find_if       replace_if         remove_if
-copy_if   find_if_not   replace_copy_if    remove_copy_if
+count_if   find_if       replace_if        remove_if
+copy_if    find_if_not   replace_copy_if   remove_copy_if
 ```
 
 == \_n-Versions of Algorithms
@@ -353,7 +353,7 @@ copy_if   find_if_not   replace_copy_if    remove_copy_if
 
 ==== Algorithms with the `_n` suffix
 ```
-search_n     fill_n          for_each_n        copy_n       generate_n
+search_n   fill_n   for_each_n   copy_n   generate_n
 ```
 
 #pagebreak()
@@ -363,7 +363,7 @@ search_n     fill_n          for_each_n        copy_n       generate_n
 #v(-0.5em)
 #grid(
   [
-    A heap can be implemented on any _sequenced container_ with _random access iterators_ #hinweis[(i.e. `vector`)].
+    A heap can be implemented on any _sequenced container_ with _random access iterators_ #hinweis[(e.g. `vector`)].
     Containers with the heap property in C++ are essentially _balanced binary trees_.\
     _Guarantees:_ Top element is the largest, adding and removing elements have performance guarantees.
 

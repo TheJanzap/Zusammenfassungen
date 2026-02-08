@@ -58,8 +58,8 @@ _Redefining_ an existing variable inside a block is _not_ an error in C++.
   ],
 )
 Unusual literals:
-`5ull` #hinweis[(unsigned long long)], `0x1f` #hinweis[(int32)],`0.f` #hinweis[(float)], `1e9` #hinweis[(double)] `10⁹`,
-`42.E-12L` #hinweis[(long double $42*10^(-12)$)]
+`5ull` #hinweis[(unsigned long long)], `0x1f` #hinweis[(int32)], `0.f` #hinweis[(float)], `1e9` #hinweis[(double, $10^9$)],
+`42.E-12L` #hinweis[(long double $42*10^(-12)$)], `"hello"` #hinweis[(char const [6], 5 characters plus NULL)]
 
 === Type Conversion
 C++ provides _automatic_ type conversion if values of different types are _combined_ into an expression,
@@ -165,10 +165,9 @@ Should _only_ be used in the ```cpp main()``` function.
 === Reading an `int` Value
 #grid(
   columns: (0.8fr, 1fr),
-  gutter: 1em,
   [
     Reads the first non-whitespace character, regardless if it is a number or not.
-    _No error recovery_, one wrong input puts the stream into _status "fail"_. Characters _remain_ in input.
+    _No error recovery_, one wrong input puts the stream into the _"fail" status_. Characters _remain_ in input.
 
     _Boolean Conversion:_ ```cpp if (in >> age)``` is the `istream` object itself.
     It converts to `true` if the last reading operation has been successful.
@@ -192,7 +191,6 @@ Should _only_ be used in the ```cpp main()``` function.
 ==== More robust reading an `int` Value
 #grid(
   columns: (0.8fr, 1fr),
-  gutter: 1em,
   [
     Read a line with `getline()` and parse it _as an integer_ until a `int` is read successfully
     or a `EOF` is returned #hinweis[(end of file)].
@@ -221,7 +219,6 @@ Should _only_ be used in the ```cpp main()``` function.
 === Chaining Input Operations
 #grid(
   columns: (0.8fr, 1fr),
-  gutter: 1em,
   [
     ```cpp in >> symbol``` returns the _`istream` object_ itself. So multiple _subsequent reads_ are possible,
     because the next statement would be the same as ```cpp is >> count```.
@@ -247,7 +244,7 @@ Should _only_ be used in the ```cpp main()``` function.
 If the application is waiting for `EOF` and the input is coming from the terminal, you need to terminate the stream
 by pressing *CTRL+D*. CTRL+Z terminates the whole application, similar to CTRL+C.
 
-=== An `std__istream's` States
+=== An `std::istream's` States
 #hinweis[#cppr("io/ios_base/iostate")[CPPReference: Stream State Flags and Accessors]]\
 A stream can have _different states_, depending on what the stream was fed last. A stream always starts as `good()`.
 
@@ -333,7 +330,6 @@ There are different _manipulators_ that can format values for input & output.
 === Unformatted I/O
 #grid(
   columns: (1fr, 1fr),
-  gutter: 1em,
   [
     #hinweis[#cppr("header/cctype")[CPPReference: \<cctype>]\ ]
     The `<cctype>` header contains char conversions and char query functions like `std::tolower()` / `std::toupper()`.

@@ -46,8 +46,8 @@ There are 3 phases of compilation:
 - _Compiler:_ Translation of C++ code into machine code (source file to object file)
 - _Linker:_ Combination of object files and existing libraries into new libraries and executables
 
-`sayhello.cpp` $arrow.r$ _Preprocessor_ $arrow.r$ `sayhello.i` #hinweis[(preprocessed source)] $arrow.r$ _Compiler_ $arrow.r$
-`sayhello.o` #hinweis[(object code)] $arrow.r$ _Linker_ $arrow.r$ `sayhello` #hinweis[(binary)]
+`sayhello.cpp` $->$ _Preprocessor_ $->$ `sayhello.i` #hinweis[(preprocessed source)] $->$ _Compiler_ $->$
+`sayhello.o` #hinweis[(object code)] $->$ _Linker_ $->$ `sayhello` #hinweis[(binary)]
 
 === Files of `sayhello`
 #grid(
@@ -90,11 +90,11 @@ There are 3 phases of compilation:
 )
 
 The _preprocessor_ combines _`main.cpp`_ and _`sayhello.hpp`_ into  the preprocessed source _`main.i`_.
-On this, the compiler creates the object file _`main.o`_ for this translation unit into machine code.
-The Linker finally combines the translation units _`main.o`_ and _`sayhello.o`_ into the executable _`sayhello`_.
+On this, the _compiler_ creates the object file _`main.o`_ for this translation unit into machine code.
+The _linker_ finally combines the translation units _`main.o`_ and _`sayhello.o`_ into the executable _`sayhello`_.
 
 #grid(
-  columns: (1.1fr, 1fr, 0.8fr),
+  columns: (auto, 1fr, 0.8fr),
   [
     *`main.i`*
     ```cpp
@@ -293,7 +293,7 @@ A code block within an include guard is skipped on subsequent inclusions. Withou
 Due to C++'s _allocation implementation_, functions can mix and match the two different types of parameters:
 
 - _Value Parameter:_ No side-effect on the call-site, because the elements get copied #hinweis[(call by value)]
-- _Reference Parameter:_ Side-effect on the call-site. Needs to be explicitly defined with an `&`:\
+- _Reference Parameter:_ Side-effect on the call-site. Needs to be explicitly defined with an "`&`":\
   ```cpp Point & x``` #hinweis[(call by reference)].
 
 A function has a _side effect_ if it does more than reading its parameters and returning a value to its callee,

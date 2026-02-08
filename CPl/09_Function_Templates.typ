@@ -44,10 +44,11 @@ C++ Templates use _duck-typing_: Every type can be used as argument as long as i
     auto min(T left, T right) -> T {
       return left < right ? left : right;
     }
+
     // T can be replaced with another
     // type when min() gets called.
-    // In the example, T gets replaced
-    // by int.
+    // In the example on the right,
+    // T gets replaced by int.
     ```
   ],
   [
@@ -171,8 +172,8 @@ The template requires at least one argument (`first`) to be called.
 To work around this, we _create a new non-template function with no arguments_ that does nothing.
 It acts as our _recursive base case_.
 
+*What the instantiated template looks like*
 ```cpp
-// What the instantiated template looks like
 auto printAll(int const & first, double const & __rest0, std::string const & __rest1) {
   std::cout << first;
   if (2) { // sizeof...(Types) - Number of arguments in the pack (equals to true here)

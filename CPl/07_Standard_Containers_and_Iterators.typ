@@ -94,7 +94,7 @@ All containers have a similar basic interface.
 )
 
 === Common Container Constructors
-- _Construction with initializer List:_ ```cpp std::vector<int> v{1, 2, 3, 5, 7, 11};```
+- _Construction with Initializer List:_ ```cpp std::vector<int> v{1, 2, 3, 5, 7, 11};```
 - _Construction with a number of elements:_ ```cpp std::list<int> l(5, 42); // 5 list elements with value "42"```\
   Can provide a default value. Often needs parenthesis instead of `{}` to avoid ambiguity from list of values initialization.
 - _Construction from a range given by a pair of iterators:_ ```cpp std::deque<int> q{cbegin(v), cend(v)};``` \
@@ -116,8 +116,8 @@ All containers have a similar basic interface.
 
 ==== Double-Ended Queue: `std::deque<T>`
 #hinweis[#cppr("container/deque")[CPPReference: `std::deque`]]
-#h(1fr) ```cpp #include <deque>``` #v(-0.5em)
-
+#h(1fr) ```cpp #include <deque>```
+#v(-0.5em)
 #grid(
   [
     Like `std::vector` but with additional, efficient front insertion/removal
@@ -134,14 +134,14 @@ All containers have a similar basic interface.
 
 ==== Double-Linked List: `std::list<T>`
 #hinweis[#cppr("container/list")[CPPReference: `std::list`]]
-#h(1fr) ```cpp #include <list>``` #v(-0.5em)
-
+#h(1fr) ```cpp #include <list>```
+#v(-0.5em)
 #grid(
   [
-    Efficient _insertion_ in _any_ position
+    Efficient _insertion_ in _any_ position\
     #hinweis[(`push_front(x)`, `insert(next(begin(), 3), x)`, `push_back(x)`)].\
     Lower efficiency in _bulk_ operations, requires member-function call for `sort()` etc.
-    Only _bi-directional_ iterators - no index access!
+    Only _bi-directional_ iterators -- no index access!
 
     ```cpp
     std::list<int> l{5, 1};
@@ -153,8 +153,8 @@ All containers have a similar basic interface.
 
 ==== Singly-Linked List: `std::forward_list<T>`
 #hinweis[#cppr("container/forward_list")[CPPReference: `std::forward_list`]]
-#h(1fr) ```cpp #include <forward_list>``` #v(-0.5em)
-
+#h(1fr) ```cpp #include <forward_list>```
+#v(-0.5em)
 #grid(
   [
     Efficient insertion _after_ any position, but clumsy with iterator to get "before" position.\
@@ -172,8 +172,8 @@ All containers have a similar basic interface.
 
 ==== LIFO Adapter: `std::stack`
 #hinweis[#cppr("container/stack")[CPPReference: `std::stack`]]
-#h(1fr) ```cpp #include <stack>``` #v(-0.5em)
-
+#h(1fr) ```cpp #include <stack>```
+#v(-0.5em)
 #grid(
   [
     Uses `std::deque` internally and limits its functionality to stack operations.
@@ -191,22 +191,10 @@ All containers have a similar basic interface.
   image("img/cpl_11.png"),
 )
 
-==== Priority Queue Adapter: `std::priority_queue`
-#hinweis[#cppr("container/priority_queue")[CPPReference: `std::priority_queue`]]
-#h(1fr) ```cpp #include <queue>``` #v(-0.5em)
-#grid(
-  [
-    Like `std::stack`, but keeps elements partially sorted as (binary) heap.
-    Requires element type to be _comparable._ `top()` element is always the smallest. No longer a container!
-  ],
-  image("img/cpl_11.png"),
-)
-
-
 ==== FIFO Adapter: `std::queue`
 #hinweis[#cppr("container/queue")[CPPReference: `std::queue`]]
-#h(1fr) ```cpp #include <queue>``` #v(-0.5em)
-
+#h(1fr) ```cpp #include <queue>```
+#v(-0.5em)
 #grid(
   [
     Uses `std::deque` and limits its functionality to queue operations.
@@ -222,6 +210,19 @@ All containers have a similar basic interface.
     ```
   ],
   image("img/cpl_12.png"),
+)
+
+
+==== Priority Queue Adapter: `std::priority_queue`
+#hinweis[#cppr("container/priority_queue")[CPPReference: `std::priority_queue`]]
+#h(1fr) ```cpp #include <queue>```
+#v(-0.5em)
+#grid(
+  [
+    Like `std::stack`, but keeps elements partially sorted as (binary) heap.
+    Requires element type to be _comparable._ `top()` element is always the smallest. No longer a container!
+  ],
+  image("img/cpl_11.png"),
 )
 
 === Example: Stack and Queue
@@ -266,16 +267,16 @@ Associative containers are _sorted tree containers_. Allow searching by content,
 
 Associative containers allow an _additional template argument_ for the comparison operation.
 It must be a functor class returning a binary predicate that is _irreflexive_ and _transitive._
-Own functors can provide special sort order #hinweis[(i.e caseless-string comparison)].
-The sorting requirement must be fulfilled #hinweis[(i.e. `>=` is not allowed, because it is reflexive!)]\
+Own functors can provide special sort order #hinweis[(e.g. caseless-string comparison)].
+The sorting requirement must be fulfilled #hinweis[(e.g. `>=` is not allowed, because it is reflexive!)]\
 ```cpp std::set<int, std::greater> reversed_int_set{}```
 
 For more details about functors and predicates, see chapter @functor.
 
 ==== Set of Elements: `std::set`
 #hinweis[#cppr("container/set")[CPPReference: `std::set`]]
-#h(1fr) ```cpp #include <set>``` #v(-0.5em)
-
+#h(1fr) ```cpp #include <set>```
+#v(-0.5em)
 #grid(
   [
     Stores elements in _sorted order_ #hinweis[(ascending by default, can be overwritten by the 2nd parameter)].
@@ -313,8 +314,8 @@ For more details about functors and predicates, see chapter @functor.
 
 ==== Map of Key-Value-Pairs: `std::map`
 #hinweis[#cppr("container/map")[CPPReference: `std::map`]]
-#h(1fr) ```cpp #include <map>``` #v(-0.5em)
-
+#h(1fr) ```cpp #include <map>```
+#v(-0.5em)
 #grid(
   [
     Stores key-value pairs in _sorted order_. Sorted by key in ascending order.
@@ -340,15 +341,15 @@ For more details about functors and predicates, see chapter @functor.
         {'a',0},{'e',0},{'i',0},{'o',0},{'u',0}};
       char c{};
       while (in >> c) {
-        // Only insert chars already present in map
-        if (v.contains(c)) {
-          ++v[c];
-          // Output new count for all vowels
-          std::for_each(cbegin(v), cend(v), [&out]
-           (auto const& e) {
-            out << e.first <<" = "<<e.second<<'\n';
-          });
-    } } }
+        // Only insert vowels, no consonants
+        if (!v.contains(c)) { continue; }
+        ++v[c];
+        // Output new count for all vowels
+        std::for_each(cbegin(v), cend(v), [&out]
+          (auto const& e) {
+          out << e.first <<" = "<< e.second <<'\n';
+        });
+    } }
     ```
   ],
 )
@@ -370,8 +371,8 @@ auto countStrings(std::istream& in, std::ostream& out) -> void { // Counts how m
   #cppr("container/multiset")[CPPReference: `std::multiset`],
   #cppr("container/multimap")[CPPReference: `std::multimap`]
 ]
-#h(1fr) ```cpp #include <set>``` ```cpp #include <map>``` #v(-0.5em)
-
+#h(1fr) ```cpp #include <set>``` ```cpp #include <map>```
+#v(-0.5em)
 #grid(
   [
     Multiple equivalent keys allowed. Use member functions/algorithms to find boundaries of equivalent keys:
@@ -391,9 +392,9 @@ auto countStrings(std::istream& in, std::ostream& out) -> void { // Counts how m
   ],
   [
     ```cpp
-    // Prints the same words on the same line
+    // Prints the same words on the same line,
     // different words on different lines
-    auto sortedStringList(std::istream& in, std::ostream&out) -> void {
+    auto sortedStringList(std::istream& in, std::ostream& out) -> void {
       using inIter =
          std::istream_iterator<std::string>;
       using outIter =
@@ -415,11 +416,12 @@ auto countStrings(std::istream& in, std::ostream& out) -> void { // Counts how m
 )
 
 === Hashed Containers
-#hinweis[#cppr("container#Unordered_associative_containers_.28since_C.2B.2B11.29",
-  )[CPPReference: Containers library - Unordered Associative Containers]]\
+#hinweis[#cppr(
+  "container#Unordered_associative_containers_.28since_C.2B.2B11.29",
+)[CPPReference: Containers library - Unordered Associative Containers]]\
 Hashed containers offer more efficient lookups, but offer no sorting.
 If you want to use these hashed containers with your own types, you would need to create your own hashing function.
-Because creating your own hashing function is hard, you stick to standard types like `std::string` for keys instead.
+Because creating your own hashing function is hard, stick to standard types like `std::string` for keys instead.
 
 ==== `std::unordered_set`
 #hinweis[#cppr("container/unordered_set")[CPPReference: `std::unordered_set`]]
@@ -496,7 +498,7 @@ Some algorithms can be _implemented better_ with more powerful iterators
 
 ==== `const_iterator != const` Iterator!
 Declaring an iterator _`const`_ would not allow modifying the iterator object, meaning the iterator cannot be
-incremented with `++` or `std::next()`.\
+incremented with `++` or `std::next()`. This makes a `const` iterator basically useless for most tasks. _Don't use!_\
 `cbegin()` and `cend()` return _`const_iterators`_. This does _not_ imply the iterator to be `const`,
 but the _elements_ the iterator walks over are `const` and therefore can't be modified.
 
@@ -593,7 +595,7 @@ but the _elements_ the iterator walks over are `const` and therefore can't be mo
     auto operator-(distance) -> It;
     auto operator-=(distance) -> It&;
     auto operator-(It const &) -> distance;
-    // relational operators, like <
+    // relational operators, like '<'
     // Otherwise has the same operators as the
     // bidirectional iterator
     ```
@@ -622,7 +624,7 @@ but the _elements_ the iterator walks over are `const` and therefore can't be mo
     ```
   ],
 )
-_No comparison_ possible and end to an `out`-range is not queryable. Models the `std::ostream_iterator`.
+_No comparison_ possible. The end to an `out`-range is not queryable. Models the `std::ostream_iterator`.
 
 === Iterator Functions
 #hinweis[#cppr("iterator#Iterator_operations")[CPPReference: Iterator library - Iterator Operations]]
