@@ -37,10 +37,10 @@ corresponding class name as a prefix: _`xy::`_
     #define DATE_HPP_
 
     class Date { // Keyword for defining a class
-      // Member Variables
+      // Member Variables, private by default
       int year, month, day;
     public: // access specifier: Public members
-      // Constructor:
+      // Constructor
       Date(int year, int month, int day);
       // Member Functions 1 & 2
       static auto isLeapYear(int year) -> bool;
@@ -85,7 +85,7 @@ corresponding class name as a prefix: _`xy::`_
 auto dating() -> void {
   Date today{2016, 10, 19};        // Using the constructor
   auto thursday{today.tomorrow()}; // Copy Constructor, initialized with member function
-  Date::isLeapYear(2016);          // Static Member Function
+  Date::isLeapYear(2016);          // Using a static Member Function
   Date invalidDate{2016, 13, 1};   // Should throw error
 }
 ```
@@ -113,14 +113,14 @@ auto dating() -> void {
   ],
 )
 
-#hinweis[#cppr("keyword/struct")[CPPReference: keyword struct], #cppr("keyword/class")[CPPReference: keyword class]\ ]
+#hinweis[#cppr("keyword/struct")[CPPReference: keyword struct], #cppr("keyword/class")[CPPReference: keyword class]]\
 There are two different keywords for defining a class: ```cpp class``` and ```cpp struct```. Their only difference is the
 _default visibility_ of their member functions and variables: _`private` for `class`, `public` for `struct`_.
 
 === Access specifiers
 #hinweis[#cppr("language/access")[CPPReference: Access specifiers]]\
 - _`private:`_ visible only inside the class, for hidden data members
-- _`protected:`_ also visible in subclasses
+- _`protected:`_ visible in class and subclasses
 - _`public:`_ visible from everywhere, for the interface of the class
 It is possible to declare _multiple blocks_ of the same access specifier, but best practice is to _only use one block_.
 
@@ -164,9 +164,7 @@ The definition order _specifies the initialization order_ of the class members.
     {}
     ```
   ],
-)
 
-#grid(
   [
     The _member initializer list_ can take the parameters and directly assign them to member variables.
     The initialization _order_ depends on the order of the members inside the class, not the order in the initializer list.
@@ -187,8 +185,6 @@ The definition order _specifies the initialization order_ of the class members.
     ```
   ],
 )
-
-
 
 ==== Implicit Special Constructors
 #grid(
@@ -221,7 +217,7 @@ The definition order _specifies the initialization order_ of the class members.
 
 _Copy Constructor:_ ```cpp Date d2{d};```\
 The copy constructor can be called with an object of the same class and copies the content of the argument.
-It has one parameter of type `<own-type> const &`. It is implicitly called when an object is assigned to a new variable.
+It has one parameter of type `<own-type> const &`. It is _implicitly called_ when an object is _assigned to a new variable_.
 _Copies_ all member variables into the new variable. Is _implicitly available_, unless there is a move constructor
 #hinweis[(C++ Advanced topic)] or an assignment operator. Usually no need for explicit implementation.
 
@@ -252,7 +248,7 @@ _Copies_ all member variables into the new variable. Is _implicitly available_, 
     ```cpp explicit <ctor-name>(<OtherType>);```\
     Constructors with a _single argument_ or with default arguments for all parameters after the first can be
     called with any type as its argument, as long as it is _implicitly convertible_ to the specified type
-    #hinweis[(i.e. a `double` argument for a `int` parameter)]. This implicit conversion can cause errors.
+    #hinweis[(e.g. a `double` argument for a `int` parameter)]. This implicit conversion can cause errors.
     To disable this, constructors like this can be declared _`explicit`_, so only the specified type will
     be taken as an argument.
   ],
@@ -275,6 +271,10 @@ _Copies_ all member variables into the new variable. Is _implicitly available_, 
 ==== Initializer List Constructor
 #grid(
   [
+    #hinweis[
+      #cppr("utility/initializer_list")[CPPReference: `std::initializer_list`]\
+      #cppr("language/list_initialization")[CPPReference: List-initialization]
+    ]\
     ```cpp Container box{item1, item2, item3};```\
     Has one `std::initializer_list<T>` parameter. Does _not_ need to be marked _`explicit`_
     #hinweis[(implicit conversion is usually desired)].
@@ -356,7 +356,7 @@ _Copies_ all member variables into the new variable. Is _implicitly available_, 
     #hinweis[#cppr("language/destructor")[CPPReference: Destructor]]\
     ```cpp ~Date();```\
     A destructor #hinweis[(often shortened to `dtor`)] is the _counterpart_ to the constructor.
-    Must _release_ all resources. Is implicitly available.
+    Must _release_ all resources held by the instance. Is implicitly available.
     Must _not_ throw an exception, because if it does, the whole program gets terminated.
     Is called _automatically_ at the end of the block for local instances.
   ],
@@ -377,6 +377,7 @@ _Copies_ all member variables into the new variable. Is _implicitly available_, 
 #v(-0.5em)
 === Constructors and Default Initialization
 #grid(
+  row-gutter: 1.5em,
   [
     - _Establish Invariant:_ Properties for a value of the type that are always valid.
       A `Date` instance always represents a valid date. All #hinweis[(public)] member functions assume this and keep it intact.
@@ -406,7 +407,8 @@ _Copies_ all member variables into the new variable. Is _implicitly available_, 
   [
     _Member variables_ can have a _default value_ assigned, so called _`NSDMI` = Non-Static Data Member Initializers._
     These values are used if the member is not present in the initializer list of the constructor.
-    Get overridden by initializer list. Useful if multiple constructors initialize class similarly, avoids duplication.
+    Get overridden by values in initializer list. Useful if multiple constructors initialize class similarly,
+    avoids duplication.
   ],
   [
     ```cpp
@@ -427,7 +429,7 @@ _Copies_ all member variables into the new variable. Is _implicitly available_, 
     - _Implicit `this` object_: Is a pointer, member access with arrow #no-ligature[`->`].\
       ```cpp this->``` can usually be omitted, only necessary when a naming ambiguity exists.
     - _Declare `const` if possible!_
-    - Must _not modify members_ and can only call `const` functions if `const`.
+    - If `const`: Must _not modify members_ and can only call `const` functions.
 
     Otherwise member functions have _access_ to _all_ other members.
   ],
@@ -477,7 +479,7 @@ _Copies_ all member variables into the new variable. Is _implicitly available_, 
 === Implementing Static Member Variables
 #grid(
   [
-    No `static` keyword in implementation. `static const` member can be initialized directly in the header.
+    No `static` keyword in implementation. `static const` members can be initialized directly in the header.
 
     Access outside of the class with name qualifier:\
     `<classname>::<member>`
@@ -595,13 +597,13 @@ however it can be implemented by calling the spaceship operator. It also implici
     int year, month, day;
    public:
     auto operator<=>(Date const& right) const -> std::strong_ordering {
-      // the left hand side has an implicit 'this->'
+      // The left hand side has an implicit 'this->'. int already has <=> implemented, use that
       if (year != right.year) { return year <=> right.year; }
       if (month != right.month) { return month <=> right.month; }
       return day <=> right.day;
     }
     auto operator==(Date const& right) const -> bool {
-      // implemented by calling <=> and checking if result is equal.
+      // Implemented by calling <=> and checking if result is equal.
       // '*this' to get the value of the current/lhs object (because 'this' is a pointer)
       return (*this <=> right) == std::strong_ordering::equal;
     }
@@ -628,8 +630,8 @@ This implicitly generates the equality operator as well.
 
 === Free Operators
 Operators are called free operators when they are implemented _outside_ of a class.
-While _inside_ of a class, the first parameter was given implicitly by the `this` pointer,
-free operators need to specify it explicitly.\
+While _inside_ of a class, the first parameter was given implicitly by the `this` pointer;
+free operators need to specify the left hand side explicitly.\
 _There are some limitations:_ Assignment can only be implemented as a member operator,
 while the `<<` and `>>` operators dealing with streams can only be implemented as free operators.
 
@@ -676,13 +678,13 @@ The second parameter with the object reference `date` and the `print()` member f
     class Date {
       int year, month, day;
      public:
-      auto print(std::ostream& os) const -> void {
-        os << year << "/" << month << "/" << day;
+      auto print(std::ostream& out) const -> void {
+        out << year << "/" << month << "/" << day;
       }
     };
-    inline auto operator <<(std::ostream& os, Date const& date)
+    inline auto operator <<(std::ostream& out, Date const& date)
       -> std::ostream& {
-      date.print(os); return os;
+      date.print(out); return out;
     }
     ```
   ],
@@ -713,24 +715,24 @@ by assigning it a new `Date` instance.
     class Date {
       int year, month, day;
      public:
-      auto print(std::ostream& os) const -> void {
-        os << year << "/" << month << "/" << day;
-      }
+      // Throws 'std::out_of_range' on invalid dates
+      Date(int year, int month, int day);
     };
-    inline auto operator >>(std::istream& is, Date& date)
+
+    inline auto operator >>(std::istream& in, Date& date)
       -> std::istream& {
       int year{-1}, month{-1}, day{-1};
-      // discard vars to get rid of the date separators
+      // Use discard variables to get rid of the date separators
       char sep1, sep2;
-      is >> year >> sep1 >> month >> sep2 >> day;
+      in >> year >> sep1 >> month >> sep2 >> day;
       try {
         date = Date{year, month, day};
-        is.clear();
+        in.clear();
       } catch (std::out_of_range const& e) {
-        // validation inside the 'Date' ctor failed
-        is.setstate(std::ios::failbit);
+        // Validation inside the 'Date' ctor failed
+        in.setstate(std::ios::failbit);
       }
-      return is;
+      return in;
     }
     ```
   ],
@@ -745,6 +747,11 @@ by assigning it a new `Date` instance.
       std::cin >> date;
       return date;
     }
+
+    // Valid example inputs:
+    // 2024/12/31
+    // 2024.12.31
+    // 2024 12 31
     ```
   ],
 )
@@ -790,7 +797,7 @@ There are different types of orders to choose from depending on the elements to 
   [
     Values that are equivalent _may be distinguishable_.\
     Either `"a < b"`, `"a == b"` or `"a > b"` must be true.\
-    #hinweis[(For example `string`s, when letter case is ignored, i.e. `Hello` and `hello` are equivalent, but not equal)]
+    #hinweis[(For example `string`s, when letter case is ignored, e.g. `Hello` and `hello` are equivalent, but not equal)]
   ],
   [
     #small[
@@ -810,7 +817,6 @@ There are different types of orders to choose from depending on the elements to 
 #grid(
   columns: (1.4fr, 1fr),
   [
-
     Values that are equivalent _may be distinguishable_.\
     `"a < b"`, `"a == b"` and `"a > b"` can all be false.\
     #hinweis[(For example `double`, as `NaN` with itself always compares to `false`)]

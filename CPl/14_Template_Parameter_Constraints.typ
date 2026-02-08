@@ -15,8 +15,6 @@ They allow for earlier detection of type violations in the template instantiatio
       ```cpp increment(unsigned)``` or ```cpp increment<int>(int)```
     + Best overload is selected\
       ```cpp increment(int)``` from the template
-
-    `error: request for member 'increment' in 'value', which is of non-class type 'int'`
   ],
   [
     ```cpp
@@ -32,6 +30,8 @@ They allow for earlier detection of type violations in the template instantiatio
     ```
   ],
 )
+The compiler reports the following error:\
+`error: request for member 'increment' in 'value', which is of non-class type 'int'`
 
 == SFINAE #hinweis[(Substitution Failure is not an Error)]
 #grid(
@@ -62,14 +62,19 @@ _`std::is_class_v<T>`_ is a variable template that returns `true` if `T` is a cl
 It can be used as `V` in the type template _`std::enable_if_t<V, T>`_ that converts a boolean value `V` into
 type `T` if `true`, or does nothing if `false`.
 
-We can use it to provoke template substitution failures #hinweis[(e.g. in the parameter declaration)]:
+We can use it to provoke template substitution failures #hinweis[(e.g. in the parameter declaration)].
+If the function is called with a non-class type #hinweis[(e.g. `int`)], the compiler complains that there is no
+matching function call to `increment()` and the template parameter `T` couldn't be deduced.
+But if the function is called with a class, it works normally.
+
 ```cpp
 template <typename T>
 auto increment(std::enable_if_t<std::is_class_v<T>, T> value) -> T {
   return value.increment();
 }
 ```
-This works, but it is the _ugly old-school way_ of specifying type constraints. The modern way are constraints & concepts.
+This works, but it is the _ugly old-school way_ of specifying type constraints. The modern way are constraints
+and concepts.
 
 == Constraints with a `requires` clause
 #hinweis[#cppr("language/constraints")[CPPReference: Constraints and concepts]]\
@@ -369,9 +374,9 @@ Abbreviated function template parameters can be constrained too.
 
 === Example Concepts for Output
 Here are two concepts #hinweis[(not the template functions that implement them!)] that can be used to output values.
-Templates constrained by `Printable` can be used with classes that have a ```cpp print(std::ostream&)``` member function, while
-templates constrained by `LeftshiftOutputtable` can only be used with types that overload the `<<` operator
-to work with `std::ostream`.
+- Templates constrained by `Printable` can be used with classes that have a ```cpp print(std::ostream&)``` member function
+- Templates constrained by `LeftshiftOutputtable` can only be used with types that overload the `<<` operator
+  to work with `std::ostream`.
 
 ```cpp
 template <typename T>
