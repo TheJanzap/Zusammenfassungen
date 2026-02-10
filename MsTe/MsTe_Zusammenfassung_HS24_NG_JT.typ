@@ -4081,8 +4081,8 @@ das heisst, für jeden Datentyp gibt es einen eigenen LINQ-Provider #hinweis[(LI
       Subject = "Multimedia Production"
     }
     Student s2 = new() {
-      Id = 30035
-      Name = "Jannis"
+      Id = 30035,
+      Name = "Jannis",
       Subject = "Master of Desaster"
     }
     // Generiert aus IDs 'Student' objects
