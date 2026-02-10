@@ -3669,7 +3669,7 @@ Dies ist zwar kürzer und bequemer, aber auch weniger sicher und robust.
       if (i == 5) break;
       Console.WriteLine(i);
     } // Compiler Output:
-    IEnumerator enumerator = list.GetEnumerator():
+    IEnumerator enumerator = list.GetEnumerator();
     try {
       while (enumerator.MoveNext()) {
         /* Statements aus foreach-Loop */
