@@ -425,7 +425,7 @@ Befindet sich meist in der Datei `Program.cs`.
   [
     ```cs
     using System; // main() code start
-    for (int i = 0; i < args.Length, i++) {
+    for (int i = 0; i < args.Length; i++) {
       ConsoleWriter.Write(args, i);
     } // main() code end
     class ConsoleWriter {
@@ -3777,13 +3777,13 @@ welche mindestens ein `yield return` beinhaltet. Die Implementation von `IEnumer
       private int[] _x = new int[10];
       // Standard Iterator
       public IEnumerator<int> GetEnumerator() {
-        for (int i = 0; i < _x.Length, i++) {
+        for (int i = 0; i < _x.Length; i++) {
           yield return _x[i];
         } // yield break ist implizit
       }
       // Spezifische Iterator-Methode
       public IEnumerable<int> Range(int from, int to) {
-        for (int i = from, i < to, i++) {
+        for (int i = from; i < to; i++) {
           yield return _x[i];
         }
       }
@@ -3868,7 +3868,7 @@ Erst der Aufruf von ```cs IEnumerator<T>.MoveNext()``` tut dies. Im `foreach`-Lo
       }
 
       public IEnumerable<int> Range(int from, int to) {
-        for (int i = from, i < to, i++) {
+        for (int i = from; i < to; i++) {
           yield return i;
       } }
     ```
