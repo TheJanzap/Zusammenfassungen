@@ -1,5 +1,5 @@
 // Template Zusammenfassung
-// (C) 2025 Nina Grässli, Jannis Tschan
+// (C) 2026 Nina Grässli, Jannis Tschan
 #import "helpers.typ": *
 
 // Global variables
@@ -50,14 +50,14 @@
 
   let font-special = (
     ..font-default,
-    font: "JetBrains Mono",
+    font: ("JetBrains Mono", "DejaVu Sans Mono"),
     weight: "bold",
     fill: colors.hellblau,
   )
 
   let footer = context [
     #set text(font: font-special.font, size: 0.9em)
-    #let separator = if (authors.len() > 2) { ", " } else { " & " } 
+    #let separator = if (authors.len() > 2) { ", " } else { " & " }
     #fach | #semester | #authors.join(separator)
     #h(1fr)
     #languages.at(language).page #counter(page).display()
@@ -121,6 +121,9 @@
   // Recommended workaround in Typst 0.11 until table.header is styleable
   show table.cell.where(y: 0): emph
 
+  // Set default sizing of grid
+  set grid(columns: (1fr, 1fr), gutter: 1em)
+
   // Unordered list, use with "- " or #list[]
   show list: set list(marker: "–", body-indent: 0.45em)
 
@@ -133,7 +136,6 @@
   // Quotes
   set quote(block: true, quotes: true)
   show quote: q => {
-    set align(left)
     set text(style: "italic")
     q
   }
@@ -164,17 +166,17 @@
   }
 
   // Title page configuration
-  let subtitle(subt) = [
-    #set text(..font-special, size: 1.2em)
-    #pad(bottom: 1.3em, subt)
-  ]
+  let subtitle(subt) = {
+    set text(..font-special, size: 0.7em)
+    pad(bottom: 1.3em, subt)
+  }
 
   // == Page Content ==
-  // title row
+  // The title header
   if (display-title-footer) {
-    align(left)[
-      #text(..font-special, size: 1.8em, fach-long + " | " + fach)
-      #v(1em, weak: true)
+    title[
+      #text(..font-special, size: 1.06em, fach-long + " | " + fach)
+      #v(0.6em, weak: true)
       #subtitle[Zusammenfassung]
     ]
   }
@@ -195,7 +197,12 @@
   }
 
   // Main body
-  set par(justify: true)
+  set par(
+    justify: true,
+    // Use character-level justification with recommended values
+    // https://typst.app/docs/reference/model/par/#parameters-justification-limits
+    justification-limits: (tracking: (min: -0.01em, max: 0.02em)),
+  )
   body
 
   // Appendix Documents
