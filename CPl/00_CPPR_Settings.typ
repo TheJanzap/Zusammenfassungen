@@ -3,6 +3,6 @@
 #let EXAM_MODE = false
 #let CPPR_ROOT = if EXAM_MODE { "file://C:/cppreference/reference/en/cpp/" } else { "https://en.cppreference.com/w/cpp/" }
 
-#let cppr(url, body) = {
-  return underline(link(CPPR_ROOT + url + ".html", body))
+#let cppr(url, anchor: "", body) = {
+  return underline(link(CPPR_ROOT + url + ".html" + anchor, body))
 }

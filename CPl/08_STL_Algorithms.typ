@@ -359,7 +359,9 @@ search_n   fill_n   for_each_n   copy_n   generate_n
 #pagebreak()
 
 == Heap Algorithms
-#hinweis[#cppr("algorithm#Heap_operations")[CPPReference: Algorithms -- Heap operations]]
+#hinweis[
+  #cppr("algorithm", anchor: "#Heap_operations")[CPPReference: Algorithms -- Heap operations]
+]
 #v(-0.5em)
 #grid(
   [
