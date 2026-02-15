@@ -480,7 +480,9 @@ What to do if a function cannot fulfill its purpose?
 )
 
 === Exception Types
-#hinweis[#cppr("error#Exception_categories")[CPPReference: Exception Categories]]\
+#hinweis[
+  #cppr("error", anchor: "#Exception_categories")[CPPReference: Diagnostics Library -- Exception Categories]
+]\
 The Standard Library has some _pre-defined exception types_ that you can use in _`<stdexcept>`_.
 `std::exception` is the base class. All exceptions have a constructor parameter for the "exception reason"
 of type `std::string`\ #hinweis[(i.e. ```cpp std::invalid_argument{"Parameter not >0"};```)].
