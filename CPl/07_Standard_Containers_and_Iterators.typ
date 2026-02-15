@@ -103,7 +103,12 @@ All containers have a similar basic interface.
 === Sequence Containers
 #grid(
   [
-    #hinweis[#cppr("container#Sequence_containers")[CPPReference: Containers library - Sequence Containers]]\
+    #hinweis[
+      #cppr(
+        "container",
+        anchor: "#Sequence_containers",
+      )[CPPReference: Containers library -- Sequence Containers]
+    ]\
     `std::vector<T>, std::deque<T>, std::list<T>, std::array<N,T>`\
     _Order_ is defined in order of inserted/appended elements.
     `std::list` is good for _splicing_ and _"in the middle" insertions_.
@@ -254,7 +259,9 @@ auto main() -> int {
 #pagebreak()
 
 === Associative Containers
-#hinweis[#cppr("container#Associative_containers")[CPPReference: Containers library - Associative Containers]]\
+#hinweis[
+  #cppr("container", anchor: "#Associative_containers")[CPPReference: Containers library -- Associative Containers]
+]\
 Associative containers are _sorted tree containers_. Allow searching by content, not by sequence
 #hinweis[(Search by key, can access key or key-value pair)].
 
@@ -416,9 +423,12 @@ auto countStrings(std::istream& in, std::ostream& out) -> void { // Counts how m
 )
 
 === Hashed Containers
-#hinweis[#cppr(
-  "container#Unordered_associative_containers_.28since_C.2B.2B11.29",
-)[CPPReference: Containers library - Unordered Associative Containers]]\
+#hinweis[
+  #cppr(
+    "container",
+    anchor: "#Unordered_associative_containers_.28since_C.2B.2B11.29",
+  )[CPPReference: Containers library -- Unordered Associative Containers]
+]\
 Hashed containers offer more efficient lookups, but offer no sorting.
 If you want to use these hashed containers with your own types, you would need to create your own hashing function.
 Because creating your own hashing function is hard, stick to standard types like `std::string` for keys instead.
@@ -627,7 +637,12 @@ but the _elements_ the iterator walks over are `const` and therefore can't be mo
 _No comparison_ possible. The end to an `out`-range is not queryable. Models the `std::ostream_iterator`.
 
 === Iterator Functions
-#hinweis[#cppr("iterator#Iterator_operations")[CPPReference: Iterator library - Iterator Operations]]
+#hinweis[
+  #cppr(
+    "iterator",
+    anchor: "#Iterator_operations",
+  )[CPPReference: Iterator library -- Iterator Operations]
+]
 #v(-0.5em)
 - _`std::distance(start, goal)`:_ Counts the number of "hops" iterator `start` must make until it reaches `goal`.
   Efficient for random access iterators, for other iterators it needs to traverse the iterator.

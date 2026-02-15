@@ -27,7 +27,12 @@ This can lead to memory errors!\
 #strike[```cpp int arr[]{1, 2, 3}```]
 
 === Array Iterators <array-iterators>
-#hinweis[#cppr("container/array#Iterators")[CPPReference: std::array Iterators]]
+#hinweis[
+  #cppr(
+    "container/array",
+    anchor: "#Iterators",
+  )[CPPReference: std::array -- Iterators]
+]
 #v(-0.5em)
 #grid(
   columns: (2fr, 1fr),
@@ -76,7 +81,9 @@ During _initialization_, the initial size of the vector can be specified inside 
 #grid(
   columns: (2fr, 1.3fr),
   [
-    #hinweis[#cppr("container/vector#Iterators")[CPPReference: std::vector Iterators]] \
+    #hinweis[
+      #cppr("container/vector", anchor: "#Iterators")[CPPReference: std::vector -- Iterators]
+    ]\
     In addition to the Iterators of `std::array` #hinweis[(see @array-iterators)],
     `std::vector` has two additional functions to work with.
     - _`.insert(<iterator>, <value>)`:_ Insert a value at the position the iterator points to.
