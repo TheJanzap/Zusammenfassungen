@@ -1,5 +1,4 @@
 #import "../template_zusammenf.typ": *
-#import "@preview/wrap-it:0.1.1": wrap-content
 
 /* #show: project.with(
   authors: ("Nina Grässli", "Jannis Tschan"),
@@ -121,8 +120,9 @@ In manchen Systemen können Nachrichten mit _Prioritäten_ versehen werden.
 Der Empfänger holt die Nachricht mit der _höchsten Priorität zuerst_ aus der Queue.
 
 === POSIX Message-Passing
-OS-Message-Queues mit _variabler Länge_, haben mind. 32 Prioritäten und können
-_synchron und asynchron_ verwendet werden.
+OS-Message-Queues mit _variabler Länge_, haben mindestens 32 Prioritäten und können
+_synchron oder asynchron_ verwendet werden.
+
 ==== ```c mqd_t mq_open (const char *name, int flags, mode_t mode, struct mq_attr *attr);```
 _Öffnet eine Message-Queue_ mit systemweitem `name` und gibt einen
 _Message-Queue-Descriptor_ zurück.
@@ -135,7 +135,7 @@ _Message-Queue-Descriptor_ zurück.
 - _`mode`:_ Legt Zugriffsberechtigungen fest: `S_IRUSR` | `S_IWUSR`
 - _`struct mq_attr`:_ Beinhaltet Flags, maximale Anzahl Nachrichten in Queue,
   maximale Nachrichtengrösse und Anzahl der Nachrichten, die aktuell in der Queue sind.
-  Lesen/Schreiben mit `mq_getatrr()`/`mq_setattr()`.
+  Lesen/Schreiben der Attribute mit `mq_getatrr()`/`mq_setattr()`.
 
 ==== ```c int mq_close (mqd_t queue);```
 _Schliesst die Queue_ mit dem Descriptor `queue` für diesen Prozess.
@@ -159,22 +159,24 @@ Gibt es auch als Variante mit _Timeout_: `mq_timedreceive()`.
 `priority` ist ein Out-Parameter für die Priorität der empfangenen Nachricht.
 Gibt _Grösse_ der empfangenen Nachricht zurück.
 
-#wrap-content(
-  image("img/bsys_39.png"),
-  align: top + right,
+== Shared Memory
+#grid(
   columns: (50%, 50%),
-)[
-  == Shared Memory
-  Frames des Hauptspeichers werden _zwei (oder mehr) Prozessen_ $P_1$ und $P_2$
-  _zugänglich_ gemacht. In $P_1$ wird Page $V_1$ auf einen Frame $F$ abgebildet.
-  In $P_2$ wird Page $V_2$ auf _denselben_ Frame $F$ abgebildet.
-  Beide Prozesse können _beliebig_ auf dieselben Daten zugreifen.
+  [
+    Frames des Hauptspeichers werden _zwei (oder mehr) Prozessen_ $P_1$ und $P_2$
+    _zugänglich_ gemacht. In $P_1$ wird Page $V_1$ auf einen Frame $F$ abgebildet.
+    In $P_2$ wird Page $V_2$ auf _denselben_ Frame $F$ abgebildet.
+    Beide Prozesse können _beliebig_ auf dieselben Daten zugreifen.
 
-  Eine Adresse in $V_1$ ergibt nur für $P_1$ Sinn, dieselbe Adresse gehört für $P_2$ zu
-  einer _völlig anderen_ Speicherstelle. _Keine absoluten Adressen/Pointer verwenden!_
-  Im Shared Memory müssen _relative Adressen_ verwendet werden.
-  #hinweis[(Pointer müssen relativ zur Anfangs-Adresse sein, z.B. als Offset bezogen auf Start-Adresse)]
-]
+    Eine Adresse in $V_1$ ergibt nur für $P_1$ Sinn, dieselbe Adresse gehört für $P_2$ zu
+    einer _völlig anderen_ Speicherstelle. _Keine absoluten Adressen/Pointer verwenden!_
+    Im Shared Memory müssen _relative Adressen_ verwendet werden.
+    #hinweis[(Pointer müssen relativ zur Anfangs-Adresse sein, z.B. als Offset bezogen auf Start-Adresse)]
+  ],
+  image("img/bsys_39.png"),
+)
+
+#pagebreak()
 
 === POSIX API
 Das OS benötigt ein _spezielles Objekt $bold(S)$_, das Informationen über den gemeinsamen
@@ -192,8 +194,8 @@ _Öffnet ein Shared Memory_ mit system-weitem `name` und gibt FD zurück.
 - _`mode`:_ Legt Zugriffsberechtigungen fest: `S_IRUSR` | `S_IWUSR`
 
 ```c
-int fd = shm_open ("/mysharedmemory", O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
 // Erzeugt (falls nötig) und öffnet Shared Memory /mysharedmemory zum Lesen und Schreiben
+int fd = shm_open ("/mysharedmemory", O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
 ```
 
 ==== ```c int ftruncate (int fd, offset_t length);```
@@ -219,8 +221,8 @@ laufenden Prozesses und gibt die (virtuelle) Adresse des ersten Bytes zurück.
 ```c
 void * address = mmap(
   0,                      // void *hint_address (0 because nobody cares)
-  size_of_shared_memory,  // size_t length (same as used in ftruncate)
-  PROT_READ | PROT_WRITE, // int protection (never use execute)
+  size_of_shared_memory,  // size_t length (same length as used in ftruncate)
+  PROT_READ | PROT_WRITE, // int protection (never use execute!)
   MAP_SHARED,             // int flags
   fd,                     // int file_descriptor
   0                       // off_t offset (start map from first byte)
@@ -254,18 +256,13 @@ in Zukunft vermutlich sogar _performanter_ sein als Shared-Memory-Systeme.
 == Vergleich Message-Queues & Pipes
 #table(
   columns: (1fr, 1fr),
-  table.header(
-    [Message-Queues],
-    [Pipes],
-  ),
+  table.header([Message-Queues], [Pipes]),
 
   [
     - bidirektional
     - Daten sind in einzelnen Messages organisiert
     - beliebiger Zugriff
     - Haben immer einen Namen
-
-
   ],
   [
     - unidirektional

@@ -1,6 +1,5 @@
-// Compiled with Typst 0.13.1
+// Compiled with Typst 0.14.2
 #import "../template_zusammenf.typ": *
-#import "@preview/wrap-it:0.1.1": wrap-content
 
 #show: project.with(
   authors: ("Nina Grässli", "Jannis Tschan"),
@@ -21,7 +20,8 @@ by a _weight_, which adjusts during the learning process. Signals travel from th
 to the _output layer_, while possibly passing through multiple intermediate layers, the _hidden
 layers_.
 
-#image("img/aiap_1.png", width: 75%)
+#align(center, image("img/aiap_1.png", width: 75%))
+
 #tcolor("rot", "3")-dimensional input $x_n$, hidden layer with #tcolor("grün", "2") neurons,
 output layer with #tcolor("orange", "1") neuron. The sum of all inputs with its weights $W_n$
 for each input is added to a bias $b$ before it is passed to the corresponding neuron.\
@@ -81,7 +81,7 @@ similar representations #hinweis[(image, text, voice representing a tree)].
 Energy consumption, Few players controlling huge market, Conflict of Interest, Deskilling of moral decisions\
 *DIKW Pyramid:*
 _Data_ #hinweis[(Discrete, objective facts about an event)],
-_Information_ #hinweis[(Data with analyzed relationships and connections)],
+_Information_ #hinweis[(Data with analyzed relationships and connections)],\
 _Knowledge_ #hinweis[(Contextualized Information)],
 _Wisdom_ #hinweis[(This is the top of the pyramid)].
 These four layers lead to real-world decision making.
@@ -171,13 +171,11 @@ We may _not agree_ on the _content_ of these lenses, not everyone has the same s
 rights for example. _Different lenses_ may lead to _different answers_ to the question
 "What is ethical?".\
 *Framework for Ethical Decision Making:*
-_Identify the Ethical Issues:_ #hinweis[(Determine if the decision could harm or unfairly
-benefit someone or a group)],
+_Identify the Ethical Issues:_ #hinweis[(Determine if the decision could harm or unfairly benefit someone or a group)],
 _Get the Facts_ #hinweis[(relevant information, stakeholders, explore possible actions)],
 _Evaluate Alternative Actions_ #hinweis[(Use the lenses for this)],
 _Choose an option for action and test it_ #hinweis[(select best option, plan carefully)] and finally
-_Implement your decision and reflect on the outcome_ #hinweis[(review results, identify
-follow-up actions)]
+_Implement your decision and reflect on the outcome_ #hinweis[(review results, identify follow-up actions)]
 
 /*
 == Framework for Ethical Decision Making
@@ -215,25 +213,19 @@ version of Stochastic Gradient Descent)]
 - _Output:_ The ANN has one output neuron per class. Each neuron "votes" for its class.
   The more active a neuron is, the more likely the input belongs to this class.
 
-#image("img/aiap_3.png", width: 70%)
+#align(center, image("img/aiap_3.png", width: 70%))
 
 == Terminology
-- _The Convolution Operation:_
-  Involves applying a filter (kernel) to input data to create a feature map,
+- _The Convolution Operation:_ Involves applying a filter (kernel) to input data to create a feature map,
   detecting patterns like edges in images.
-- _Logits:_
-  A vector of non-normalized predictions that a classification model generates.
+- _Logits:_ A vector of non-normalized predictions that a classification model generates.
   Typically passed to a softmax function to generate percentages.
-- _Kernel, Filter, Receptive Field:_
-  Kernels are small matrices used to apply filters across the input.
+- _Kernel, Filter, Receptive Field:_ Kernels are small matrices used to apply filters across the input.
   The receptive field refers to the area of the input that influences a particular feature map value.
-- _Feature Map:_
-  Result of applying filters to the input, highlighting specific features such as edges or textures.
-- _Tensor, Rank, Dimension, Size:_
-  Tensors are multi-dimensional arrays. Rank is the number of dimensions,
+- _Feature Map:_ Result of applying filters to the input, highlighting specific features such as edges or textures.
+- _Tensor, Rank, Dimension, Size:_ Tensors are multi-dimensional arrays. Rank is the number of dimensions,
   size refers to the total number of elements, and dimensions specify the shape.
-- _Fully Connected Layer (Dense Layer):_
-  Every neuron in one layer connects to every neuron in the next,
+- _Fully Connected Layer (Dense Layer):_ Every neuron in one layer connects to every neuron in the next,
   crucial for decision-making based on extracted features.
 
 == Implementation
@@ -252,8 +244,7 @@ model = tf.keras.Sequential([
 ])
 ```
 
-- _First Layer: `tf.keras.layers.Flatten`:_
-  Transforms images from 2D (28x28 pixels) to 1D (784 pixels),
+- _First Layer: `tf.keras.layers.Flatten`:_ Transforms images from 2D (28x28 pixels) to 1D (784 pixels),
   unstacks rows of pixels and lines them up. No parameters, only reformats data.
 - _Subsequent Layers: `tf.keras.layers.Dense`:_
   *First Dense Layer*: Contains 128 fully connected neurons.\
@@ -385,60 +376,64 @@ model = Sequential([
 == Calculation Example
 #image("img/aiap_4.png", width: 80%)
 
-#wrap-content(
-  image("img/aiap_5.png"),
-  align: top + right,
+#grid(
   columns: (65%, 35%),
-)[
-  === Convolve the input image with kernel 1
-  Horizontal stride = 1, vertical stride = 2, Padding: none (valid), Pool: 2x2\
-  #hinweis[*Stride* by how many pixels the kernel is shifted.]\
-  $23 dot 1 + 255 dot 0 + 21 dot 0 + 34 dot 1 = 57$ #hinweis[(Shift kernel 1 to the right)]\
-  $255 dot 1 + 40 dot 0 + 34 dot 0 + 200 dot 1 = 455$\
-  ... #hinweis[(Shift 2 down when kernel has reached the right edge)]\
-  _Size of the resulting feature map:_ $2 times 4$\
-  If a kernel has _multiple channels_, the channels need to be calculated separately and
-  then added together with the bias to get the final value.\
-  *Example:* Channel 1 returns $158$, Channel 2 returns $hyph.minus 14$, Channel 3 $653$.
-  Bias is $1$. $=> 158 + hyph.minus 14 + 653 + 1 = underline(798)$
-]
+  align: horizon,
+  [
+    === Convolve the input image with kernel 1
+    Horizontal stride = 1, vertical stride = 2, Padding: none (valid), Pool: 2x2\
+    #hinweis[_Stride:_ By how many pixels the kernel is shifted.]
 
-#wrap-content(
+    $23 dot 1 &+ 255 &dot 0 + 21 dot 0 &+ 34 &dot 1 &= 57 #hinweis[(Shift kernel 1 to the right)]\
+    255 dot 1 &+ 40 &dot 0 + 34 dot 0 &+ 200 &dot 1 &= 455$\
+    ... #hinweis[(Shift 2 down when kernel has reached the right edge)]\
+    _Size of the resulting feature map:_ $2 times 4$
+  ],
+  image("img/aiap_5.png"),
+)
+
+If a kernel has _multiple channels_, the channels need to be calculated separately and
+then added together with the bias to get the final value.\
+*Example:* Channel 1 returns $158$, Channel 2 returns $hyph.minus 14$, Channel 3 $653$.
+Bias is $1$. $=> 158 + hyph.minus 14 + 653 + 1 = underline(798)$
+
+#grid(
+  columns: (80%, 20%),
+  [
+    === Apply the max pooling operation
+    Using a $2 times 2$ kernel-size, stride = kernel-size (default).
+    This means get the _max value_ of every\ $2 times 2$ square.
+    _Size of the feature map after pooling:_ $1 times 2$
+  ],
   image("img/aiap_6.png"),
-  align: top + right,
-  columns: (80%, 20%),
-)[
-  === Apply the max pooling operation
-  Using a $2 times 2$ kernel-size, stride = kernel-size (default).
-  This means get the _max value_ of every\ $2 times 2$ square.\
-  _Size of the feature map after pooling:_ $1 times 2$
-]
+)
 
-#wrap-content(
+#grid(
+  columns: (80%, 20%),
+  [
+    === Shape of output of one Conv-Layer
+    After all Kernels are applied, what will be the shape of the output of one Conv-Layer with
+    these four kernels, followed by max pooling?
+    _Output tensor of rank=3 with shape=(1, 2, 4)_
+  ],
   image("img/aiap_7.png"),
-  align: top + right,
-  columns: (80%, 20%),
-)[
-  === Shape of output of one Conv-Layer
-  After all Kernels are applied, what will be the shape of the output of one Conv-Layer with
-  these four kernels, followed by max pooling?
-  _Output tensor of rank=3 with shape=(1, 2, 4)_
-]
+)
 
-#wrap-content(
-  image("img/aiap_8.png"),
-  align: top + right,
+#grid(
   columns: (80%, 20%),
-)[
-  === Observations
-  - Applying a threshold _highlights the structure_ of the "image".
-    _The different kernels detect different structures_. For example, the "long diagonal"
-    #hinweis[(255, 200, 190, 240)] is captured by the first kernel.
-    The diagonal 190, 200 is *not* detected by kernel 2 because of the stride of 2.
-  - By applying _max pooling_ on these small feature maps, we _lose many details_.
-  - Kernel 3 is more specific than kernel 4. _Kernel 3 is a "corner detector"._
-    All other kernels, which have 0s, strongly respond to the block in the lower left corner.
-]
+  [
+    === Observations
+    - Applying a threshold _highlights the structure_ of the "image".
+      _The different kernels detect different structures_. For example, the "long diagonal"
+      #hinweis[(255, 200, 190, 240)] is captured by the first kernel.
+      The diagonal 190, 200 is *not* detected by kernel 2 because of the stride of 2.
+    - By applying _max pooling_ on these small feature maps, we _lose many details_.
+    - Kernel 3 is more specific than kernel 4. _Kernel 3 is a "corner detector"._
+      All other kernels, which have 0s, strongly respond to the block in the lower left corner.
+  ],
+  image("img/aiap_8.png"),
+)
+
 
 === Calculation of trainable parameters (degrees of freedom)
 ```py
@@ -453,31 +448,30 @@ model.add(layers.Dense(10))
 ==== Layer 1, Conv2D
 _The number of weights/trainable parameters_ in this layer is calculated as\
 $(fxcolor("grün", "kernel size") dot fxcolor("orange", "input channels") +
-    fxcolor("rot", "bias")) dot fxcolor("gelb", "amount of kernels in this layer") =>
-  (fxcolor("grün", (3 dot 3)) dot fxcolor("orange", 3) + fxcolor("rot", 1)) dot
-  fxcolor("gelb", 32) = 896$ \
-#hinweis[Note that the number of parameters in a ConvLayer does *not* depend on
-  the width and height of the input]
+  fxcolor("rot", "bias")) dot fxcolor("gelb", "amount of kernels in this layer") =>
+(fxcolor("grün", (3 dot 3)) dot fxcolor("orange", 3) + fxcolor("rot", 1)) dot
+fxcolor("gelb", 32) = 896$ \
+#hinweis[Note that the number of parameters in a ConvLayer does *not* depend on the width and height of the input]
 
 _Output shape:_
 $(fxcolor("grün", "input_width") - fxcolor("orange", "kernel_width")) \/fxcolor("rot", "stride") + 1
-  => (fxcolor("grün", 32) - fxcolor("orange", 3)) \/ fxcolor("rot", 1) + 1 = 30$ \
-Without padding, we can apply the kernel $30$ times over a width of 32px
-#hinweis[(same for height)]. Each of the $32$ kernels outputs one $30 times 30$ feature map.
+=> (fxcolor("grün", 32) - fxcolor("orange", 3)) \/ fxcolor("rot", 1) + 1 = 30$ \
+Without padding, we can apply the kernel $30$ times over a width of 32px #hinweis[(same for height)].
+Each of the $32$ kernels outputs one $30 times 30$ feature map.
 Therefore, the output has the shape $underline(30 times 30 times 32)$. \
 #hinweis[Default values are `strides=(1,1), padding="valid"`]
 
 ==== Layer 2, MaxPooling
 MaxPooling Layers do not have weights and therefore no trainable parameters.\
 _Output shape:_ $(fxcolor("grün", "input_width") - fxcolor("orange", "pool_width")) \/fxcolor("rot", "stride") + 1
-=> (fxcolor("grün", 30) - fxcolor("orange", 2)) \/ fxcolor("rot", 2) + 1 = underline(15)$,
-shape is therefore $underline(15 times 15 times 32)$\
+=> (fxcolor("grün", 30) - fxcolor("orange", 2)) \/ fxcolor("rot", 2) + 1 = underline(15)$\
+The shape is therefore $underline(15 times 15 times 32)$\
 #hinweis[Default values are `strides=None, padding="valid"`. When `strides=None`, it will default to `pool_size`.]
 
 ==== Layer 3, Conv2D
 Number of _trainable parameters:_
 $(fxcolor("grün", (3 dot 3)) dot fxcolor("orange", 32) + fxcolor("rot", 1)) dot
-  fxcolor("gelb", 64) = underline(18'496)$
+fxcolor("gelb", 64) = underline(18'496)$
 
 _Output shape:_ Note the `padding='same'` hyper-parameter. This adds rows and columns of 0s to
 the input, evenly to the left/right or up/down when `'same'` so that the output feature map
@@ -519,6 +513,7 @@ A network is typically called a _deep neural network_ if it has at least 2 hidde
 _massively outperformed_ its competition. The original paper's primary result was that
 _using Dropout_ in the fully-connected layers was _very effective_. Even though the model was
 _computationally expensive_, it was made feasible due to the utilization of GPUs during training.
+
 #image("img/aiap_11.png")
 
 #pagebreak()
@@ -556,18 +551,19 @@ from previous layers and thus makes the model _more robust_ and _increases its g
 
 
 = Autoencoder
-#wrap-content(
-  image("img/aiap_9.png"),
-  align: top + right,
+#grid(
   columns: (65%, 35%),
-)[
-  An Autoencoder is an unsupervised artificial neural network that learns how to efficiently
-  compress and encode data, then learns how to reconstruct the data back _from_ the reduced
-  encoded representation _to_ a representation that is as close to the original input as
-  possible. In other words, it _reproduces input_. It uses mean squared error as its loss
-  function #hinweis[(distance between the RGB values of the input & output pixel, sum up all
-  squared distances and divide by number of pixels)].
-]
+  align: horizon,
+  [
+    An Autoencoder is an unsupervised artificial neural network that learns how to efficiently
+    compress and encode data, then learns how to reconstruct the data back _from_ the reduced
+    encoded representation _to_ a representation that is as close to the original input as
+    possible. In other words, it _reproduces input_. It uses mean squared error as its loss
+    function #hinweis[(distance between the RGB values of the input & output pixel, sum up all
+      squared distances and divide by number of pixels)].
+  ],
+  image("img/aiap_9.png"),
+)
 
 It consists of 4 main parts:
 - _Encoder:_ The model learns how to reduce the input and compress the data into an encoded representation.
@@ -680,7 +676,7 @@ This is repeated multiple times until the weights converge to a point where the 
 == Gradient Descent
 MSE loss function for a quadratic model and a single data point $x,y$:\
 $L("values the function depends on") = ("loss function" - "datapoint i")^2
-  => L(x,y; a,b) = (\ax^2 + \bx + c - y)^2$
+=> L(x,y; a,b) = (\ax^2 + \bx + c - y)^2$
 
 
 = Advances Techniques in Keras
@@ -694,15 +690,16 @@ A classifier can only classify data that is _similar to the training data_. If w
 enough training data, we need to artificially create more by applying different transformations
 #hinweis[(De-texturized, de-colorized, edge enhanced, salient edge map, flip, rotate, ...)].
 
-```py layers.Resizing(IMG_SIZE, IMG_SIZE), layers.Rescaling(1./255),
+```py
+layers.Resizing(IMG_SIZE, IMG_SIZE), layers.Rescaling(1./255),
 layers.RandomFlip("horizontal_and_vertical"), layers.RandomRotation(0.2),
 skimage.color.rgb2gray(imgs)
 ```
 
 == Batch Normalization
 Batch normalization applies a transformation that maintains the _mean output close to 0 and the
-standard deviation close to 1_. _Advantages:_ We can train deeper networks and increase the
-learning rate. This is added as a layer inside the model.\
+standard deviation close to 1_.\
+_Advantages:_ We can train deeper networks and increase the learning rate. This is added as a layer inside the model.\
 ```py keras.layers.BatchNormalization( ... )```
 
 == Learning Rate Scheduling
@@ -722,7 +719,7 @@ Very confidently wrong predictions make the loss explode.
 
 == U-Net Architecture
 Is a "classic" architecture for image segmentation that splits the image into fore- and background.
-#image("img/aiap_12.png", width: 78%)
+#align(center, image("img/aiap_12.png", width: 78%))
 
 === Complex Network Topologies
 *Skip Connections:* Keep a pointer to the output of a layer.
@@ -778,17 +775,18 @@ _P_ #hinweis[(Transitions, visualized with arrows)].
 MDPs are a very general mathematical function. They are used to describe and study a large
 variety of problems.
 
-#wrap-content(
-  image("img/aiap_13.png"),
-  align: top + right,
+#grid(
   columns: (65%, 35%),
-)[
-  == General RL framework
-  An agent _decides_ which _action_ to take _according to its policy $bold(pi)$_.
-  The action has an _effect on the environment_. As a result, the environment _transitions to
-  the next state_ and _returns a reward_. This _loop_ continues _infinitely_ or until a
-  _terminal state_ is reached.
-]
+  [
+    == General RL framework
+    An agent _decides_ which _action_ to take _according to its policy $bold(pi)$_.
+    The action has an _effect on the environment_. As a result, the environment _transitions to
+    the next state_ and _returns a reward_. This _loop_ continues _infinitely_ or until a
+    _terminal state_ is reached.
+  ],
+  image("img/aiap_13.png"),
+)
+
 === Goal of an RL
 "Find the _optimal policy $bold(pi^*)$_" by trial-and-error. $pi^*$ is: At each state $S_t$, take the
 action $A_t$ which returns the _largest sum of (discounted) rewards_.
@@ -802,7 +800,7 @@ action $A_t$ which returns the _largest sum of (discounted) rewards_.
     *Optimal policy $bold(pi^*)$*
     #table(
       columns: (1fr, 1fr, 1fr),
-      [State], [`a0`], [`a1`],
+      table.header([State], [`a0`], [`a1`]),
       [_`S0`_], [1], [0],
       [_`S1`_], [0], [1],
       [_`S2`_], [1], [0],
@@ -817,7 +815,7 @@ action $A_t$ which returns the _largest sum of (discounted) rewards_.
     *Random policy $bold(pi^"random")$*
     #table(
       columns: (1fr, 1fr, 1fr),
-      [State], [`a0`], [`a1`],
+      table.header([State], [`a0`], [`a1`]),
       [_`S0`_], [0.5], [0.5],
       [_`S1`_], [0.5], [0.5],
       [_`S2`_], [0.5], [0.5],
@@ -838,7 +836,7 @@ action $A_t$ which returns the _largest sum of (discounted) rewards_.
     *Assume the agent starts in state `x` and follows  $bold(pi^*)$. Total reward?*
     #table(
       columns: (auto, 1fr),
-      [State], [Total Reward],
+      table.header([State], [Total Reward]),
       [_`S0`_], [$V^pi^*("S0") = hyph.minus 1 + 4 + 5 = 8$],
       [_`S1`_], [$V^pi^*("S1") = 4 + 5 = 9$],
       [_`S2`_], [$V^pi^*("S2") = 7$],
@@ -847,9 +845,10 @@ action $A_t$ which returns the _largest sum of (discounted) rewards_.
   ],
   [
     *Same for Random Policy. What does the agent collect on average? Work backwards.*
+    \ \
     #table(
       columns: (auto, 1fr),
-      [State], [Total Reward],
+      table.header([State], [Total Reward]),
       [_`S7`_], [$V^pi^*("S7") = 0$],
       [_`S4`_], [$V^pi^*("S4") = pi("S4", "a0") dot 5 + pi("S4", "a1") dot 5 = 0.5 dot 5 + 0.5 dot 5= 5$],
       [_`S1`_], [$V^pi^*("S1") = 0.5 dot hyph.minus 10 + 0.5 dot (4+5) = hyph.minus 5 + 4.5 = hyph.minus 0.5$],
@@ -860,8 +859,8 @@ action $A_t$ which returns the _largest sum of (discounted) rewards_.
 
 This is the function used for this table:
 $V("S0") = pi("S0", "a0") dot (R + V("S1")) + pi("S0", "a1") dot (R + V("S1"))$\
-$R$: Reward of $A$, $V(S_1)$: V-State of the state the action leads to.
-If this is a terminal state, this is zero.
+- $R$: Reward of $A$
+- $V(S i)$: V-State of the state the action leads to. If this is a terminal state, this is zero.
 
 === Discounting
 A _far away reward is less attractive_. In a discrete-time RL, it is common to apply a
@@ -870,7 +869,8 @@ away rewards towards nearer ones with the same or a similar reward. The value of
 depends on the problem, but typical values are 0.95, 0.98, 0.99 and 0.999.
 Discounting is a simple and efficient strategy to lump together all kinds of risks.
 
-#image("img/aiap_15.png", width: 80%)
+#align(center, image("img/aiap_15.png", width: 80%))
+
 Discounting is only applied on _future rewards_. In each state, the agent receives the actual
 reward $r$. When in state $S_t$, a reward 3 steps into the future is discounted by the power of 2:
 $y^2R_(t+3)$. But when actually moving there, the agent receives $r_(t+3)$, not $y^2R_(t+3)$.
@@ -920,11 +920,10 @@ This is called _Monte-Carlo Method_.
 == Temporal Difference Learning
 In state $s_t$, taking action $a_t$, the agent expects the future reward $q(s_t, a_t)$.
 After taking a step, the agent observes the next state and reward:
-$q(s_t, a_t) eq.quest r_(t+1) + gamma q(s_(t+1), a_(t+1))$ #hinweis[($q(s_t, a_t)$ is the
-  expected future reward before taking a step, $r$ is an actual observation and
-  $q(s_(t+1), a_(t+1))$ is the expected return from here on)]\
-This equation _does not hold_.
-We need to add a _difference $bold(delta_t)$_ to make both sides equal:
+$q(s_t, a_t) eq.quest r_(t+1) + gamma q(s_(t+1), a_(t+1))$\
+#hinweis[($q(s_t, a_t)$ is the expected future reward before taking a step, $r$ is an actual observation
+  and $q(s_(t+1), a_(t+1))$ is the expected return from here on)]\
+This equation _does not hold_. We need to add a _difference $bold(delta_t)$_ to make both sides equal:
 
 $ q(s_t, a_t) fxcolor("rot", + delta_t) eq.quest r_(t+1) + gamma q(s_(t+1), a_(t+1)) $
 
@@ -947,7 +946,7 @@ It then chooses its next action $A'$ based on its policy $Q$. The initial guess 
 updated based on the agents observation of $S$, $A$, $R$, $S'$ and its choice of $A'$.
 The RPE calculates the difference between the predicted $Q(S, A)$ and the actual value $Q(S', A')$.\
 $fxcolor("grün", Q(S,A)) arrow.l fxcolor("grün", Q(S,A)) + fxcolor("orange", alpha)
-  [fxcolor("hellgrün", R) + fxcolor("rot", gamma) fxcolor("dunkelblau" , Q(S', A')) - fxcolor("grün", Q(S,A))]$\
+[fxcolor("hellgrün", R) + fxcolor("rot", gamma) fxcolor("dunkelblau", Q(S', A')) - fxcolor("grün", Q(S,A))]$\
 $arrow.l.r.double "Immediate reward" + "discounted" ["prediction in" S', A' - Q"-value of prediction when we started"]$
 
 #grid(
@@ -956,14 +955,13 @@ $arrow.l.r.double "Immediate reward" + "discounted" ["prediction in" S', A' - Q"
   [
     ==== Exercise
     Assume $fxcolor("orange", alpha = 0.1)$ and $fxcolor("rot", gamma = 0.9)$.
-    An agent performs the following state-action sequence:\
-    `S1 - a3 - S3 - a3`.
+    An agent performs the following state-action sequence:\ `S1 - a3 - S3 - a3`.
     *Which entry of the Q-Table gets updated?*
     `S1, a3`: $fxcolor("grün", 2.1)$\
     *When landing in `S3`, it receives a $fxcolor("hellgrün", bold(+4))$ reward.
     Calculate the updated $Q$-value with SARSA:*\
     $"RPE" = fxcolor("hellgrün", 4) + fxcolor("rot", 0.9)
-      dot (fxcolor("dunkelblau" , hyph.minus 1.4)) - fxcolor("grün", 2.1) = underline(0.64)$\
+    dot (fxcolor("dunkelblau", hyph.minus 1.4)) - fxcolor("grün", 2.1) = underline(0.64)$\
     $fxcolor("grün", 2.1) arrow.l fxcolor("grün", 2.1) + fxcolor("orange", 0.1) dot 0.64 = underline(2.164)$
   ],
   [
@@ -972,7 +970,7 @@ $arrow.l.r.double "Immediate reward" + "discounted" ["prediction in" S', A' - Q"
       [], [`S1`], [`S2`], [`S3`],
       [_`a1`_], [$1.1$], [$hyph.minus 0.9$], [$1.3$],
       [_`a2`_], [$0$], [$1.1$], [$1.2$],
-      [_`a3`_], [$fxcolor("grün", 2.1)$], [$1.5$], [$fxcolor("dunkelblau" , hyph.minus 1.4)$],
+      [_`a3`_], [$fxcolor("grün", 2.1)$], [$1.5$], [$fxcolor("dunkelblau", hyph.minus 1.4)$],
     )
   ],
 )
@@ -981,73 +979,74 @@ $arrow.l.r.double "Immediate reward" + "discounted" ["prediction in" S', A' - Q"
 A variant of SARSA. The update of $Q(s,a)$ is based on the agent's observation of $r$ and $s'$,
 and _the $Q$-value of "best" action in $S'$_:
 $fxcolor("grün", Q(S,A)) arrow.l fxcolor("grün", Q(S,A)) + fxcolor("orange", alpha)
-  [fxcolor("hellgrün", R) + fxcolor("rot", gamma) max_a Q(S', a) - fxcolor("grün", Q(S,A))]$
+[fxcolor("hellgrün", R) + fxcolor("rot", gamma) max_a Q(S', a) - fxcolor("grün", Q(S,A))]$
 
-The next action $a'$ can _differ_ from the best action. That means, in the next step, the agent
+The next action $a'$ can _differ_ from the best action. That means in the next step, the agent
 can take one action $a'$, but use another action $max_a$ for the Q-Update.
 Algorithms that learn from actions that differ from the actual taken action are called
-_off-policy_. SARSA = on-policy #hinweis[(takes this action in the next step)],
+_off-policy_.\
+SARSA = on-policy #hinweis[(takes this action in the next step)],
 Q-learning = off-policy #hinweis[(next step decided by Q-learner based on best Q-value.)]
 
 === SARSA and Q-learning Calculations
-An agent has interacted with the Treasure-Map environment and approximated the
+An agent has interacted with the Treasure Map environment and approximated the
 following Q-Table #hinweis[(state $times$ action)]:
 
-#wrap-content(
-  image("img/aiap_19.png"),
-  align: top + right,
+#grid(
   columns: (89%, 11%),
-)[
-  *SARSA:*\
-  $"RPE"_t = r_(t+1) + gamma Q^pi (s_(t+1), a_(t+1)) - Q^pi (s_t, a_t), space.quad
+  [
+    *SARSA:*\
+    $"RPE"_t = r_(t+1) + gamma Q^pi (s_(t+1), a_(t+1)) - Q^pi (s_t, a_t), space.quad space.quad space
     Q^pi (s_t, a_t) arrow.l Q^pi (s,a) + alpha "RPE"_t$ \
-  *Q-learning:* \
-  $"RPE"_t = r_(t+1) + gamma max_(tilde(a)) Q^pi (s_(t+1), tilde(a)) - Q^pi (s_t, a_t), space.quad
+    *Q-learning:* \
+    $"RPE"_t = r_(t+1) + gamma max_(tilde(a)) Q^pi (s_(t+1), tilde(a)) - Q^pi (s_t, a_t), space.quad
     Q^pi (s_t, a_t) arrow.l Q^pi (s,a) + alpha "RPE"_t$
 
-  *When moving form `S0` to `S2`, the RPE is always 0 because when landing in stat `S2` the reward is 0:*\
-  This is wrong because the RPE depends not only on the immediate reward.\
-  *The agent is in state `S0` and follows the trajectory $tau =$ `S0 - a0 - S1 - a0 - S3`.\
-  Assume $bold(#fxcolor("hellgrün", $gamma = 0.95$))$ and
-  $bold(#fxcolor("dunkelblau", $alpha = 0.05$))$*
-]
+    *When moving form `S0` to `S2`, the RPE is always 0 because when landing in stat `S2` the reward is 0:*\
+    This is wrong because the RPE depends not only on the immediate reward.\
+    *The agent is in state `S0` and follows the trajectory $tau =$ `S0 - a0 - S1 - a0 - S3`.\
+    Assume $bold(#fxcolor("hellgrün", $gamma = 0.95$))$ and
+    $bold(#fxcolor("dunkelblau", $alpha = 0.05$))$*
+  ],
+  image("img/aiap_19.png"),
+)
 
 *Calculate the RPE and the updated $bold(#fxcolor("grün", $Q("s0","a0")$))$:*\
 $#fxcolor("grün", $Q("s0","a0")$) = #fxcolor("grün", $4$), space.quad #fxcolor("gelb", $r = -1$)$
 #hinweis[(see image in @rl-map)]\
 $#fxcolor("orange", $Q("s1","a0")$) = #fxcolor("orange", $hyph.minus 8.5$)
-  arrow.double #fxcolor("hellgrün", $gamma$) #fxcolor("orange", $Q("s1","a0")$)
-  = #fxcolor("hellgrün", $0.95$) dot #fxcolor("orange", $hyph.minus 8.5$)
-  = hyph.minus 8.075 arrow.double #fxcolor("gelb", $r$)
-  + #fxcolor("hellgrün", $gamma$) #fxcolor("orange", $Q("s1","a0")$)
-  = #fxcolor("gelb", $hyph.minus 1$) + hyph.minus 8.075
-  = hyph.minus 9.075$
+arrow.double #fxcolor("hellgrün", $gamma$) #fxcolor("orange", $Q("s1","a0")$)
+= #fxcolor("hellgrün", $0.95$) dot #fxcolor("orange", $hyph.minus 8.5$)
+= hyph.minus 8.075 arrow.double #fxcolor("gelb", $r$)
++ #fxcolor("hellgrün", $gamma$) #fxcolor("orange", $Q("s1","a0")$)
+= #fxcolor("gelb", $hyph.minus 1$) + hyph.minus 8.075
+= hyph.minus 9.075$
 
 *RPE SARSA:*
 $#fxcolor("gelb", $r$) + #fxcolor("hellgrün", $gamma$) #fxcolor("orange", $Q("s1","a0")$)
-  - #fxcolor("grün", $Q("s0","a0")$)
-  = #fxcolor("gelb", $hyph.minus 1$) + hyph.minus 8.075 - #fxcolor("grün", $4$)
-  = hyph.minus 13.075$\
-*$bold(#fxcolor("grün", $Q("s0","a0")$))$ after SARSA update:*
+- #fxcolor("grün", $Q("s0","a0")$)
+= #fxcolor("gelb", $hyph.minus 1$) + hyph.minus 8.075 - #fxcolor("grün", $4$)
+= hyph.minus 13.075$\
+*#fxcolor("grün", $Q("s0","a0")$) after SARSA update:*
 $#fxcolor("grün", $Q("s0","a0")$) + #fxcolor("dunkelblau", $alpha$) ("RPE")
-  = #fxcolor("grün", $4$) + #fxcolor("dunkelblau", $0.05$) dot hyph.minus 13.075
-  = underline(3.34625)$\
+= #fxcolor("grün", $4$) + #fxcolor("dunkelblau", $0.05$) dot hyph.minus 13.075
+= underline(3.34625)$\
 
 $#fxcolor("rot", $max_tilde(a) Q("s1", "a")$)
 = #fxcolor("rot", $6.5$) arrow.double #fxcolor("hellgrün", $gamma$)
-  #fxcolor("rot", $max_tilde(a) Q("s1", tilde(a))$)
+#fxcolor("rot", $max_tilde(a) Q("s1", tilde(a))$)
 = #fxcolor("hellgrün", $0.95$) dot #fxcolor("rot", $6.5$) = 6.175\
 arrow.double #fxcolor("gelb", $r$) + #fxcolor("hellgrün", $gamma$)
-  #fxcolor("rot", $max_tilde(a) Q("s1", tilde(a))$)
+#fxcolor("rot", $max_tilde(a) Q("s1", tilde(a))$)
 = #fxcolor("gelb", $hyph.minus 1$) + 6.175 = 5.175$
 
 *RPE Q:*
 $#fxcolor("gelb", $r$) + #fxcolor("hellgrün", $gamma$) #fxcolor("rot", $max_tilde(a)
-  Q("s1", tilde(a))$) - #fxcolor("grün", $Q("s0","a0")$)
+Q("s1", tilde(a))$) - #fxcolor("grün", $Q("s0","a0")$)
 = #fxcolor("gelb", $hyph.minus 1$) + 6.175 - #fxcolor("grün", $4$) = 1.175$\
-*$bold(#fxcolor("grün", $Q("s0","a0")$))$ after Q-Value update:*
+*#fxcolor("grün", $Q("s0","a0")$) after Q-Value update:*
 $#fxcolor("grün", $Q("s0","a0")$) + #fxcolor("dunkelblau", $alpha$) ("RPE")
-= #fxcolor("grün", $4$) + #fxcolor("dunkelblau", $0.05$)  dot 1.175
+= #fxcolor("grün", $4$) + #fxcolor("dunkelblau", $0.05$) dot 1.175
 = underline(4.05875)$\
 
 === Epsilon-Greedy-Policy
@@ -1074,9 +1073,10 @@ generalization_, there is no relation to neighboring states and actions.
 In real life, nearby/similar states often have similar Q-Values and it is reasonable to apply
 similar actions. While the input is often _high-dimensional_, the relevant features are often
 not #hinweis[(background vs. relevant part of an image)]. A tabular-RL would classify each
-changed pixel as a completely independent state #hinweis[(senseless!)]. \
+changed pixel as a completely independent state #hinweis[(senseless!)].
+
 Since $Q$ is a function, we can _approximate_ it. In DRL, the $Q$-values are approximated using
-a Deep Neural Network.
+a Deep Neural Network.\
 _Input:_ the state $s$ #hinweis[(e.g. RGB image, state of a chess board)],
 _Output:_ one neuron per action $a$. The neurons activity is $approx Q(s,a)$.
 

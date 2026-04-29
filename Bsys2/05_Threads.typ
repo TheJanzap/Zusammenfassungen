@@ -1,5 +1,4 @@
 #import "../template_zusammenf.typ": *
-#import "@preview/wrap-it:0.1.1": wrap-content
 
 /*#show: project.with(
   authors: ("Nina Grässli", "Jannis Tschan"),
@@ -11,70 +10,68 @@
 )*/
 
 = Threads
-#wrap-content(
-  image("img/bsys_22.png"),
-  align: top + right,
+== Prozessmodell
+#grid(
   columns: (75%, 25%),
-)[
-  == Prozessmodell
-  Jeder Prozess hat virtuell den _ganzen Rechner_ für _sich alleine_.
-  _Prozesse_ sind gut geeignet für _unabhängige Applikationen_.
-  Nachteile: Realisierung _paralleler Abläufe_ innerhalb derselben Applikation
-  ist _aufwändig_. _Overhead_ zu gross falls nur kürzere Teilaktivitäten,
-  _gemeinsame Ressourcennutzung_ ist _erschwert_.
-]
+  [
+    Jeder Prozess hat virtuell den _ganzen Rechner_ für _sich alleine_.
+    _Prozesse_ sind gut geeignet für _unabhängige Applikationen_.\
+    Nachteile: Realisierung _paralleler Abläufe_ innerhalb derselben Applikation
+    ist _aufwändig_. _Overhead_ zu gross falls nur kürzere Teilaktivitäten,
+    _gemeinsame Ressourcennutzung_ ist _erschwert_.
+  ],
+  image("img/bsys_22.png"),
+)
 
-#wrap-content(
-  image("img/bsys_23.png"),
-  align: top + right,
+== Threadmodell
+#grid(
   columns: (85%, 15%),
-)[
-  == Threadmodell
-  Threads sind _parallel ablaufende Aktivitäten innerhalb eines Prozesses_,
-  welche auf _alle_ Ressourcen im Prozess gleichermassen Zugriff haben
-  #hinweis[(Code, globale Variablen, Heap, geöffnete Dateien, MMU-Daten)]
+  [
+    Threads sind _parallel ablaufende Aktivitäten innerhalb eines Prozesses_,
+    welche auf _alle_ Ressourcen im Prozess gleichermassen Zugriff haben
+    #hinweis[(Code, globale Variablen, Heap, geöffnete Dateien, MMU-Daten)]
 
-  === Thread als Stack + Kontext
-  Jeder Thread benötigt einen _eigenen Kontext_ und einen _eigenen Stack_,
-  weil er eine eigene Funktions-Aufrufkette hat. Diese Informationen werden
-  häufig in einem _Thread-Control-Block_ abgelegt.
-  #hinweis[(Linux: Kopie des PCB mit eigenem Kontext)]
-]
+    === Thread als Stack + Kontext
+    Jeder Thread benötigt einen _eigenen Kontext_ und einen _eigenen Stack_,
+    weil er eine eigene Funktions-Aufrufkette hat. Diese Informationen werden
+    häufig in einem _Thread-Control-Block_ abgelegt
+    #hinweis[(Linux: Kopie des PCB mit eigenem Kontext)].
+  ],
+  image("img/bsys_23.png"),
+)
 
 == Amdahls Regel
-#wrap-content(
-  image("img/bsys_24.png"),
-  align: top + right,
-  columns: (70%, 30%),
-)[
-  Bestimmte Teile eines Algorithmus können _nicht_ parallelisiert werden,
-  weil sie _voneinander abhängen_. Man kann für jeden Teil eines Algorithmus
-  angeben, ob dieser _parallelisiert_ werden kann oder nicht.
-]
-#v(-0.5em)
-#wrap-content(
-  image("img/bsys_25.png"),
-  align: top + right,
-  columns: (65%, 35%),
-)[
-  / $T$: Ausführungszeit, wenn _komplett seriell_ durchgeführt\
-    #hinweis[(Im Bild: $T = T_0 + T_1 + T_2 + T_3 + T_4 $)]
-  / $n$: Anzahl der Prozessoren
-  / $T'$: Ausführungszeit, wenn _maximal parallelisiert_ #hinweis[(gesuchte Grösse)]
-  / $T_s$: Ausführungszeit für den Anteil, der _seriell_ ausgeführt werden _muss_\
-    #hinweis[(Im Bild: $T_s = T_0 + T_2 + T_4$)]
-  / $T - T_s$: Ausführungszeit für den Anteil, der _parallel_ ausgeführt werden _kann_\
-    #hinweis[(Im Bild: $T - T_s = T_1 + T_3$)]
-  / $(T - T_s) / n$: Parallel-Anteil verteilt auf alle $n$ Prozessoren\
-    #hinweis[(Im Bild: $(T_1 + T_3) \/ n$)]
-  / $T_s + (T - T_s) / n$: Serieller Teil + Paralleler Teil
-    #hinweis[($= T'$)]
+#grid(
+  columns: (60%, 40%),
+  [
+    Bestimmte Teile eines Algorithmus können _nicht_ parallelisiert werden,
+    weil sie _voneinander abhängen_. Man kann für jeden Teil eines Algorithmus
+    angeben, ob dieser _parallelisiert_ werden kann oder nicht.
 
-  Die _serielle Variante_ benötigt also höchstens _$f$ mal mehr Zeit_ als
-  die _parallele Variante_ #hinweis[(wegen Overhead nur $<=$)]:
-]
+    / $T$: Ausführungszeit, wenn _komplett seriell_ durchgeführt\
+      #hinweis[(Im Bild: $T = T_0 + T_1 + T_2 + T_3 + T_4$)]
+    / $n$: Anzahl der Prozessoren
+    / $T'$: Ausführungszeit, wenn _maximal parallelisiert_ #hinweis[(gesuchte Grösse)]
+    / $T_s$: Ausführungszeit für den Anteil, der _seriell_ ausgeführt werden _muss_\
+      #hinweis[(Im Bild: $T_s = T_0 + T_2 + T_4$)]
+    / $T - T_s$: Ausführungszeit für den Anteil, der _parallel_ ausgeführt werden _kann_
+      #hinweis[(Im Bild: $T - T_s = T_1 + T_3$)]
+    / $(T - T_s) / n$: Parallel-Anteil verteilt auf alle $n$ Prozessoren
+      #hinweis[(Im Bild: $(T_1 + T_3) \/ n$)]
+    / $T_s + (T - T_s) / n$: Serieller Teil + Paralleler Teil
+      #hinweis[($= T'$)]
+  ],
+  [
+    #image("img/bsys_24.png") \
+    #image("img/bsys_25.png")
+  ],
+)
+
+Die _serielle Variante_ benötigt also höchstens _$f$ mal mehr Zeit_ als
+die _parallele Variante_ #hinweis[(wegen Overhead nur $<=$)]:
 
 $ f <= T / T^' = T / (T_s + (T - T_s) / n) $
+
 $f$ heisst auch _Speedup-Faktor_, weil man sagen kann, dass die parallele
 Variante maximal $f$-mal schneller ist als die serielle.
 
@@ -86,22 +83,22 @@ $
   = T / (s dot T + (1 - s) / n dot T) quad => quad f <= 1 / (s + (1 - s) / n)
 $
 
-#wrap-content(
-  image("img/bsys_26.png"),
-  align: top + right,
+=== Bedeutung
+#grid(
   columns: (60%, 40%),
-)[
-  === Bedeutung
-  - Abschätzung einer _oberen Schranke_ für den maximalen Geschwindigkeitsgewinn
-  - Nur wenn _alles_ parallelisierbar ist, ist der Speedup _proportional_ und _maximal_
-    #hinweis[$f(0,n) = n$]
-  - Sonst ist der Speedup mit _höherer Prozessor-Anzahl_ immer _geringer_
-    #hinweis[(Kurve flacht ab)]
-  - $f(1,n)$: rein seriell
+  [
+    - Abschätzung einer _oberen Schranke_ für den maximalen Geschwindigkeitsgewinn
+    - Nur wenn _alles_ parallelisierbar ist, ist der Speedup _proportional_ und _maximal_
+      #hinweis[$f(0,n) = n$]
+    - Sonst ist der Speedup mit _höherer Prozessor-Anzahl_ immer _geringer_
+      #hinweis[(Kurve flacht ab)]
+    - $f(1,n)$: rein seriell
 
-  === Grenzwert
-  Mit höherer Anzahl Prozessoren nähert sich der Speedup $1/s$ an:
-]
+    === Grenzwert
+    Mit höherer Anzahl Prozessoren nähert sich der Speedup $1\/s$ an:
+  ],
+  image("img/bsys_26.png"),
+)
 #grid(
   columns: (1fr, 1fr, 1fr),
   [$ lim_(n -> infinity) (1 - s) / n = 0 $],
@@ -132,7 +129,6 @@ des Threads der Stack nicht abgebaut wird.)]
 
 #grid(
   columns: (50%, 60%),
-  gutter: 11pt,
   [
     ```c
     // Erstellung
@@ -198,7 +194,7 @@ wenn nicht.
 
 === ```c int pthread_detach (pthread_t thread_id)```
 _Entfernt den Speicher_, den ein Thread belegt hat, falls dieser _bereits beendet_ wurde.
-Beendet den Thread aber _nicht_. #hinweis[(Erstellt Daemon Thread)]
+Beendet den Thread aber _nicht_ #hinweis[(Erstellt Daemon Thread)].
 
 === ```c int pthread_join (pthread_t thread_id, void **return_value)```
 _Wartet_ solange, bis der Thread mit `thread_id` _beendet_ wurde.

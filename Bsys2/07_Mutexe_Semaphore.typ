@@ -1,5 +1,4 @@
 #import "../template_zusammenf.typ": *
-#import "@preview/wrap-it:0.1.1": wrap-content
 
 /*#show: project.with(
   authors: ("Nina Grässli", "Jannis Tschan"),
@@ -44,8 +43,8 @@ Zugang zu ihren Critical Sections _synchronisieren_ können.
 
 === Atomare Instruktionen
 Eine atomare Instruktion kann vom Prozessor _unterbrechungsfrei_ ausgeführt werden.\
-#hinweis[*Achtung:* Selbst einzelne Assembly-Instruktionen können unter Umständen nicht
-  atomar durchgeführt werden, z.B. non-aligned Memory Access]
+#hinweis[(*Achtung:* Selbst einzelne Assembly-Instruktionen können unter Umständen nicht
+  atomar durchgeführt werden, z.B. non-aligned Memory Access)]
 
 === Anforderungen an Synchronisations-Mechanismen
 - _Gegenseitiger Ausschluss:_ Wenn ein Thread in seiner Critical Section ist, dürfen alle
@@ -80,7 +79,7 @@ denen _Locks_ implementiert werden können:
 *Test-And-Set:*
 Liest den Wert von einer Adresse (0 oder 1) und setzt ihn dann auf 1.
 ```c
-test_and_set (int * target) { int value = *target; *target = 1; return value; }
+tas (int * target) { int value = *target; *target = 1; return value; }
 
 int lock = 0;
 // T1: sets lock = 1 & reads 0, T2 sets lock = 1, but reads 1
@@ -94,7 +93,7 @@ _Liest_ einen Wert aus dem Hauptspeicher und _überschreibt_ ihn im Hauptspeiche
 falls er einem _erwarteten Wert_ entspricht.
 
 ```c
-compare_and_swap (int *a, int expected, int new_a) {
+cas (int *a, int expected, int new_a) {
   int value = *a;
   if (value == expected) { *a = new_a; }
   return value;
@@ -266,31 +265,32 @@ int pthread_mutex_destroy (pthread_mutex_t *mutex)  // cleanup
   ],
 )
 
-#wrap-content(
-  image("img/bsys_35.png"),
-  align: top + right,
+=== Priority Inversion und Priority Inheritance
+#grid(
   columns: (75%, 25%),
-)[
-  === Priority Inversion und Priority Inheritance
-  - Thread $A$ hat _niedrige Priorität_ und hält einen Mutex $M$
-  - Thread $B$ hat _mittlere Priorität_
-  - Thread $C$ hat _hohe Priorität_ und läuft gerade.
-    Nach 10ms benötigt Thread $C$ den Mutex $M$.
+  [
+    - Thread $A$ hat _niedrige Priorität_ und hält einen Mutex $M$
+    - Thread $B$ hat _mittlere Priorität_
+    - Thread $C$ hat _hohe Priorität_ und läuft gerade.
+      Nach 10ms benötigt Thread $C$ den Mutex $M$.
 
-  Ein _hoch-priorisierter_ Thread wartet auf eine Ressource, die von einem _niedriger
-  priorisierten_ Thread _gehalten_ wird. Ein Thread mit Priorität zwischen diesen beiden
-  Threads erhält den Prozessor. Die effektiven Prioritäten des hoch-priorisierten und des
-  mittel-priorisierten Threads sind _invertiert_ gegenüber den zugewiesenen Prioritäten.
-  _Gemeinsam verwendete Ressourcen werden bei Priority Inversion im schlimmsten Fall mit
-  der niedrigsten Priorität aller beteiligten Threads gehalten._
-]
-#wrap-content(
-  image("img/bsys_36.png"),
-  align: top + right,
+    Ein _hoch-priorisierter_ Thread wartet auf eine Ressource, die von einem _niedriger
+    priorisierten_ Thread _gehalten_ wird. Ein Thread mit Priorität zwischen diesen beiden
+    Threads erhält den Prozessor. Die effektiven Prioritäten des hoch-priorisierten und des
+    mittel-priorisierten Threads sind _invertiert_ gegenüber den zugewiesenen Prioritäten.
+    _Gemeinsam verwendete Ressourcen werden bei Priority Inversion im schlimmsten Fall mit
+    der niedrigsten Priorität aller beteiligten Threads gehalten._
+  ],
+  image("img/bsys_35.png"),
+)
+
+#grid(
   columns: (75%, 25%),
-)[
-  Um dieses Problem zu lösen, wird bei Priority Inheritance die _Priorität von $bold(A)$
-  temporär auf die Priorität von $bold(C)$ gesetzt_, damit der Mutex schnell wieder
-  freigegeben wird. $A$ läuft, bis er den Mutex $M$ freigibt, danach erhält $A$ wieder die
-  vorherige Priorität und $C$ läuft weiter.
-]
+  [
+    Um dieses Problem zu lösen, wird bei Priority Inheritance die _Priorität von $bold(A)$
+    temporär auf die Priorität von $bold(C)$ gesetzt_, damit der Mutex schnell wieder
+    freigegeben wird. $A$ läuft, bis er den Mutex $M$ freigibt, danach erhält $A$ wieder die
+    vorherige Priorität und $C$ läuft weiter.
+  ],
+  image("img/bsys_36.png"),
+)

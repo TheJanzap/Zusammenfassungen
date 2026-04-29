@@ -1,5 +1,4 @@
 #import "../template_zusammenf.typ": *
-#import "@preview/wrap-it:0.1.1": wrap-content
 
 /* #show: project.with(
   authors: ("Nina Grässli", "Jannis Tschan"),
@@ -21,14 +20,16 @@ _128 definierte Zeichen_ #hinweis[(7 Bit, #hex("00") bis #hex("7F"))].
 
 === Codepages
 Codepages sind _unabhängige Erweiterungen_ auf 8 Bit. Es gibt viele verschiedene,
-jede ist anders. Sie definieren jeweils 128 Zeichen von #hex("80") bis #hex("FF").
-Die Codierung ist _nicht inhärent erkennbar_, Programme müssen wissen, welche Codepage
-verwendet wird, sonst wird der Text unleserlich.
+jede ist anders #hinweis[(z.B. für andere Sprachen)]. Sie definieren jeweils 128 Zeichen
+von #hex("80") bis #hex("FF"). Die Codierung ist _nicht inhärent erkennbar_, Programme
+müssen wissen, welche Codepage verwendet wird, sonst wird der Text unleserlich.
 
 == Unicode
 Unicode hat zum Ziel, einen eindeutigen Code für _jedes vorhandene Zeichen_ zu definieren.
 Hat Platz für 1'112'064 Code-Points #hinweis[(21 bits)], davon 149'813 verwendet.
-#hex("D8 00") bis #hex("DF FF") sind wegen UTF-16 keine gültigen Code-Points.
+Benötigt also maximal 21 Bits, um alle Unicode-Zeichen darzustellen.
+Der Bereich von #hex("D8 00") bis #hex("DF FF") enthält aufgrund von UTF-16 keine
+gültigen Code-Points.
 
 === Verschiedene Encodings
 Man unterscheidet _Code-Points_ #hinweis[(Nummer eines Zeichen - "welches Zeichen")] und
@@ -43,30 +44,31 @@ _$bold(B_i) =$_ $i$-tes Byte des kodierten CPs
 - #link(<utf-16>)[_UTF-16:_] Jede CU umfasst _16 Bit_, ein CP benötigt _1 oder 2 CUs_
 - #link(<utf-8>)[_UTF-8:_] Jede CU umfasst _8 Bit_, ein CP benötigt _1 bis 4 CUs_
 
-#wrap-content(
-  image("img/bsys_43.png"),
-  align: top + right,
+=== UTF-32 <utf-32>
+#grid(
   columns: (50%, 50%),
-)[
-  === UTF-32 <utf-32>
-  Direkte Kopie der Bits in die CU bei Big Endian, bei Little Endian werden $P_0$ bis
-  $P_7$ in $B_3$ kopiert usw. Wird häufig intern in Programmen verwendet.
-  Wegen Limitierung auf 21 Bit werden die oberen 11 Bits oft "zweckentfremdet".
-]
+  [
+    Direkte Kopie der Bits in die CU bei Big Endian, bei Little Endian werden $P_0$ bis
+    $P_7$ in $B_3$ kopiert usw. Wird häufig intern in Programmen verwendet.
+    Wurde aufgrund Memory Alignment auf 32 Bits erweitert, obwohl 24 Bits #hinweis[(3 CUs)]
+    genügen würden #hinweis[(Bessere Performance)]. Obere 11 Bits werden oft "zweckentfremdet".
+  ],
+  image("img/bsys_43.png"),
+)
 
 === UTF-16 <utf-16>
-Encoding muss Endianness berücksichtigen. Die 2 CUs werden Surrogate Pair genannt.\
+Encoding muss Endianness berücksichtigen. Die 2 CUs werden _Surrogate Pair_ genannt.\
 $U_0$: high surrogate, $U_1$: low surrogate.
-- _UTF-16BE:_ Big Endian, CP mit 1 CU: $U_0 = B_1B_0$, #math.space.hair
+- _UTF-16BE:_ Big Endian, CP mit 1 CU: $U_0 = B_1B_0$, #math.space.quad
   CP mit 2 CUs: $U_1U_0 = B_3B_2B_1B_0$
-- _UTF-16LE:_ Little Endian, CP mit 1 CU: $U_0 = B_0B_1$, #math.space.hair
+- _UTF-16LE:_ Little Endian, CP mit 1 CU: $U_0 = B_0B_1$, #math.space.quarter
   CP mit 2 CUs: $U_1U_0 = B_2B_3B_0B_1$
 
 Bei _2 Bytes_ #hinweis[(1 CU)] wird direkt gemappt und vorne mit Nullen aufgefüllt.
 
-Bei _4 Bytes_, wenn CP in #hex("10000") bis #hex("10FFFF") sind
+Bei _4 Bytes_, wenn CP in #hex("10000") bis #hex("10FFFF") sind, ist der Bereich von
 #hex("D800") bis #hex("DFFF") #hinweis[(Bits 17-21)] wegen dem Separator _ungültig_ und
-müssen "umgerechnet" werden:
+muss "umgerechnet" werden:
 - $Q = P - #hex("10000")$, also ist $Q$ in #hex("0") bis #hex("FFFFF")
 - $U_1 = bits("1101 10xx xxx") + hex("D800"), quad
     U_0 = bits("1101 11xx xxxx xxxx") + hex("DC00")$
@@ -75,8 +77,7 @@ müssen "umgerechnet" werden:
 
 ==== Beispiel
 Encoding von U+10'437 (\u{10437})
-#hinweis[#fxcolor("grün", bits("00 0100 0001", suffix: false))
-  #fxcolor("gelb", bits("00 0011 0111"))]:
+#hinweis[#fxcolor("grün", bits("00 0100 0001", suffix: false)) #fxcolor("gelb", bits("00 0011 0111"))]:
 
 + Code-Point $P$ minus #hex("10000") rechnen und in Binär umwandeln\
   $P = hex("10437"), quad Q = hex("10437") - hex("10000") = hex("0437")
@@ -87,10 +88,14 @@ Encoding von U+10'437 (\u{10437})
   $U_1 = fxcolor("grün", hex("0001")) + hex("D800") = fxcolor("orange", hex("D801")), quad
     U_2 = fxcolor("gelb", hex("0137")) + hex("DC00") = fxcolor("hellblau", hex("DD37"))$\
 + Zu BE/LE zusammensetzen\
-  $"BE" = underline(fxcolor("orange", #hex("D801", suffix: false)) thin
-  fxcolor("hellblau", hex("DD37"))), quad
-    "LE" = underline(fxcolor("orange", #hex("01D8", suffix: false)) thin
-  fxcolor("hellblau", hex("37DD")))$
+  $"BE" = underline(
+    fxcolor("orange", #hex("D801", suffix: false)) thin
+    fxcolor("hellblau", hex("DD37"))
+  ), quad
+  "LE" = underline(
+    fxcolor("orange", #hex("01D8", suffix: false)) thin
+    fxcolor("hellblau", hex("37DD"))
+  )$
 
 #pagebreak()
 
@@ -122,14 +127,14 @@ In den CUs haben die Bytes #hex("0") - #hex("7F") #hinweis[(7 signifikante Bits)
 #image("img/bsys_44.png")
 
 ==== Beispiele
-- _ä_: $P = hex("E4") = fxcolor("grün", #bits("00011", suffix: false)) thin
-    fxcolor("gelb", bits("10 0110"))$\
+- _\u{E4}_: $P = hex("E4") = fxcolor("grün", #bits("00011", suffix: false)) thin
+  fxcolor("gelb", bits("10 0110"))$\
   $=> P_10 ... P_6 = fxcolor("grün", bits("00011")) = fxcolor("rot", hex("03")), quad
     P_5 ... P_0 = fxcolor("gelb", bits("100100")) = fxcolor("orange", hex("24"))$\
   $=> U_1 = hex("C0") (= bits("11000000")) + fxcolor("rot", hex("03")) = hex("C3"), quad
     U_0 = hex("80") (= bits("10000000")) + fxcolor("orange", hex("24")) = hex("A4")$\
   $=> ä = underline(hex("C3 A4"))$
-- _ặ_: $P = hex("1EB7") = fxcolor("grün", #bits("0001", suffix: false)) thin
+- _\u{1EB7}_: $P = hex("1EB7") = fxcolor("grün", #bits("0001", suffix: false)) thin
     fxcolor("gelb", #bits("111010", suffix: false)) thin fxcolor("hellblau", bits("110111"))$\
   $=> P_15 ... P_12 = fxcolor("grün", hex("01")), quad
     P_11 ... P_6 = fxcolor("gelb", hex("3A")), quad
@@ -144,8 +149,8 @@ In den CUs haben die Bytes #hex("0") - #hex("7F") #hinweis[(7 signifikante Bits)
   align: (_, y) => if (y == 0) { left } else { right },
   columns: (auto,) + (1fr,) * 6,
   table.header([Zeichen], [Code-Point], [UTF-32BE], [UTF-32LE], [UTF-8], [UTF-16BE], [UTF-16LE]),
-  [A], [#hex("41")], [#hex("00 00 00 41")], [#hex("41 00 00 00")], [#hex("41")], [#hex("00 41")], [#hex("41 00")],
-  [ä], [#hex("E4")], [#hex("00 00 00 E4")], [#hex("E4 00 00 00")], [#hex("C3 A4")], [#hex("00 E4")], [#hex("E4 00")],
+  [\u{41}], [#hex("41")], [#hex("00 00 00 41")], [#hex("41 00 00 00")], [#hex("41")], [#hex("00 41")], [#hex("41 00")],
+  [\u{E4}], [#hex("E4")], [#hex("00 00 00 E4")], [#hex("E4 00 00 00")], [#hex("C3 A4")], [#hex("00 E4")], [#hex("E4 00")],
   [\u{3B1}], [#hex("3 B1")], [#hex("00 00 03 B1")], [#hex("B1 03 00 00")], [#hex("CE B1")], [#hex("03 B1")], [#hex("B1 03")],
   [\u{1EB7}], [#hex("1E B7")], [#hex("00 00 1E B7")], [#hex("B7 1E 00 00")], [#hex("E1 BA B7")], [#hex("1E B7")], [#hex("B7 1E")],
   [\u{10330}], [#hex("1 03 30")], [#hex("00 01 03 30")], [#hex("30 03 01 00")], [#hex("F0 90 8C B0")], [#hex("D8 00 DF 30")], [#hex("00 D8 30 DF")],
@@ -166,19 +171,19 @@ In den CUs haben die Bytes #hex("0") - #hex("7F") #hinweis[(7 signifikante Bits)
   definiert.
 
 == Block
-#wrap-content(
-  image("img/bsys_41.png"),
-  align: top + right,
+#grid(
   columns: (85%, 15%),
-)[
-  Ein Block besteht aus _mehreren aufeinanderfolgenden Sektoren_ #hinweis[(1 KB, 2 KB oder
-  4 KB (normal))].\ Das gesamte Volume ist in _Blöcke aufgeteilt_ und Speicher wird
-  _nur in Form von Blöcken_ alloziert. Ein Block enthält nur Daten einer _einzigen Datei_.
-  - _Logische Blocknummer:_ Blocknummer vom Anfang der Datei aus gesehen, wenn Datei eine
-    ununterbrochene Abfolge von Blöcken wäre #hinweis[(innerhalb Datei)]
-  - _Physische Blocknummer:_ Tatsächliche Blocknummer auf dem Volume
-    #hinweis[(auf dem Datenträger)]
-]
+  [
+    Ein Block besteht aus _mehreren aufeinanderfolgenden Sektoren_ #hinweis[(1 KB, 2 KB oder
+      4 KB (normal))].\ Das gesamte Volume ist in _Blöcke aufgeteilt_ und Speicher wird
+    _nur in Form von Blöcken_ alloziert. Ein Block enthält nur Daten einer _einzigen Datei_.
+    - _Logische Blocknummer:_ Blocknummer vom Anfang der Datei aus gesehen, wenn Datei eine
+      ununterbrochene Abfolge von Blöcken wäre #hinweis[(innerhalb Datei)]
+    - _Physische Blocknummer:_ Tatsächliche Blocknummer auf dem Volume
+      #hinweis[(auf dem Datenträger)]
+  ],
+  image("img/bsys_41.png"),
+)
 
 == Inodes
 Achtung: `!=` Index Node. Beschreibung einer Datei. Enthält _alle Metadaten_ über die Datei,
@@ -188,28 +193,28 @@ Hat eine _fixe Grösse_ je Volume: Zweierpotenz, mind. 128 Byte, max 1 Block.
 
 Der Inode _verweist auf die Blöcke_, die _Daten für eine Datei_ enthalten.
 Enthält ein Array _`i_block`_ mit 15 Einträgen zu je 32 Bit:
-#wrap-content(
-  image("img/bsys_42.png"),
-  align: top + right,
+#grid(
   columns: (55%, 44%),
-)[
-  - 12 Blocknummern für die _ersten 12 Blöcke_ einer Datei
-  - 1 Blocknummer des _indirekten Blocks_, der wiederum bei 1024 Byte Blockgrösse auf 256
-    oder bei 4096 Byte auf 1024 Blöcke verweist.
-  - 1 Blocknummer des _doppelt indirekten Blocks_, welcher Nummern von indirekten Blöcken
-    enthält. Bei Blockgrösse 1024 auf $256 dot 256 = 65536$ Blöcke,
-    bei 4096 auf $1024 dot 1024 = 1upright(M)$ Blöcke
-  - 1 Blocknummer des _dreifach indirekten Blocks_\
-    #hinweis[$256 dot 256 dot 256 = 16upright(M)$ bzw.
-      $1024 dot 1024 dot 1024 = 1upright(G)$]
-]
+  [
+    - 12 Blocknummern für die _ersten 12 Blöcke_ einer Datei
+    - 1 Blocknummer des _indirekten Blocks_, der wiederum bei 1024 Byte Blockgrösse auf 256
+      oder bei 4096 Byte auf 1024 Blöcke verweist.
+    - 1 Blocknummer des _doppelt indirekten Blocks_, welcher Nummern von indirekten Blöcken
+      enthält. Bei Blockgrösse 1024 auf $256 dot 256 = 65536$ Blöcke,
+      bei 4096 auf $1024 dot 1024 = 1"M"$ Blöcke
+    - 1 Blocknummer des _dreifach indirekten Blocks_\
+      #hinweis[$256 dot 256 dot 256 = 16"M"$ bzw.
+        $1024 dot 1024 dot 1024 = 1"G"$]
+  ],
+  image("img/bsys_42.png"),
+)
 Jeder verwendete Block einer Datei hat einen direkten oder indirekten _Verweis_.
 
 === Lokalisierung
 Alle Inodes aller Blockgruppen gelten als _eine grosse Tabelle_.
 Zählung der Inodes startet mit 1.
 - Blockgruppe $= ("Inode" - 1) \/ "Anzahl Inodes pro Gruppe"$
-- Index des Inodes in Blockgruppe $ = ("Inode" - 1) mod "Anzahl Inodes pro Gruppe"$
+- Index des Inodes in Blockgruppe $= ("Inode" - 1) mod "Anzahl Inodes pro Gruppe"$
 - Sektor und Offset können anhand der Daten aus dem Superblock bestimmt werden.
 
 === Erzeugung
@@ -232,17 +237,17 @@ _mehreren aufeinanderfolgenden Blöcken_ bis zu 8 mal der Anzahl Bytes in einem 
 Anzahl Blöcke je Gruppe ist gleich für alle Gruppen.
 
 === Lage der Blockgruppen
-#wrap-content(
-  image("img/bsys_46.png"),
-  align: top + right,
+#grid(
   columns: (40%, 60%),
-)[
-  Die Lage der Blockgruppe 0 ist _abhängig von der Blockgrösse_.
-  Blockgruppe 0 ist definiert als _die Gruppe, deren erster Block den Superblock enthält_.\
-  _Blockgrösse $<=$ 1024:_ Block 0 kommt vor Blockgruppe 0 #sym.arrow Block 1 ist der erste
-  Block und beinhaltet Superblock.\
-  _Blockgrösse > 1024:_ Block 0 in Blockgruppe 0 #sym.arrow Superblock ist in Block 0.
-]
+  [
+    Die Lage der Blockgruppe 0 ist _abhängig von der Blockgrösse_.
+    Blockgruppe 0 ist definiert als _die Gruppe, deren erster Block den Superblock enthält_.\
+    _Blockgrösse $<=$ 1024:_ Block 0 kommt vor Blockgruppe 0 #sym.arrow Block 1 ist der erste
+    Block und beinhaltet Superblock.\
+    _Blockgrösse $>$ 1024:_ Block 0 in Blockgruppe 0 #sym.arrow Superblock ist in Block 0.
+  ],
+  image("img/bsys_46.png"),
+)
 
 === Layout
 - _Block 0:_ Kopie des Superblocks
@@ -281,7 +286,7 @@ Wiederherstellungsgrad_ möglich, obwohl deutlich weniger Platz verwendet wird.
 
 ==== Gruppendeskriptortabelle
 Eine _Tabelle mit $bold(n)$ Gruppendeskriptoren_ für alle $n$ Blockgruppen im Volume.
-Benötigt selbst $32 dot n$ Anzahl Bytes; Anzahl Sektoren $= (32 dot n) \/"Sektorgrösse"$.
+Benötigt selbst $32 dot n$ Anzahl Bytes; $"Anzahl Sektoren" = (32 dot n) \/"Sektorgrösse"$.
 Folgt _direkt_ auf Superblock. Kopie der Tabelle direkt nach jeder Kopie des Superblocks.
 
 == Verzeichnisse
@@ -302,7 +307,7 @@ Ein _Dateieintrag_ hat eine variable Länge von 8 - 263 Bytes:
 == Links
 - _Hard-Link:_ gleicher Inode, verschiedene Pfade
   #hinweis[(Inode wird von verschiedenen Dateieinträgen referenziert)]
-- _Symbolischer Link:_ Wie eine Datei, Datei enthält Pfad anderer Datei.\
+- _Symbolischer Link:_ Wie eine Datei, Datei enthält Pfad anderer Datei
   #hinweis[(Pfad $<$ 60 Zeichen: Wird in Blockreferenzen-Array gespeichert,
     Pfad $>=$ 60: Pfad wird in eigenem Block gespeichert)]
 

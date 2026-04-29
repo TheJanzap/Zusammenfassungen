@@ -1,5 +1,4 @@
 #import "../template_zusammenf.typ": *
-#import "@preview/wrap-it:0.1.1": wrap-content
 
 /* #show: project.with(
   authors: ("Nina Grässli", "Jannis Tschan"),
@@ -59,7 +58,7 @@ auseinandersetzen.
 
 === Wechsel des Privilege Levels vom User zum Kernel Mode
 Die `syscall` Instruktion auf Intel x86 Prozessoren veranlasst den Prozessor, in den
-_Kernel Mode zu schalten_ und den IP auf OS-Code (System Call Handler) umzusetzen.
+_Kernel Mode zu schalten_ und den Instruction Pointer auf OS-Code (System Call Handler) umzusetzen.
 Dadurch ist gewährleistet, dass im Kernel Mode immer Kernel-Code läuft.
 
 === Zusammenspiel von Applikation und Kernel Code
@@ -74,11 +73,7 @@ in einem Register.
 === ABI vs. API
 #table(
   columns: (1fr, 1fr),
-  table.header(
-    [Application Binary Interface - ABI],
-    [Application Programming Interface - API],
-  ),
-
+  table.header([Application Binary Interface - ABI], [Application Programming Interface - API]),
   [
     - Abstrakte Schnittstellen
     - Plattformunabhängige Aspekte
@@ -102,7 +97,7 @@ POSIX standardisiert. macOS und Linux sind POSIX-konform, Windows nicht.
 ==== Man Pages
 Man pages #hinweis[(manual pages)] enthalten Dokumentation für die Programme auf einem
 POSIX-System. Liefert viele Informationen über ein POSIX-System.
-Ist in 9 Kapitel aufgeteilt, z.b. Kapitel 3 für Libraries.
+Ist in 9 Kapitel aufgeteilt, z.B. Kapitel 3 für Libraries.
 
 ==== Shell
 Programm, das es erlaubt, über Texteingabe Betriebssystemfunktionen aufzurufen.
@@ -110,15 +105,15 @@ Gibt viele verschiedene Shells mit unterschiedlichem Syntax.
 Benötigt keine besonderen Rechte oder spezielle Vorkehrungen.
 Benötigt nur Ausgabe- und Eingabe-Stream.
 
-#wrap-content(
-  image("img/bsys_1.png"),
-  align: bottom + right,
+== Programmargumente
+#grid(
   columns: (70%, 30%),
-)[
-  == Programmargumente
-  Wird ein Programm gestartet, kann es Programmargumente erhalten.\
-  _Beispiel:_ ```sh clang -c abc.c -o abc.o```
-]
+  [
+    Wird ein Programm gestartet, kann es Programmargumente erhalten.\
+    _Beispiel:_ ```sh clang -c abc.c -o abc.o```
+  ],
+  image("img/bsys_1.png"),
+)
 
 === Programmargumente aus der Shell
 Shell teilt Programmargumente in _Strings_ auf.
@@ -126,45 +121,46 @@ Fast alle Shells verwenden _Leerzeichen als Trennung_ zwischen Programmargumente
 Viele Shells erlauben Spaces in Programmargumenten durch die Verwendung von _Quotes_.
 Das OS interessiert sich _nicht_ für den _Inhalt_ der Argumente.
 
-#wrap-content(
+=== Calling Convention
+#grid(
+  columns: (60%, 40%),
+  [
+    Beim Start schreibt das OS die Programmargumente als _null-terminierte Strings_ in den
+    Speicherbereich des Programms. Zusätzlich legt das OS ein _Array_ `argv` an, dessen
+    Elemente jeweils auf das _erste Zeichen eines Programmarguments_ zeigen.
+    Der Pointer auf dieses Array und die Anzahl der Elemente `argc` wird dem Programm an
+    _einer vom OS definierten Stelle_ zur Verfügung gestellt, z.B. in Registern oder
+    auf dem Stack. Die Art und Weise wie/wo dies gehandhabt wird, ist die Calling Convention.
+  ],
   image("img/bsys_2.png"),
-  align: top + right,
-  columns: (59%, 41%),
-)[
-  === Calling Convention
-  Beim Start schreibt das OS die Programmargumente als _null-terminierte Strings_ in den
-  Speicherbereich des Programms. Zusätzlich legt das OS ein _Array_ `argv` an, dessen
-  Elemente jeweils auf das _erste Zeichen eines Programmarguments_ zeigen.
-  Der Pointer auf dieses Array und die Anzahl der Elemente `argc` wird dem Programm an
-  _einer vom OS definierten Stelle_ zur Verfügung gestellt, z.B. in Registern oder
-  auf dem Stack. Die Art und Weise wie/wo dies gehandhabt wird, ist die Calling Convention.
-]
+)
 
 === Programmargumente in C
 In C wird dieser Umstand durch die beiden Parameter der Funktion ```c main()``` ausgedrückt.
-```c int argc``` enthält die Anzahl der Programmargumente + 1.
-```c char **argv``` enthält den Pointer auf das Array.
+- ```c int argc``` enthält die Anzahl der Programmargumente + 1.
+- ```c char **argv``` enthält den Pointer auf das Array.
 _Achtung:_ `argv[0]` ist der Programmname, die Argumente selbst folgen als
 `argv[1]` bis `argv[argc - 1]`
 
 ```c int main(int argc, char ** argv) { ... }```
 
-#wrap-content(
-  image("img/bsys_4.png"),
-  align: bottom + right,
+== Umgebungsvariablen
+#grid(
   columns: (64%, 36%),
-)[
-  == Umgebungsvariablen
-  Die Umgebungsvariablen eines Programms sind eine Menge an Strings, die jeweils
-  mindestens ein `=` enthalten, z.B.:
+  [
+    Die Umgebungsvariablen eines Programms sind eine Menge an Strings, die jeweils
+    mindestens ein `=` enthalten, z.B.:
 
-  ```sh
-  OPTER=1
-  OPTIND=1
-  OSTYPE=linux-gnu
-  PATH=/home/ost/bin:/home/ost/.local/bin
-  ```
-]
+    ```sh
+    OPTER=1
+    OPTIND=1
+    OSTYPE=linux-gnu
+    PATH=/home/ost/bin:/home/ost/.local/bin
+    ```
+  ],
+  image("img/bsys_4.png"),
+)
+
 - Der Teilstring vor dem `=` wird als _Key_, der nach dem `=` als _Value_ bezeichnet
 - Jeden Key kann es _höchstens einmal_ geben
 
@@ -185,7 +181,7 @@ char *value = getenv("PATH");
 // value = "/home/ost/bin:/home/ost/.local/bin"
 ```
 
-==== Setzen einer Umgebungsvariable:\ ```c int setenv (const char *key, const char *value, int overwrite)```
+==== Setzen einer Umgebungsvariable: ```c int setenv (const char *key, const char *value, int overwrite)```
 Wenn `key` schon in einer Umgebungsvariable `v` enthalten ist _und_ `overwrite != 0`:
 überschreibt den Wert von `v` mit `value`. Wenn `key` noch nicht in einer
 Umgebungsvariable enthalten ist: fügt eine neue Umgebungsvariable hinzu und kopiert `key`

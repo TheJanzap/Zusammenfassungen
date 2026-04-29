@@ -1,5 +1,4 @@
 #import "../template_zusammenf.typ": *
-#import "@preview/wrap-it:0.1.1": wrap-content
 
 /* #show: project.with(
   authors: ("Nina Grässli", "Jannis Tschan"),
@@ -11,7 +10,7 @@
 ) */
 
 = Meltdown
-Meltdown ist eine _HW-Sicherheitslücke_, mit der der _gesamte physische Hauptspeicher
+Meltdown ist eine _Hardware-Sicherheitslücke_, mit der der _gesamte physische Hauptspeicher
 ausgelesen_ werden kann. Insbesondere kann damit ein Prozess alle geheimen Informationen
 _anderer_ Prozesse lesen.
 
@@ -20,7 +19,7 @@ Folgende _Eigenschaften_ müssen für diese Sicherheitslücke gegeben sein:
 Der Prozessor muss dazu gebracht werden können:
 + aus dem _geschützten Speicher_ an Adresse $a$ das Byte $m_a$ zu _lesen_
 + die Information $m_a$ in irgendeiner Form $f_a$ _zwischenzuspeichern_
-+ _binäre Fragen_ der Form "$f_a eq.quest i$" zu beantworten
++ _binäre Fragen_ der Form "$f_a eq.quest i$" zu beantworten #hinweis([(Liegt $f_a$ an Index $i$?)])
 + Von $i = 0$ bis $i = 255$ _iterieren_: $f_a eq.quest i$
 + Über alle $a$ _iterieren_
 
