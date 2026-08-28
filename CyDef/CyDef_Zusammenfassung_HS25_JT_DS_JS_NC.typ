@@ -1108,7 +1108,7 @@ credential portion and then be stuck with a 2FA challenge it can't solve. But if
 #hinweis[(credential + 2FA)] to the real server.\
 If, however, the 2FA is integrated within the same secure login channel #hinweis[(i.e. the second factor is part of the
   credential negotiation in the TLS/CredSSP exchange)], then it becomes harder for a MitM to intercept or fake the 2FA
-step without being noticed or failing to pass the verification because the second factor is also encrypted.0
+step without being noticed or failing to pass the verification because the second factor is also encrypted.
 
 === Malware-based Man-in-the-Middle
 A malware installed into the client has various methods to create MitM-attacks:
@@ -3150,7 +3150,7 @@ DCSync is a late-stage attack to obtain arbitrary user- and machine-credentials 
 Relies on data replication features between _multiple domain controllers_ using _Microsoft Directory Replication Server
 Remote Protocol (MS-DRSR)_. The attack consists of _simulating a domain controller_, which then asks another domain
 controller to replicate one or more objects with credentials. Requires specific privileges to execute: By default,
-only user in the "Domain Admin" and "Domain Controller" groups are able to perform syncs.
+only users in the "Domain Admin" and "Domain Controller" groups are able to perform syncs.
 
 Mimikatz can perform a DCSync attack with a user that has the "Replicate Directory changes" permission on the DC.
 ```sh
