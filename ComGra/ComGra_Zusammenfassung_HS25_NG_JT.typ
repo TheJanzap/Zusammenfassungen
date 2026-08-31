@@ -143,7 +143,7 @@ Wenn der Fixpunkt im _Ursprung_ liegt, gilt:
     Positive Werte für $beta$ bewirken eine _Rotation gegen_ #hinweis[(Koordinatensystem)] bzw. _mit dem Uhrzeigersinn_
     #hinweis[(Bildschirm)].
   ],
-  image("img/2drotation.png"),
+  image("img/2d_rotation.png"),
 )
 #hinweis[Siehe Bild in @koord-sys-wechsel für $cos$ / $sin$ Werte.]
 
@@ -265,7 +265,7 @@ $"Sch"_x = 2$, da $y$ $2$-mal grösser ist als $x$. Kann auch aus direkt aus Bil
     Dafür werden für eine Menge von Linien jeweils _neue Anfangs- und Endpunkte_ bestimmt, welche innerhalb
     des Clip-Fensters liegen.
   ],
-  image("img/clipping1.png"),
+  image("img/clipping_2d.png"),
 )
 
 == Cohen-Sutherland Algorithmus <cohen-sutherland>
@@ -1245,7 +1245,7 @@ durch $n$-Ecke angenähert, wobei mit $n$ die Qualität der Approximation steigt
     $P_3: (x_3, y_3, z_3)$, $F_3: p_1, p_2, p_3$,
     $P_4: (x_4, y_4, z_4)$, $F_4: p_4, p_2, p_3$,
   ),
-  image("img/tetraeder_v2.png"),
+  image("img/tetraeder.png"),
 )
 #v(-0.5em)
 
