@@ -2,16 +2,6 @@
 #import "@preview/cetz:0.5.2": angle, canvas, draw
 #import "@preview/cetz-plot:0.1.4": plot
 
-// Icon for the "Construct" button on the TI n-spire
-#let tr-constructs-button = box(
-  stroke: 0.1em,
-  inset: (x: 0.2em),
-  outset: (y: 0.25em, bottom: 0.55em),
-  radius: 0.25em,
-  baseline: -0.2em,
-  $script(abs(ballot) cases(ballot, ballot))$,
-)
-
 #let label(pos, anchor, body) = draw.content(pos, anchor: anchor, padding: 0.2, body)
 
 // Creates a unit plot
@@ -20,11 +10,16 @@
   let text-size = 0.8em
 
   set-style(stroke: (paint: gray, thickness: 0.05em))
+
+  // Draw x axis
   line((-1.5, 0), (1.5, 0), mark: (end: ">"))
   content((), padding: 0.1em, text(size: text-size)[$x$], anchor: "west")
 
+  // Draw y axis
   line((0, -1.5), (0, 1.5), mark: (end: ">"))
   content((), padding: 0.1em, text(size: text-size)[$y$], anchor: "south")
+
+  // Draw origin
   content((-0.05, -0.05), text(size: 0.8em)[0], anchor: "north-east")
 
   // Axis markings
@@ -35,7 +30,7 @@
 }
 
 #let trigo() = {
-  canvas(length: 2.3em, {
+  canvas(length: 2.5em, {
     import draw: *
     set-style(stroke: (thickness: 0.1em))
 
@@ -49,8 +44,10 @@
     label("Hypothenuse", "south", $h$)
 
     set-style(stroke: (paint: black))
-    angle.angle("Ankathete.start", "Ankathete.end", "Hypothenuse.end", radius: 50%, label: $alpha$)
 
+    // Angle alpha
+    angle.angle("Ankathete.start", "Ankathete.end", "Hypothenuse.end", radius: 50%, label: $alpha$)
+    // Right angle
     angle.angle("Gegenkathete.start", "Gegenkathete.end", "Ankathete.start", label: $dot$)
   })
 }
@@ -61,32 +58,36 @@
 
     set-style(stroke: (thickness: 0.1em))
 
-    // Interpolate a line between the start and end
+    // Get a point on a line between 'start' and 'end'. 't' sets how far along the point is.
     let lerp(start, end, t) = (
       start.at(0) * (1 - t) + end.at(0) * t,
       start.at(1) * (1 - t) + end.at(1) * t,
     )
 
     let S = (0, 0)
+    // Line end points to set the angle
     let r1 = (5, 2)
     let r2 = (5, -1)
+    // Percentage of how far on the line the point sits
     let p = 0.4
-    let q = 0.75
+    let q = 0.8
+    // Set original and new points
     let Ap = lerp(S, r1, p)
     let A = lerp(S, r1, q)
     let Bp = lerp(S, r2, p)
     let B = lerp(S, r2, q)
 
-    // Lines
+    // Draw Lines
     line(S, A)
     line(S, B)
     line(lerp(S, r1, p), lerp(S, r2, p))
     line(lerp(S, r1, q), lerp(S, r2, q))
 
-    // Points
+    // Draw Points
     fill(black)
     for pt in (S, A, Ap, B, Bp) { circle(pt, radius: 0.05) }
 
+    // Draw labels
     label(S, "east", $S$)
     label(A, "south", $A$)
     label(Ap, "south", $A'$)
@@ -95,172 +96,92 @@
   })
 }
 
-#let angle-position-auf-kreis = 30deg
-#let cos-angle = calc.cos(angle-position-auf-kreis)
-#let sin-angle = calc.sin(angle-position-auf-kreis)
-#let angle-str = calc.round(angle-position-auf-kreis.deg())
-#let length-position-auf-kreis = 4.6em
-#let text-size-position-auf-kreis = 1.2em
-
-#let position-auf-kreis-sin-cos() = {
-  canvas(length: length-position-auf-kreis, {
+#let position-auf-kreis-sin-cos(angle, cos-angle, sin-angle, angle-str, length, text-size) = {
+  canvas(length: length, {
     import draw: *
-
-    let angle = angle-position-auf-kreis
-    let text-size = text-size-position-auf-kreis
 
     set-style(stroke: (thickness: 0.15em), mark: (length: 0.7em, width: 0.4em))
     unit-plot()
 
     circle((0, 0), radius: 1)
 
-    arc((0, 1), start: 90deg, stop: 90deg - angle, stroke: (paint: colors.dunkelblau, thickness: 0.1em))
-    circle((sin-angle, cos-angle), radius: 0.05, fill: colors.hellblau, stroke: white + 0.1em, name: "1")
+    // Styling of the lines and point on the circle
+    let west-line = (thickness: 0.1em, paint: colors.orange)
+    let east-line = (thickness: 0.1em, paint: colors.dunkelblau)
+    let west-point = (radius: 0.05, stroke: white + 0.1em, fill: colors.gelb)
+    let east-point = (radius: 0.05, stroke: white + 0.1em, fill: colors.hellblau)
+
+    // +sin, +cos
+    arc((0, 1), start: 90deg, stop: 90deg - angle, stroke: east-line)
+    circle((sin-angle, cos-angle), name: "1", ..east-point)
     label("1", "west", text(size: text-size, $vec(+sin(#angle-str°), +cos(#angle-str°))$))
 
-    arc((0, 1), start: 90deg, stop: 90deg + angle, stroke: (paint: colors.orange, thickness: 0.1em))
-    circle((-sin-angle, cos-angle), radius: 0.05, fill: colors.gelb, stroke: white + 0.1em, name: "2")
+    // -sin, +cos
+    arc((0, 1), start: 90deg, stop: 90deg + angle, stroke: west-line)
+    circle((-sin-angle, cos-angle), name: "2", ..west-point)
     label("2", "east", text(size: text-size, $vec(-sin(#angle-str°), +cos(#angle-str°))$))
 
-    arc((0, -1), start: 270deg, stop: 270deg - angle, stroke: (paint: colors.orange, thickness: 0.1em))
-    circle((-sin-angle, -cos-angle), radius: 0.05, fill: colors.gelb, stroke: white + 0.1em, name: "3")
+    // -sin, -cos
+    arc((0, -1), start: 270deg, stop: 270deg - angle, stroke: west-line)
+    circle((-sin-angle, -cos-angle), name: "3", ..west-point)
     label("3", "east", text(size: text-size, $vec(-sin(#angle-str°), -cos(#angle-str°))$))
 
-    arc((0, -1), start: 270deg, stop: 270deg + angle, stroke: (paint: colors.dunkelblau, thickness: 0.1em))
-    circle((sin-angle, -cos-angle), radius: 0.05, fill: colors.hellblau, stroke: white + 0.1em, name: "4")
+    // +sin, -cos
+    arc((0, -1), start: 270deg, stop: 270deg + angle, stroke: east-line)
+    circle((sin-angle, -cos-angle), name: "4", ..east-point)
     label("4", "west", text(size: text-size, $vec(+sin(#angle-str°), -cos(#angle-str°))$))
   })
 }
 
 
-#let position-auf-kreis-cos-sin() = {
-  canvas(length: length-position-auf-kreis, {
+#let position-auf-kreis-cos-sin(angle, cos-angle, sin-angle, angle-str, length, text-size) = {
+  canvas(length: length, {
     import draw: *
-
-    let angle = angle-position-auf-kreis
-    let text-size = text-size-position-auf-kreis
 
     set-style(stroke: (thickness: 0.15em), mark: (length: 0.7em, width: 0.4em))
     unit-plot()
 
     circle((0, 0), radius: 1)
 
-    arc((1, 0), start: 0deg, stop: angle, stroke: (paint: colors.dunkelblau, thickness: 0.1em))
-    circle((cos-angle, sin-angle), radius: 0.05, fill: colors.hellblau, stroke: white + 0.1em, name: "1")
+    // Styling of the lines and point on the circle
+    let north-line = (thickness: 0.1em, paint: colors.dunkelblau)
+    let south-line = (thickness: 0.1em, paint: colors.orange)
+    let north-point = (radius: 0.05, stroke: white + 0.1em, fill: colors.hellblau)
+    let south-point = (radius: 0.05, stroke: white + 0.1em, fill: colors.gelb)
+
+    // +cos, +sin
+    arc((1, 0), start: 0deg, stop: angle, stroke: north-line)
+    circle((cos-angle, sin-angle), name: "1", ..north-point)
     label("1", "south", text(size: text-size, $vec(+cos(#angle-str°), +sin(#angle-str°))$))
 
-    arc((-1, 0), start: 180deg, stop: 180deg - angle, stroke: (paint: colors.dunkelblau, thickness: 0.1em))
-    circle((-cos-angle, sin-angle), radius: 0.05, fill: colors.hellblau, stroke: white + 0.1em, name: "2")
+    // -cos, +sin
+    arc((-1, 0), start: 180deg, stop: 180deg - angle, stroke: north-line)
+    circle((-cos-angle, sin-angle), name: "2", ..north-point)
     label("2", "south", text(size: text-size, $vec(-cos(#angle-str°), +sin(#angle-str°))$))
 
-    arc((-1, 0), start: 180deg, stop: 180deg + angle, stroke: (paint: colors.orange, thickness: 0.1em))
-    circle((-cos-angle, -sin-angle), radius: 0.05, fill: colors.gelb, stroke: white + 0.1em, name: "3")
+    // -cos, -sin
+    arc((-1, 0), start: 180deg, stop: 180deg + angle, stroke: south-line)
+    circle((-cos-angle, -sin-angle), name: "3", ..south-point)
     label("3", "north", text(size: text-size, $vec(-cos(#angle-str°), -sin(#angle-str°))$))
 
-    arc((1, 0), start: 360deg, stop: 360deg - angle, stroke: (paint: colors.orange, thickness: 0.1em))
-    circle((cos-angle, -sin-angle), radius: 0.05, fill: colors.gelb, stroke: white + 0.1em, name: "4")
+    // +cos, -sin
+    arc((1, 0), start: 360deg, stop: 360deg - angle, stroke: south-line)
+    circle((cos-angle, -sin-angle), name: "4", ..south-point)
     label("4", "north", text(size: text-size, $vec(+cos(#angle-str°), -sin(#angle-str°))$))
   })
 }
 
-
-
-/*#let position-auf-kreis-point(name, position, arc-center, start, stop, color, anchor, label-text) = {
-  draw.arc(
-    arc-center,
-    start: start,
-    stop: stop,
-    stroke: (paint: color, thickness: 0.1em),
+#let position-auf-kreis(angle) = {
+  let cos-angle = calc.cos(angle)
+  let sin-angle = calc.sin(angle)
+  let angle-str = calc.round(angle.deg())
+  let length = 4.6em
+  let text-size = 1.2em
+  (
+    position-auf-kreis-cos-sin(angle, cos-angle, sin-angle, angle-str, length, text-size),
+    position-auf-kreis-sin-cos(angle, cos-angle, sin-angle, angle-str, length, text-size),
   )
-  draw.circle(
-    position,
-    radius: 0.05,
-    fill: if color == colors.dunkelblau { colors.hellblau } else { colors.gelb },
-    stroke: white + 0.1em,
-    name: name,
-  )
-  label(name, anchor, text(size: text-size-position-auf-kreis, label-text))
 }
-
-#let position-auf-kreis-cos-sin() = {
-  canvas(length: length-position-auf-kreis, {
-    import draw: *
-
-    let angle = angle-position-auf-kreis
-
-    set-style(
-      stroke: (thickness: 0.15em),
-      mark: (length: 0.7em, width: 0.4em),
-    )
-
-    unit-plot()
-    circle((0, 0), radius: 1)
-
-    position-auf-kreis-point(
-      "1", (cos-angle,  sin-angle), (1, 0),   0deg,       angle,
-      colors.dunkelblau, "south",
-      $vec(+cos(#angle-str°), +sin(#angle-str°))$,
-    )
-
-    position-auf-kreis-point(
-      "2", (-cos-angle,  sin-angle), (-1, 0), 180deg, 180deg-angle,
-      colors.dunkelblau, "south",
-      $vec(-cos(#angle-str°), +sin(#angle-str°))$,
-    )
-
-    position-auf-kreis-point(
-      "3", (-cos-angle, -sin-angle), (-1, 0), 180deg, 180deg+angle,
-      colors.orange, "north",
-      $vec(-cos(#angle-str°), -sin(#angle-str°))$,
-    )
-
-    position-auf-kreis-point(
-      "4", (cos-angle, -sin-angle), ( 1, 0), 360deg, 360deg-angle,
-      colors.orange, "north",
-      $vec(+cos(#angle-str°), -sin(#angle-str°))$,
-    )
-  })
-}
-
-#let position-auf-kreis-sin-cos() = {
-  canvas(length: length-position-auf-kreis, {
-    import draw: *
-
-    let angle = angle-position-auf-kreis
-
-    set-style(
-      stroke: (thickness: 0.15em),
-      mark: (length: 0.7em, width: 0.4em),
-    )
-
-    unit-plot()
-    circle((0, 0), radius: 1)
-
-    position-auf-kreis-point(
-      "1", (sin-angle,  cos-angle), (0, 1),   0deg,       angle,
-      colors.dunkelblau, "south",
-      $vec(+cos(#angle-str°), +sin(#angle-str°))$,
-    )
-
-    position-auf-kreis-point(
-      "2", (-sin-angle,  cos-angle), (-1, 0), 180deg, 180deg-angle,
-      colors.dunkelblau, "south",
-      $vec(-cos(#angle-str°), +sin(#angle-str°))$,
-    )
-
-    position-auf-kreis-point(
-      "3", (-sin-angle, -cos-angle), (-1, 0), 180deg, 180deg+angle,
-      colors.orange, "north",
-      $vec(-cos(#angle-str°), -sin(#angle-str°))$,
-    )
-
-    position-auf-kreis-point(
-      "4", (sin-angle, -cos-angle), ( 1, 0), 360deg, 360deg-angle,
-      colors.orange, "north",
-      $vec(+cos(#angle-str°), -sin(#angle-str°))$,
-    )
-  })
-}*/
 
 #let bewegung-auf-kreis() = {
   canvas(length: 5.5em, {
@@ -269,16 +190,16 @@
     set-style(stroke: (thickness: 0.2em), mark: (length: 0.8em, width: 0.5em))
     unit-plot()
 
-    // --- Unterer Halbkreis: t = π … 2π ---
+    // Lower semi-circle: t = pi ... 2pi
     arc(
       (1, 0),
       start: 0deg,
       stop: -180deg,
       radius: 1,
-      stroke: (paint: colors.hellblau, thickness: 0.1em, dash: "dashed"),
+      stroke: (paint: gray, thickness: 0.1em, dash: "dashed"),
     )
 
-    // --- Oberer Halbkreis: t = 0 … π (durchgezogen, blau) ---
+    // Upper semi-circle: t = 0 ... pi
     arc(
       (1, 0),
       start: 0deg,
@@ -288,7 +209,7 @@
       mark: (end: ">", fill: colors.hellblau),
     )
 
-    // --- Verschiebungsvektor Δr ---
+    // Verschiebungsvektor Delta r
     line(
       (1, 0),
       (-1 + 0.05, 0),
@@ -301,7 +222,7 @@
       anchor: "south",
     )
 
-    // --- Startpunkt t = 0 ---
+    // Origin point
     circle((1, 0), radius: 0.05, fill: colors.dunkelblau, stroke: white + 0.2em)
     content(
       (1 + 0.05, 0.3),
@@ -309,7 +230,7 @@
       anchor: "west",
     )
 
-    // --- Endpunkt t = π ---
+    // End point
     circle((-1, 0), radius: 0.05, fill: colors.rot, stroke: white + 0.2em)
     content(
       (-1 - 0.05, 0.3),
@@ -326,18 +247,22 @@
     unit-plot()
 
     circle((0, 0), radius: 1)
+
+    // Semi-circle
     arc(
       (1, 0),
       start: 0deg,
       stop: 90deg,
       stroke: (paint: colors.hellblau, thickness: 0.2em),
     )
+    // Arrow
     line(
       (0, 1),
       (-0.75, 1),
       stroke: (paint: colors.rot, thickness: 0.2em),
       mark: (end: ">", fill: colors.rot),
     )
+    // Point
     circle((0, 1), radius: 0.08, fill: colors.rot, stroke: white + 0.15em)
   })
 }
@@ -350,22 +275,27 @@
     unit-plot()
 
     circle((0, 0), radius: 1)
+
+    // Vector v
     line(
       (1, 0),
       (1, 1),
       stroke: (paint: colors.dunkelblau, thickness: 0.2em),
       mark: (end: ">", size: 0.25, fill: colors.dunkelblau),
     )
+    label((1, 0.5), "west", text(size: 0.8em, fill: colors.dunkelblau)[$v(t)$])
+
+    // Vector a
     line(
       (1, 0),
       (0, 0),
       stroke: (paint: colors.rot, thickness: 0.2em),
       mark: (end: ">", size: 0.25, fill: colors.rot),
     )
-    circle((1, 0), radius: 0.05, fill: black)
-
-    label((1, 0.5), "west", text(size: 0.8em, fill: colors.dunkelblau)[$v(t)$])
     label((0.5, 0), "south", text(size: 0.8em, fill: colors.rot)[$a(t)$])
+
+    // Point
+    circle((1, 0), radius: 0.05, fill: black)
   })
 }
 
@@ -375,32 +305,40 @@
     let text-size = 0.8em
 
     set-style(stroke: (thickness: 0.1em), mark: (length: 0.7em, width: 0.4em))
+
+    // x axis
     line((-0.5, 0), (3, 0), mark: (end: ">"))
     content((), padding: 0.1em, text(size: text-size)[$x$], anchor: "west")
 
+    // y axis
     line((0, -0.5), (0, 2), mark: (end: ">"))
     content((), padding: 0.1em, text(size: text-size)[$y$], anchor: "south")
+
+    // center
     content((-0.05, -0.05), text(size: 0.8em)[0], anchor: "north-east")
 
+    // y_0
     label((0, 1), "east", text(size: text-size, [$y_0$]))
 
+    // horizontal line
     line((0, 1), (1.5, 1), name: "diag", stroke: (paint: gray, dash: "dashed"))
     label((1, 2), "north", text(size: text-size)[$v_0$])
+
+    // v_0
     line((0, 1), (1, 2), name: "curve", mark: (end: ">"))
     circle((0, 1), radius: 0.05, fill: gray)
 
+    // alpha
     angle.angle("diag.start", "diag.end", "curve.end", label: $alpha$, radius: 50%)
   })
 }
 
-#let waagrechter-wurf(scaling: 1) = {
+#let waagrechter-wurf(h: 2, v_0: 1, y: 1, scaling: 1) = {
   canvas({
     import draw: *
     import calc: pow
 
     let g = -9.81
-    let v_0 = 10
-    let h = 5
 
     set-style(
       stroke: (thickness: 0.1em),
@@ -415,18 +353,17 @@
       y-label: $h$,
       axis-style: "left",
       {
-        plot.add(domain: (0, 10.1), x => 1 / 2 * g * pow(x / v_0, 2) + h)
+        plot.add(domain: (0, y + 0.1), x => 1 / 2 * g * pow(x / v_0, 2) + h)
       },
     )
   })
 }
 
-#let kreiskraft(scaling: 1) = {
+#let kreiskraft(phi, scaling: 1) = {
   canvas(length: 1cm * scaling, {
     import draw: *
 
     let R = 1
-    let phi = 35deg
 
     // Helper point on the circle
     let P = (
