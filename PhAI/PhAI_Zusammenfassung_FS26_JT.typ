@@ -795,20 +795,18 @@ Die Frequenz gibt die Anzahl Drehungen pro Sekunde an.
       + $omega$ ausklammern und Betrag berechnen. $sin^2 + cos^2$ gibt immer 1.
       + In die Gleichung von 4) kann jetzt $abs(dot(r))$ eingesetzt werden. Nach $omega$ auflösen.
     ],
-    [
-      $
-        1) & space hk(r)(t) = R dot vec(cos(omega dot t + phi_0), sin(omega dot t + phi_0)) \
-        2) & space phi = arctan((r_y (0))/(r_x (0))) \
-           & space phi = arctan(0/5) = 0 \
-        3) & space hk(r)(t) = 5"m" dot vec(cos(omega dot t), sin(omega dot t)) \
-        4) & space abs(dot(r)) = abs(hk(v)) = v = 5.0"m"/"s" \
-        5) & space dot(r) = (dif hk(r))/(dif t) = 5"m" vec(-sin(omega dot t) dot omega, cos(omega dot t) dot omega) \
-        6) & space abs(dot(r)) = 5"m" dot omega dot sqrt(sin^2(omega t) + cos^2(omega t)) \
-           & space abs(dot(r)) = 5"m" dot omega dot 1 \
-        7) & space 5"m" dot omega = 5.0"m"/"s" space => space omega = (5.0"m"/"s")/(5"m") = 1/"s" \
-        8) & space hk(r)(t) = underline(5"m" dot vec(cos(t dot 1/"s"), sin (t dot 1/"s")))
-      $
-    ],
+    $
+      1) & space hk(r)(t) = R dot vec(cos(omega dot t + phi_0), sin(omega dot t + phi_0)) \
+      2) & space phi = arctan((r_y (0))/(r_x (0))) \
+        & space phi = arctan(0/5) = 0 \
+      3) & space hk(r)(t) = 5"m" dot vec(cos(omega dot t), sin(omega dot t)) \
+      4) & space abs(dot(r)) = abs(hk(v)) = v = 5.0"m"/"s" \
+      5) & space dot(r) = (dif hk(r))/(dif t) = 5"m" vec(-sin(omega dot t) dot omega, cos(omega dot t) dot omega) \
+      6) & space abs(dot(r)) = 5"m" dot omega dot sqrt(sin^2(omega t) + cos^2(omega t)) \
+        & space abs(dot(r)) = 5"m" dot omega dot 1 \
+      7) & space 5"m" dot omega = 5.0"m"/"s" space => space omega = (5.0"m"/"s")/(5"m") = 1/"s" \
+      8) & space hk(r)(t) = underline(5"m" dot vec(cos(t dot 1/"s"), sin (t dot 1/"s")))
+    $
   )
   #v(-0.5em)
   8. Einsetzen in $hk(r)(t)$. Der Cosinus und Sinus haben in dieser Formel die Einheit Sekunde erhalten.
@@ -891,16 +889,14 @@ auf der Kreisbahn bewegt.
       Die resultierende Formel ist nun gleich der Bahnkurvenformel der gleichförmigen Kreisbewegung:
       $omega = v/r = (2pi)/T$.
     ],
-    [
-      $
-        1) & space dot(phi)(t) = v/r \
-        2) & space phi(t) = phi(0) + integral_0^t v/r dif t \
-           & space phi(t) = phi(0) + v/r dot t \
-        3) & space phi(0) = phi_0 \
-        4) & space hk(r)(t) = r dot vec(cos phi (t), sin phi (t)) \
-           & space hk(r)(t) = underline(r dot vec(cos(phi_0 + v/r dot t), sin(phi_0 + v/r dot t)))
-      $
-    ],
+    $
+      1) & space dot(phi)(t) = v/r \
+      2) & space phi(t) = phi(0) + integral_0^t v/r dif t \
+          & space phi(t) = phi(0) + v/r dot t \
+      3) & space phi(0) = phi_0 \
+      4) & space hk(r)(t) = r dot vec(cos phi (t), sin phi (t)) \
+          & space hk(r)(t) = underline(r dot vec(cos(phi_0 + v/r dot t), sin(phi_0 + v/r dot t)))
+    $
   )
 
   #colbreak()
@@ -1601,14 +1597,12 @@ Beschleunigung $hk(a)$.
       + Unter der Annahme, dass sich $F_"ström"$ während des Wurfs nur unwesentlich verändert, kann die Distanzfunktion
         $r(t)$ aufgestellt werden.
     ],
-    [
-      $
-        1) & space hk(F) = hk(F)_G + hk(F)_"ström" = m dot hk(g) + hk(F)_"ström" \
-        2) & space hk(a) = hk(F)/m = (hk(F)_G + hk(F)_"ström")/m = hk(g) + hk(F)_"ström"/m \
-        3) & space hk(r)(t) = hk(r)_0 + v_0 dot t + 1/2 dot (g + hk(F)_"ström"/m) dot t^2 \
-        4) & space hk(F)_"ström"/(m -> infinity) = 0 quad quad hk(F)_"ström"/(m -> 0) = infinity
-      $
-    ],
+    $
+      1) & space hk(F) = hk(F)_G + hk(F)_"ström" = m dot hk(g) + hk(F)_"ström" \
+      2) & space hk(a) = hk(F)/m = (hk(F)_G + hk(F)_"ström")/m = hk(g) + hk(F)_"ström"/m \
+      3) & space hk(r)(t) = hk(r)_0 + v_0 dot t + 1/2 dot (g + hk(F)_"ström"/m) dot t^2 \
+      4) & space hk(F)_"ström"/(m -> infinity) = 0 quad quad hk(F)_"ström"/(m -> 0) = infinity
+    $
   )
   #v(-0.5em)
 
@@ -2270,8 +2264,8 @@ Die Bahn des Teilchen kann auf zwei Arten beschrieben werden:
     = quad hk(F)^((I))_"äussere" + hk(F)^((B))_"Schein"
   $
 
-Die Scheinkraft hängt von der Masse des beobachteten Teilchens und der auf den Beobachter #hinweis[(nicht das
-  Teilchen!)] wirkendenden Beschleunigung ab.
+Die Scheinkraft hängt von der Masse des beobachteten Teilchens und der auf den Beobachter
+#hinweis[(nicht das Teilchen!)] wirkendenden Beschleunigung ab.
 Beschreibt der Beobachter also mehrere Teilchen, werden alle Teilchen um dieselbe Scheinkraft korrigiert,
 wenn die Teilchen dieselbe Masse haben.
 
